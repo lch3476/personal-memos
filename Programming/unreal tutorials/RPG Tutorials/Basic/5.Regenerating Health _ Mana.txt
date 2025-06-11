@@ -1,0 +1,5 @@
+1.캐릭터 BP에 tick > sequence. sequnce는 1개 이상의 시퀀스를 실행할 수 있게 해줌
+2.sequence 0 > health가 1보다 작은 것이 true(branch)이면 health regen값을 health에 +해서 set.
+3.health > 1 이 true 일 경우 set health to 1
+4.health regen rate 조정을 위해 1번의 branch 검사 전에 delay 노드 추가 및 duration값 변수화하여 조정
+5.mana regen을 위해 위와 같은 것 반복

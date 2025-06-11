@@ -1,0 +1,6 @@
+1.pickup을 위한 actor blueprint 생성 및 상황에 맞게 mesh/particle system 등 추가
+2.collision 추가
+3.actorbeginoverlap > other actor > cast to player character > health가 1보다 크지 않을 경우 > health에 +하여 set
+4.새로운 health 값이 0보다 크면 다시 1로 set
+5.effect를 위해 spawn emitter at location 및 원하는 location 설정
+6.destroy actor

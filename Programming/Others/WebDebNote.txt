@@ -1,0 +1,199 @@
+How Internet works:
+Client(Search Domain name) -> ISP(Internet Service Provider) -> DNS(Domain Name Server, phone book for ip) -> (ip) ISP -> Client
+-every computer has an unique ip address
+
+How Websites work:
+HTML(skeleton) + CSS(style) + JS(functionality)
+
+	HTML
+
+-Don't have more than one h1
+ Do not skip h1 -> h3 x
+
+-<hr/>: horizontal line
+ <br/>: new line
+
+-list:
+ urordered list: <ul><li></li></ul>
+ ordered list  : <ol></ol>
+
+-anchor element:
+ <a href = "http://www.google.com">This is a link</a>
+
+-<tag attribute=value anotherattribute = value>Content</tag>
+ -global attribute: common attributes for all elements
+
+-image elements:
+ <img src="url" alt = "" />
+
+-Computer file path:
+ Absolute File Path: path relative to root of the computer
+ Relative File Path : relatve to the coding file location
+ 
+ Special Characters:
+  ../essay.docx: up a level // double dot
+  ./dog.png // current directory
+
+-HTML Boilerplate:
+ <!DOCTYPE html> // tells a browser the version of HTML
+ <html lang="en"> // start and end of all tags; describe language
+ <head> // includes impt info about the website
+    <meta charset="UTF-8"> // ensure the proper character set display
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> // define how the webside is displayed relative to the screen
+    <title>Document</title> // what displayed in tab bar
+ </head>
+ <body>// where website contents go
+  
+ </body>
+ </html>
+  
+	CSS(Cascading Style Sheet)
+
+-Add:
+ inline: <html style="background: blue"></html> // not recommended; for 1 element
+ internal: <html><head><style>html { background: red; }</style></head></html> // file specific; for 1 page
+ external: <html><head><link rel = "stylesheet" href="./styles.css"/></head></html> // rel=relationship href=location; for website
+
+-Selector:
+ class selector: .red-heading { color : red; }
+ id selector: #main { color: red; }
+ attribute selector: p[draggable] { color: red; } // all p element with draggable attribute ex) <p draggable="true">Drag me</p>
+                        p[draggable="false"] { color: red; }
+ universal selector: * { color: red } // select all
+
+-CSS properties:
+ background-color
+ color
+ 
+ font properties:
+ font-size; 1px; 1pt; 1em=100% of parent; 1rem =100% of root. usually html tag. more consistent. recommended
+ font-weight
+ font-family
+ google font: copy the link tags paste in head. then add the css rules
+
+ text align:
+ right, left, center, start, encl
+
+ -CSS Box Model:
+ border: border, border-top, border-width
+ padding: space b/w element and border
+ margin: space b/w border and the other elements
+ -4 values: cw order
+
+ content division element: <div></div>
+
+-4 categories determining the level of importance of css rules:
+ position: position in css file
+ specificity: element < class < attribute < id
+ type: external < internal < inline
+ importance: keyword; color: green !important;
+ * mind the position
+
+-Combining CSS Selectors:
+ Group: selector, selector { color: red; } // comma // Apply to both selectors
+ Child: selector > selector {} // parent > child // Apply to direct child of left side
+ Descendant: selector selector {} // Apply to a descendant of left side
+ Chaining: selectorselector {} // Apply where all selectors are true // no space // h1#title.big.heading // for specific // for chaining, always start with element(confusing)
+
+ Combining Combiners: selector selectorselector {} // this case, descendant + chainging
+
+-CSS Positioning:
+ Relative: Position relative to deafult position
+ Absolute: relative to nearest positioned ancestor or top left corner of webpage
+ Fixed: position relative to top left corner of browser window
+ Static Positioning: HTML default
+
+ Z-index
+
+-CSS Display:
+ inline: same line until the max width; size default to the content
+ block: take up entire width; with diff line
+ inline-block: half -> can set width height(block feature) and align same line(inline)
+ { display: inline; }
+ span element: div with inline
+
+-CSS Float and Clear:
+ -float: Wrapping text around a particular element
+  -only use float to wrap text; for structure, better tools
+ -clear: clear any responsibilities to wrap around the text
+ -{ float: right; } { clear: left; } { clear: both; }
+
+-Create Responsive Website:
+ how: Media Queries, CSS Grid, CSS Flexbox, External Frameworks e.g. Bootstrap
+
+ Media Queries:
+ @media (min-width: 319px) and (max-width: 480px){
+      body {
+        background-color: lightsalmon;
+      }
+    }
+
+ CSS Grid:
+ display: grid;
+
+	Flexbox
+
+-don't use float for structure; confusing and hard to debug
+ just for floating text
+
+<div class = "container">
+  <div></div>
+  <div></div>
+  <div></div>
+</div>
+
+.container {
+    display: flexbox
+}
+
+-previous display values are ignored, and flex rules are applied
+
+-inline-flex similar to inline-block with flex rules
+
+-flex direction:
+
+ flex-direction: row; // left to right // column? top to bottom
+ main-axis: direction of flex-direction
+ cross-axis: perpendicular to main-axis
+
+ flex-basis: 100px
+ ->flexing based on the main axis
+ -goes onto child not the container
+
+ -do not apply attributes for childs to parents e.g. flex-basis, order
+
+ -order: ; bigger number? -> to the end
+
+ -flex-wrap: nowrap // by default // contents no fitting to the browser size // for parent
+  flex-wrap: wrap // fitting to the browser
+  flex-wrap: wrap
+
+ -justify-content: set the distribution of childs along the main axis
+
+ -align-items: position of the elements; the distribution of childs along the cross axis
+  no effect when flex-wrap: wrap
+
+ -unit vh: viewport height
+
+ -want an element have diff align rule?
+  use align-self: in child
+
+ -align-content: how the content is aligned
+  only when flex-wrap: wrap
+
+ -flex-wrap + flex-direction = flex-flow
+
+-Flex Sizing:
+ content width/height < width/height < flex-basis < min-width/max-width
+ 
+ width/height until the content get smaller than width
+ flex-basis? ignore width/height
+ max-width? flex basis can be ignored -> how much element size can grow
+
+ flex-grow: 0; // can't grow
+ flex-shrink: 1; // can shrink
+ //default
+
+ flex-basis: auto; // default -> more contents -> more basis
+ flex-basis: 0 // equal
+ flex: 1 1 0; // grow shrink basis

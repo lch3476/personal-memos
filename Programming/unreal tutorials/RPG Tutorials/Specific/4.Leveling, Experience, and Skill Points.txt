@@ -1,0 +1,6 @@
+-level과 스킬 포인트 정수 변수와 현재 xp, 필요 xp float변수 생성.
+-add xp 함수를 만들고 float parameter 생성. 현재 xp에 parameter값을 더해주고 set. 현재 xp가 needed xp 변수값보다
+ 크면 현재 xp값을 needed - current로 set 후 level, skill 포인트 ++(add skill point, level 함수 따로 생성 해도 됨) - 
+ needed xp값 수정해서 set
+-HUD에 exp bar 추가하고 percentage current xp / needed xp로 binding
+-level에 trigger box를 추가하고 level blueprint에서 우클릭 - addevent 에서 onbeginoverlap event 설정 가능 

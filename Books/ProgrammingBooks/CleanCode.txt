@@ -1,0 +1,510 @@
+-craftmanship: knowledge + work
+
+-clean code is a matter of survival
+
+-keep code as clean as possible all the time -> efficiency differ
+
+-clean code features: elegance, pleasing to read, efficiency, focused(single responsibility), readability, can be enhanced by others, minimal dependencies, care, no duplication
+
+-make code easy to read for efficiency
+
+-keep code always clean: continuous improvement -> intrinsic part of professionalism
+
+	2. Meaningful Names
+
+-Use intent-revealing names:
+ names should reveal: why exists, what it does, how it is used
+
+-Avoid disinformation:
+ e.g. dont name "List" unless it's actually a list.
+
+-Make Meaningful Distinction:
+ dont use noninformative: a1, a2..
+ Noise words are redundant: ProductInfo, ProductData..
+
+-Use Pronounceable Names
+
+-Use Searchable Names
+ name lenghth should correspond to the size of the scope
+
+-Avoid Encodings
+
+-Hungarian Notation: no meaning anymore
+
+-Member Prefixes
+ no need; classes should be small enough
+
+-Interfaces and Implementations
+ IShapeFactory vs ShapeFactory -> "I" can be distraction or too much info. prefer unadorned
+
+-Avoid Mental mapping
+ Readers shouldn't mentally translate
+
+-Clarity is King
+
+-Class Names
+ avoid verb in class name: Customer, Account o
+                                 Manager, Processor x
+
+-Method Names
+ should have verb; e.g. PostPayment, DeletePage, get, set, is..
+ Constructors overloaded? use static factory that describes argument
+
+-Don't be cute
+
+-Pick One Work per Abstract Concept
+ controller, manager, driver -> use just one word
+
+-Don't pun
+ Don't use the same word for two purposes
+ e.g. concatenating two obj(add) != insert to collection(insert)
+
+-Use Solution Domain Names
+ use techinical terms(cs, math terms)
+
+-Use Problem Domain Names
+ if no cs terms suitable, use problem domain words
+
+-Add Meaningful Context
+ make clear context with classes, functions, and namespace names
+
+-Don't Add Gratuituous Context
+ Confusing and not clear
+
+-choosing good names requires decriptive skills and shared cultural background
+
+	Functions
+
+-MUST BE SMALL! REALLY SMALL!
+
+-Blocks and Indenting:
+ indent level should not be more than two
+
+-Do One Thing
+ Functions must do one thing
+
+ if multiple steps are one level below the stated name -> doing one thing
+
+ check if you can extract another function from it.
+
+ check if there is a multiple sections
+
+ only one level of abstraction in a function
+
+ The Stepdown rule:
+  Code should be read like top-down narrative
+  try translate it into simple TO paragraphs
+
+ Switch Statement:
+  necessarily big and hard to maintain
+ 
+ Suggestion:
+  use only once
+  in factory
+  hiding behind inheritance
+
+-Use Descriptive Name
+  The smaller a function is, the easier to get descriptive name
+  Long descriptive name is fine
+
+-Don't be afraid to spend time on naming
+
+-Be consistent in naming
+
+-Function arguments
+ less num of arguments are better: less test cases
+ if abstraction level of function name != arguments -> clients must know the details; bad
+ avoid more than 3 arguments
+
+-Common Monadic Forms:
+ 1. transforms single argument to another e.g. string -> file: make it distinctive with name
+ 2. event(function with arguments returning void) -> name and context should make it clear
+
+ avoid other forms like inputting out arguments -> confusing
+
+-Flag Arguments
+ awful; possibly do more than one thing
+
+-Dyadic Functions
+ less understandable than monadic functions
+ know Dyadic costs possibility of being monadic
+
+-Triads
+ harder to understand than Dyadic
+
+-Argument Objects
+ When more than 2 or 3 arguments are needed -> wrap those into a class
+
+-Argument Lists
+ variable arguments that are treated identically -> equivalent to single argument of List
+
+-Verbs and Keywords
+ function name and arguements should form nice noun/verb pair
+ AssertEquals < AssertExpectedEqualsActual(expected, actual)
+
+-Have no side effect
+ side effect -> temporal coupling -> confusion
+
+-Output Arguments
+ mostly unnecessary in mordern OOP language; this -> act as output argument
+ need to check function signature -> "double take" should be avoided
+
+-Command Query Separation
+ function should do sth or answer sth but not both
+ both? SRP x and ambiguity o
+
+-Prefer Exceptions to Returning Error Codes
+ Error code -> caller must deal w/ it immediately -> code become complicated
+
+-Extract Try/Catch Blocks
+ try/catch block mixes normal processing w/ error processing -> confusing
+ extract them into function of their own
+
+-Error Handling is one thing
+ functions should do one thing -> try catch/finally should be the first and last of a function
+
+-The Error.java Dependency Magnet
+ Returning error code -> implies dependency to a enum or a class defining the error codes. 
+ Use exception
+
+-Don't Repeat Yourself
+ always mind code duplication
+
+-Structured Programming
+ means only one return statement, no break and continue in a loop, and never goto statements. 
+ if functions kept small, occasional happening is fine
+
+-How to write functions like those
+ Like writing. Clumsy first time -> refinging while passing unit test -> clean code
+
+-Function: verb of programming language
+ Class     : noun of programming language
+ 
+ The art of programming == The art of language design
+
+ Think systems as stories to be told
+ -Function should fit in the story you want to write
+
+	Comments
+
+-Comment -> implies failure to express your intent in code
+
+-Usually misleading: code changes -> hard to maintain the comment
+
+-No comment is better than false comment
+
+-Put energy towards clean code is better than discipline programmers to maintain comments
+
+-Sometimes necessary, but should be minimized
+
+-Always try not to use comments. Express in code
+
+-Comments Do Not Make Up For Bad Code:
+ clean up the code rather than comments
+
+-Explain yourself in code
+
+-Good Comments:
+
+ Legal Comments: copyright, authorship, licenses
+
+ Informative Comments: can be useful, but express in code(naming) is better
+
+ Explanation of Intent
+
+ Clarification: 
+ explanation for arguments and return value
+ still express in code is better
+ useful when you cannot edit the code e.g. standard library
+
+ Warning of consequences:
+ warn other programmers about certain consequences
+
+ TODO Comments:
+ works should be done but cannot achieved at the moment for some reasons
+ eliminate them regularly
+
+ Amplification:
+ to emphasize the importance of sth
+
+-Bad Comments:
+
+ Most comments fall into this category
+
+ Mumbling:
+ Once you decide, put some effort to write best comments
+ if comments lead to reading another module, it has failed
+
+ Redundant Comments:
+ when comments are not informative than code
+
+ Misleading Comments:
+ when info in comments != actual action of functions
+
+ Mandated Comments
+
+ Journal Comments:
+ now we have version control system
+
+ Noise Comments:
+ restate the obvious and give no info
+
+ Don't use a comment when you can use a function or a variable
+ code can be precise w/o comments by extracting it into variable and function 
+
+ Position Markers:
+ use only when the profit is significant
+ too many? just a background noise
+
+ Closing Brace comments: //while, //try
+ shorten the function is a better option
+
+ Attributions and Bylines: //Added by Rick
+ Version Control System can do better work
+
+ Commented-Out Code:
+ Odious. VCS removed the use of it
+
+ HTML comments
+ abomination; responsibilitry of tool not a programmer
+
+ Nonlocal Information
+
+ Too Much Information
+ historical comments/irrelevant details
+
+ Inobvious Connection
+ connection b/w code and comment should be obvious
+ when comment needs own explanation -> bad
+
+ Javadocs in Nonpublic Code
+
+	Formatting
+
+-You should choose rules for code format and apply them consistently
+
+-Formatting is important. Matter of communication
+
+-Small files are easier to understand
+
+-The name should be enough to tell what the module is for
+
+-Source file should be like newspaper article:
+ name should be simple and explanatory
+ increase details as we move downward
+ mostly small
+
+-Vertical openness b/w concepts
+ diff thouhgts should be separated by blank lines
+
+-Vertical Density
+ tightly related concept should be placed close
+
+-Vertical Distance
+ closely related concept should be in the same file
+
+ Variable declaration
+ variables should be declared as close as possible to their usage
+
+ Instance variables
+ should not increase vertical distance
+ Java: on the top of the class C++: on the bottom
+
+ Dependent functions
+ if a function calls another function -> they should be vertically close
+ the caller should be above if possible
+
+ Conceptual affinity
+ the stronger the affinity, the less the vertical distance
+ e.g. dependence b/w functions, perform similar operations
+
+ Vertical ordering
+ caller function should be over the callee
+
+-Horizontal Formatting
+ the shorter the better;
+ the author set his limit to 120
+
+ Horizontal opennes and density
+ no white space if closely related; else -> white space
+
+ Indentation
+ breaking indentation: follow indentation rule even though the block is short
+
+ Team Rules
+ follow team rules when collaborate
+
+	Objects and Data Structures
+
+-Data abstraction
+ prefer not to expose data details
+ dont add getters and setters blithely
+
+-Data/Object Anti-Symmetry
+ Object: hide their data and expose functions
+ Data Structure: expose data; no meaningful functions
+
+ Procedural code -> hard to add a new data structure(all functions must change)
+ OO code -> hard to add a new function(all classes must change)
+
+-The law of demeter
+ modules should not know the innards of the objects it manipulates
+
+ objects should not expose the internal structure to the accessor
+
+ method f of a class C should only call the methods of:
+ C
+ arguments passed
+ instance variable of C
+ object created by f
+
+-Train Wrecks
+ chains of function calls -> split the call is better
+
+ objects -> hide internal structure
+ data structure -> expose
+
+-Hybrids
+ structures of half data structure and half object -> the worst; have both disadvantage
+
+ often have both impt functions and public var(or getter setter)
+
+ avoid it
+
+-Hiding Structure
+ clearly identify your intent -> wrap in a function
+
+-Data Transfer Objects(DTO)
+ a class with public vars w/o functions
+ 
+ bean form: private vars w/ getters and setters
+
+-Active Record
+ DTS w/ navigational methods like find and save
+ dont make it hybrid
+
+-Object: expose behaviors and hide data; easy to add new data; hard to add new behaviors
+ Data Structure: expose data and no behaviors; easy to add new bahaviors; hard to add new data
+ -> choose proper proper based on what you want to make
+
+	Error Handling
+
+-Use exceptions rather than return codes
+ cleaner, algorithms can be separated
+
+-Write your try-catch-finally statement first
+ exceptions -> define a scope
+ your catch block should leave program consistently
+ start w/ try-catch when you're writing code that throws errors
+
+-Use unchecked exceptions
+ checked exceptions: listed in function signatures
+ unnecessary for robust software
+ have a price: Open/closed principle violation
+ -must declare the exception b/w the hierarchy level of your code and the catch block
+
+ sometimes useful when you must catch the error
+
+-Provide context with exceptions
+ create informative error messages
+
+-Define exception classes in terms of a caller's need
+ how errors are caught: most impt for defining error class
+ wrap third-party API calls in a method -> minimize dependencies
+ single exception class is enough for a particular code area; use the sent info to distinguish
+
+-Define the normal flow
+ Special Case Pattern: define a class or configure an object to handle special cases
+
+-Don't return Null
+ then Null check must be included else, should handle NullPointerException
+ prefer Special Case pattern or throwing an exception
+
+-Don't pass Null
+ No good way to handle the Null
+ 
+	Boundaries
+
+-To make the boundaries b/w foreign code and our own clean
+
+-Using third-pary code:
+ if you use boudary interface, keep it in a class, or close family of classes, where it is used.
+ avoid returning it from, or accepting it as as an argument to, public APIs
+
+-Exploring and learning boundaries
+ Learning test: write test code w/ third-party code in the way that we expect its behaviors
+ Learning test can check compatibility too
+
+-Using code that does not yet exist
+ write "suitable" interface and use adapt later
+
+-Clean Boundaries
+ Always mind Open/Closed principles
+ depend on sth controlable
+
+	Unit Tests
+
+-TDD(Test-Driven Develpoment): write test code first, then write production code that passes the test
+
+-The three laws of TDD:
+ 1. no production code before writing failing test code
+ 2. no unit test more than sufficient to fail and compile
+ 3. no production code more than passing the current failing test
+
+-Keep test code clean
+ no clean test code == no test
+ why? as production code changes tests code changes too -> impossible w/o cleaness
+ test code is as important as production code
+
+ Test enable the -ilities:
+ dirty test code -> lead to loss of test code -> rise fear to change the code
+ dirtier test code -> dirtier production code
+
+-Clean test
+ about readability
+ hide details in a function
+
+-Dual Standard
+ test environement and production envir are diff
+ e.g. issues of memory and CPU efficiency -> test environment are not constrained
+
+-One assert per test
+
+-Single concept per test
+
+-FIRST:
+ Fast to run frequently
+ Independence b/w tests
+ Reapeatable in any environment
+ Self-validating that returns boolean
+ Timely that write test code first then production code
+
+	10. Classes
+
+-In Java:
+ order: public static var - private static var - instance var - public functions - private functions
+
+-Loosening encapsulation must be the last resort
+
+-Classes should be small
+
+-SRP
+ try to recognize class responsibilities
+ don't fear to have many small classes
+
+-Cohesion:
+ dependence b/w instance variables and methods
+ more instance variables used by more methods -> higher cohesion
+ proliferation of instance variables used by subset of methods -> to sign of creating new class
+
+-few functions sharing certain instance variables -> sign of new class
+
+-private methods apply only to a small subset of class -> imply areas for improvement
+ one solution: refactor out public interface method to its own derivative class
+
+-Dependencies upon concrete details -> vulnerable to changes
+ solution: use abstract class or interface
+
+-DIP(Dependency Inversion Principle): depend upon abstractions, not on concrete details
+
+184

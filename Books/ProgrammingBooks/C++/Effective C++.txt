@@ -1,0 +1,571 @@
+-implementation: 프로그램 번역, 함수 실행을 지워하는 개발 환경. 프로그램 개발 소프트웨어(compiler, linker, os, library)의 집합
+
+-explicit -> prevent unintentional type conversion using constructors.
+	1.
+
+	항목1: C++를 언어들의 연합체로 바라보는 안목은 필수
+
+-C++는 네 가지 하위 언어의 연합체:
+ 1. C
+ 2. STL
+ 3. template
+ 4. OOP concepts
+
+	항목2: #define을 쓰려거든 const, enum, inline을 떠올리자(가급적 선행 처리자보다 컴파일러를 더 가까이 하자).
+
+-#define drawbacks:
+ -a compiler can't see it
+ -can't mix with OOP
+
+-solution:
+ -상수 선언 //포인터 상수는 const로, static은 정의 제공(초기화는 선언 시)
+ -inline
+ -enum 활용
+
+	항목3:낌새만 보이면 const를 들이대 보자!
+
+-const 키워드 함수 -> const 객체로 호출할 함수
+ -역할: 인터페이스의 이해 상승, const 객체 활용
+
+-비트수준 상수성: 함수가 데이터 수정 x -> 비트 수정 x
+ 논리적 상수성:  수정 o 사용자는 모름 -> mutable
+
+-const 기준 오버로드 가능
+ -코드중복 회피: 비상수 버전이 상수 버전 호출 후 const_cast
+ 
+
+	항목4: 객체를 사용하기 전에 반드시 그 객체를 초기화 하자
+
+-비완전 초기화 객체 -> undefined behavior 위험
+
+-객체의 모든 값 초기화 필수: member initializer list 활용
+ -초기화 순서: 클래스 선언 순, parent -> derived
+
+-프로그램 시작부터 끝까지 유효 -> 정적 객체:
+ -global object, class static, function static, namespace object, file scope static
+ -function static -> local static
+
+-비지역 정적 객체 초기화 순서는 미정 -> 지역 정적 객체 활용
+
+-기본 제공 타입 객체도 직접 초기화 하는게 안전.
+
+	항목5. C++가 은근슬쩍 만들어 호출해 버리는 함수들에 촉각을 세우자
+
+-default constructor, copy constructor, copy operator, destructor
+ -compiler can create them implicitly
+
+	항목6. 컴파일러가 만들어낸 함수가 필요 없으면 확실히 이들의 사용을 금해 버리자.
+
+-declare the functions private and give no definition(use = delete)
+ -do so in parent and derive can change a linker error to a compilation error.
+
+	항목7. 다형성을 가진 기본 클래스에서는 소멸자를 반드시 가상 소멸자로 선언하자.
+
+-delete a derived class pointer with a parent class pointer without a virtual destructor -> undefined behavior
+
+-a class not intended for a base class -> no virtual destructor
+ -vptr, vtbl decrease performance
+
+-std::string, STL containers -> no virtual destructor -> don't inherit
+
+	항목8. 예외가 소멸자를 떠나지 못하도록 붙들어 놓자.
+
+-소멸자에서 예외 -> undefined behavior, 프로그램 비완전 종료
+
+-solution:
+ -소멸자에서 abort() 호출 혹은 집어 삼키기
+
+	항목9. 객체 생성 및 소멸 과정 중에는 절대로 가상 함수를 호출하지 말자
+
+-부모 클래스 생성자 호출 동안은 부모 클래스로만 취급(RTTI도 같다).
+ -미초기화 데이터 사용 위험
+ 파생 클래스 소멸자 호출 후엔 파생 클래스 부분 존재 x
+
+-solution:
+ -비멤버 함수를 선언하고 매개변수로 데이터 전달
+ -정적 함수 활용
+
+	항목10. 대입 연산자는 *this의 참조자를 반환하게 하자.
+
+-대입 연산자 -> *this의 참조자 반환.
+
+	항목11. Operator=에서는 자기 대입에 대한 처리가 빠지지 않도록 하자.
+
+-참조자, 포인터 사용시 같은 객체 가능성 주의 -> dangling 등 위험
+
+-solution: 자기 대입 검사
+
+	항목12. 객체의 모든 부분을 빠짐없이 복사하자.
+
+-copying functions: copy constructor, copy operator
+
+-copy: all the data members, base class parts
+
+-prevent copy code redundancy -> separate copy code into a member function
+
+	3. 자원 관리
+
+	항목13. 자원 관리에는 객체가 그만!
+
+-RAII(Resource Aquisition Is Initialization) -> smart pointer -> automate delete in destructor
+ // shared_ptr, unique_ptr
+
+-자원 해제는 실수 여지가 많다.
+
+	항목14. 자원 관리 클래스의 복사 동작에 대해 진지하게 고찰하자.
+
+-자원의 복사법 -> RAII 객체의 복사법
+
+-RAII 복사 선택지:
+ -복사 금지
+ -RC
+ -복사
+ -소유권 이전
+ 
+	항목15. 자원 관리 클래스에서 관리되는 자원은 외부에서 접근할 수 있도록 하자.
+
+-RAII의 자원 직접 접근 필요 가능성 높음
+
+-접근 방법:
+ -명시적 변환: 안정성
+ -암시적 변환: 편의성
+ -operator*, operator->
+ -get()
+
+	항목16. new 및 delete를 사용할 떄는 형태를 반드시 맞추자.
+
+-new 생성 메모리 구조 != new[] 생성 메모리 구조(원소 수 포함)
+
+-new -> delete
+ new[] -> delete[]
+
+	항목17. new로 생성한 객체를 스마트 포인터에 저장하는 코드는 별도의 한 문장으로 만들어라.
+
+-스마트 포인터 생성자와 함수로 매개변수 전달 -> 함수의 예외 시 자원 유출
+ // processWidget(std::tr1::shared_ptr<Widget>(new Widget // 1) // 2, priority() // 3); // 표현식 평가 순서는 컴파일러 의존
+
+-solution: 스마트 포인터 생성 분리
+
+	항목18. 인터페이스 설계는 제대로 쓰기엔 쉽게, 엉터리로 쓰기엔 어렵게 하자.
+
+-사용자의 실수 예측
+
+-컴파일 -> 제대로 동작
+ 의도된 동작 x -> 컴파일 실패
+
+-타입을 통한 제약: 타입 연산자, 값으로 제약
+
+-enum 대신 enum class
+
+-사용자 정의 타입 -> 기본 제공 타입처럼 작동 요망
+
+-팩토리 함수로 스마트 포인터 -> 팩토리 함수가 스마트 포인터를 반환하도록
+
+	항목19. 클래스 설계는 타입 설계와 똑같이 취급하자
+
+-클래스 설계 고려 사항: 
+ -생성과 소멸
+ -대입과 초기화 차별점
+ -접근 권한
+ -연산자와 함수
+ -상속계통
+ -타입 변환
+ -값의 제약
+ -정말 필요한지
+ -얼마나 일반적인지
+
+	항목20. '값에 의한 전달'보다는 '상수객체 참조자에 의한 전달' 방식을 택하는 편이 대개 낫다.
+
+-pass by value -> initialize function arguments by copy
+
+-solution: pass by reference to const // prevent slicing problem
+
+-for STL iterators and functors, pass by value is a better option
+
+	항목21. 함수에서 객체를 반환해야 할 경우에 참조자를 반환하려고 들지 말자
+
+-avoid returning:
+ -local stack objects -> dangling
+ -reference to local heap objects
+ -pointer or reference to local static objects
+
+	항목22. 데이터 멤버가 선언될 곳은 private 영역임을 명심하자
+
+-이점: 문법적 일관성, 내부 구현의 융통성, 캡슐화, 클래스 불변 속성 강화
+
+-protected는 public보다 더 보호되는 것이 아님
+
+	항목23. 멤버 함수보다는 비멤버 비프렌드 함수와 더 가까워지자.
+
+-멤버 함수보다는 비멤버 비프렌드 함수를 자주 쓰도록 한다. 캡슐화 정도가 높아지고, 패키징 유연성도 커지며, 기능적인 확장성도 늘어난다.
+
+-멤버 함수의 캡슐화 < 비멤버 비프랜드 함수의 캡슐화 // 확장성도 우월
+
+-그 클래스와 같은 네임스페이스에 선언 -> 더 자연스러움
+
+-기능 별로 다른 헤더 파일에 분류 -> 컴파일 의존성 하락
+
+	항목24. 타입 변환이 모든 매개변수에 적용되어야 한다면 비멤버 함수를 선언하자.
+
+-멤버 함수 호출 객체(*this)는 암시적 타입 변환 적용 x
+
+-프랜드 함수는 기피 -> 캡슐화 하락
+
+-모든 매개변수에 암시적 타입 변환 원할 시 -> 비멤버 함수
+
+	항목25. 예외를 던지지 않는 swap에 대한 지원도 생각해 보자
+
+-if standard swap is inefficient: // ex) pimpl
+ -declare public member swap
+ -declare overloaded non-member swap or non-member specialized swap template in the same namespace
+ -make the non-member version calls the member version
+
+-the member version must be noexcept
+
+-성능이 적당하면 굳이 안해도 됨
+
+-std namespace에 추가 불가.
+
+	항목26. 변수 정의는 늦출 수 있는 데까지 늦추는 근성을 발휘하자
+
+-변수 정의 비용: 생성자, 소멸자
+
+-변수 정의 후 예외로 미사용 -> 여전히 비용 지불
+
+-루프 안에 변수 -> 생성자 비용이 적을 때
+ 루프 밖에 변수 -> 대입 비용이 적을 때
+
+	항목27. 캐스팅은 절약, 또 절약 해야 한다.
+
+-const_cast: 상수성 제거
+ static_cast: 암시적 변환 강제 진행
+ reinterpret_cast: 하부 수준 변환
+ dynamic_cast: 다운 캐스팅
+
+-C++ 캐스팅 선호: 가시성 우수, 디버깅 편리
+
+-캐스팅 -> 런타임에 코드 추가
+
+-dynamic_cast는 비용 높음 -> 주의
+
+-if, else if 남발 폭포식 dynamic_cast는 사용 금지
+
+-casting은 함수에 넣어서 캡슐화
+
+-가능한 casting 회피
+
+	항목28. 내부에서 사용하는 객체에 대한 '핸들'을 반환하는 코드는 되도록 피하자
+
+-핸들: pointer, reference, iterator
+
+-캡슐화 정도 == 그 멤버 핸들 반환 함수의 접근도
+
+-solution: return reference to const
+
+-return a object by value -> dangling handle warning
+
+	항목29. 예외 안정성이 확보되는 그날을 위해 싸우고 또 싸우자!
+
+-예외 안정성 요구사항: prevent resource leak and data structure pollution
+
+-3가지 예외 안정성:
+ -basic guarantee: 모든 것들을 유효하게 유지
+ -strong guarantee: 프로그램 상태 변경x
+ -noexcept guarantee: exception throw x
+
+-예외 안정성이 있는 함수는 셋 중 하나 제공
+
+-방법:
+ -copy and swap
+
+-어떤 예외 안정성이 실용적인지 결정하고 함수에 제공
+
+-함수 내 호출되는 함수가 예외 안정성 x -> 호출하는 함수도 예외 안정성 x
+
+	항목30. 인라인 함수는 미주알고주알 따져서 이해해 두자.
+
+-컴파일러 최적화 -> 함수 호출이 없는 구간에 적용
+
+-inline 남발 -> 목적 코드 크기 증가
+ 길이가 짧은 인라인 함수 -> 목적 코드 크기 감소, 캐시 적중률 증가
+
+-inline은 명령이 아닌 요청
+
+-생성자 소멸자는 inline에 적합하지 않음
+
+	항목31. 파일 사이의 컴파일 의존성을 최대로 줄이자.
+
+-C++ 클래스는 세부사항 포함 가능 -> 컴파일 의존성: 코드 수정시 전부 리컴파일
+
+-전방 선언시 클래스 크기를 알아야함 -> 세부사항 알아야 함.
+
+-pimpl 활용:
+ -정의에 대한 클래스와 선언에 대한 클래스(핸들 클래스) 따로 작성 후 핸들에서 정의 클래스 포인터를 통해 함수 호출
+ -각각 다른 헤더 파일에
+
+-참조자, 포인터 사용 추천: 둘은 정의시 선언부만 필요
+
+-정의에 대한 의존성을 선언에 대한 의존성으로
+
+-대안: 인터페이스 클래스
+ -포인터나 참조자로 프로그래밍 해야함
+ -별도의 객체 생성 수단 필요 ex) 팩토리 함수
+
+-단점:
+ -pimpl -> 간접 호출에 의한 오버헤드, 핸들 내 포인터의 크기
+ -인터페이스 클래스 -> vtbl, vptr로 부터의 비용
+ -둘다 인라인 힘듬.
+
+	항목32. public 상속 모형은 반드시 "is-a(...는 ...의 일종이다)"를 따르도록 하자.
+
+-최고의 설계 = 소프트웨어에 맞는 설계
+
+-유효하지 않은 코드는 컴파일 안되는게 옳다 = 컴파일 타임 거부가 런타임 거부보다 좋다
+
+-클래스 관계는 명확하게 구분되도록
+
+	항목33. 상속된 이름을 숨기는 일은 피하자
+
+-바깥쪽 유효 범위 이름은 안쪽 유효 범위에 가려짐 
+ ex) 부모 클래스 이름 같은 이름이면 파생 클래스에서 가려짐
+
+-solution: using, 전달 함수
+
+	항목34. 인터페이스 상속과 구현 상속의 차이를 제대로 파악하고 구별하자.
+
+-public 상속 2가지 개념: 인터페이스 상속, 구현 상속
+
+-pure virtual function: interface inheritance
+ virtual function, non-virtual function: interface and implement inheritance
+
+	항목35. 가상 함수 대신 쓸 것들도 생각해 두는 자세를 시시때때로 길러 두자.
+
+-대안:
+ -NVI(Non Virtual Interface) 관용구 활용: 비가상 함수에서 private 가상 함수 간접 호출
+ -함수 포인터 혹은 tr1::function 데이터 멤버로 대체: non-public 데이터 멤버 접근 불가. 캡슐화 정도를 낮춰야 함 ex) friend
+
+	항목36. 상속받은 비가상 함수를 파생 클래스에서 재정의하는 것은 절대 금물
+
+-바인딩: 프로그램의 내부 요소, 이름, 식별자들의 값 혹은 속성을 확정하는 과정
+ 정적 바인딩: 컴파일 타임 -> virtual function
+ 동적 바인딩: 런타임 -> non-virtual function
+
+-재정의 시 바인딩 꼬임
+
+	항목37. 어떤 함수에 대해서도 상속받은 기본 매개변수 값은 절대로 재정의하지 말자.
+
+-기본 매개변수 값은 정적 바인딩. 재정의 후 사용 시 기본 클래스 값 사용 위험.
+
+-원하는 대로 작동하는 가상 함수가 힘들면 다른 설계 고려.
+
+	항목38. "has-a" 혹은 "implemented-in-terms-of(...는...를 써서 구현됨)"를 모형화활 때는 객체 합성을 사용하자
+
+-합성(composition): 어떤 객체가 다른 객체 포함
+
+-2 meanings of composition:
+ - has-a: 실생활 요소를 본뜬 응용 영역
+ - implment-in-terms-of: 구현 영역
+
+	항목39. private 상속은 심사숙고해서 구사하자.
+
+-private inheritance는 모든 멤버를 private으로 상속
+
+-private inheritance -> implement-in-terms-of
+
+-composition이 더 쓰임:
+ -non-public 접근과 재정의 방지 가능 및 쉬운 이해, 컴파일 의존성 최소화 가능
+
+-virtual function 재정의 및 non-public 접근 필요 시: private inheritance
+
+-EBO(Empty Base Optimization)에 활용:
+ -공백 클래스 상속 시 private 상속을 쓰면 C++에 의해 낭비되는 메모리 방지 가능.
+ -단일 상속에서만 적용 가능.
+
+	항목40. 다중 상속은 심사수고해서 사용하자
+
+-다중 상속 -> 이름 모호성 문제 내포
+
+-다이아몬드 상속 구조 -> virtual inheritance로 해결
+ -단점:
+  -virtual inheritance의 비용은 높다.
+  -virtual inheritance의 경우 상속 거리에 상관없이 직접 초기화 해줘야 한다.
+ -solution:
+  -가능한 다중 상속 지양
+  -사용해야 한다면 데이터 멤버를 넣지 않는 쪽으로
+
+	항목41. 템플릿 프로그래밍의 천릿길도 암시적 인터페이스와 컴파일 타임 다형성부터
+
+-OOP: explicit interface(source code, function signature), runtime polymorphism
+ Template: implicit interface(valid expression), compile time polymorphism
+
+-T에 대한 표현식 성공을 위해 컴파일 타임에 인스턴스화 발생. 매개변수 따라 호출 함수 달라짐. -> 컴파일 타임 다형성
+
+-T가 암시적 인터페이스 미지원 시 템플릿 사용 불가
+
+	항목42. typename의 두 가지 의미를 제대로 파악하자.
+
+-의존 이름(dependent name): 템플릿 매개변수에 종속된 템플릿 내 이름
+
+-중첩 의존 타임 이름(nested dependent typename): 클래스 안에 중첩된 의존 이름
+
+-중첩 의존 타임 이름은 컴파일러에 모호성을 일으킴 -> 사용 시 typename 기입으로 명시화 필수.
+ -예외:
+  -기본 클래스 리스트에 있음
+  -멤버 초기화 리스트의 기본 클래스 식별자로 있음
+
+	항목43. 템플릿으로 만들어진 기본 클래스 안의 이름에 접근하는 방법을 알아 두자.
+
+-파생 클래스 템플릿에서 기본 클래스 템플릿 참조:
+ 특수화 버전과 일반형이 같으리란 보장 x -> 함수 호출 불가
+
+-solution:
+ -this->
+ -using 선언
+ -클래스 한정자로 명시적 지정
+  -가상 함수 바인딩 무시의 문제점
+
+	항목44. 템플릿 매개변수에 독립적인 코드는 템플릿으로부터 분리시키자
+
+-클래스 템플릿 멤버 함수 -> 사용 때 암시적 인스턴스화 -> 목적 코드 크기 증가에 취약(감각으로 알아채야 한다).
+
+-solution: 공통성 및 가변성 분석(commonality and variability analysis)
+
+-중복된 부분 -> 별도의 클래스에 빼서 inheritance 및 composition으로 해결
+
+-상수만 중복 시: base class에 분리 및 매개변수로 전달하여 호출
+ -여러 함수가 데이터 사용 -> base class에 데이터 멤버 포인터 선언
+
+-locality of reference:
+ -temporal locality
+ -spatial locality
+
+	항목45. "호환되는 모든 타입"을 받아들이는 데는 멤버 함수 템플릿이 직방!
+
+-멤버 함수 템플릿: 어떤 클래스의 멤버 함수를 찍어내는 템플릿
+
+-일반화 복사 생성자(generalized copy constructor) = templatized copy constructor
+
+-일반화 복사 생성자는 암시적 복사 생성자 생성을 막지 못함 -> 직접 선언 해줘야 한다.
+
+-모든 타입 호환 멤버 함수 -> 템플릿 멤버 함수
+
+	항목46. 타입 변환이 바람직할 경우에는 비멤버 함수를 클래스 템플릿 안에 정의해 두자.
+
+-템플릿 인자 추론은 암시적 타입 변환 x
+
+-클래스 템플릿에 프렌드 함수 추가 -> 템플릿 성격 없이 특정 함수를 나타낼 수 있다.
+ -프랜드인 이유는 접근 정도 때문이 아닌 모든 인자 변환의 목적
+
+-클래스 내부 함수 정의는 암시적 인라인 -> 프렌드 함수도 포함
+
+	항목47. 타입에 대한 정보가 필요하다면 특성정보 클래스를 사용하자
+
+-특성정보(traits): 컴파일 타임에 타입 정보를 제공하는 객체
+
+-특성정보는 키워드가 아닌 구현 기법, 관례
+ -관례적으로 구조체로 구현
+
+-특성정보는 기본 제공 타입과 사용자 정의 타입 모두에서 작동해야 한다.
+ -고로 특성 정보는 타입 외부에 존재해야 한다.
+
+-특성정보 클래스 설계 및 구현:
+ 1. 제공 정보 확인
+ 2. 제공 정보를 위한 식별자 선택
+ 3. 그 정보를 담은 템플릿 및 그 템플릿의 특수화 버전 제공.
+
+-특성 정보 클래스 사용방법:
+ 1. 작업자(worker) 함수/함수 템플릿을 특성정보에 따라 오버로딩
+ 2. 주작업자(master) 함수/함수 템플릿에 특성정보를 넘겨 작업자 호출
+
+	항목48. 템플릿 메타프로그래밍
+
+-템플릿 메타 프로그래밍(Template Meta Programming, TMP): 컴파일 타임 실행 프로그램 작성
+
+-이점: 런타임 타임 작업을 컴파일 타임 작업으로
+ -선형 에러 탐지, 더 효율적
+
+-특성 정보가 typeid보다 효율적 -> 런타임 점검 실행 코드는 실행 파일에 들어가야 해서
+
+-TMP의 반복은 재귀 인스턴스화
+
+-TMP 강점:
+ 1. 치수 단위(dimensional unit) 정확성 확인
+ 2. 행렬 연산 최적화
+ 3. 맞춤식 디자인 패턴 구현의 생성: TMP 파생 기술인 정책 기반 설계(policy-based design)
+
+	항목49. new 처리자의 동작 원리를 제대로 이해하자
+
+-operator new가 사용자의 메모리 할당 요청에 실패 시 예외 던짐.
+ -직전에 에러 처리 함수인 new_handler 호출.
+ -충분한 메모리를 찾을 때까지 호출
+
+-set_new_handler로 처리 함수 설정 가능
+
+-new_handler 동작:
+ 1. 공간 확보
+ 2. 예외 던지기
+ 3. new_handler를 nullptr로
+ 4. 종료. abort() or exit()
+ 5. 다른 new_handler
+
+-믹스인 클래스: 파생 클래스에 단 한 가지 기능만을 제공
+
+	항목50. new 및 delete를 언제 바꿔야 좋은 소리를 들을지를 파악해 두자.
+
+-재정의 이유:
+ 1. 잘못된 힙 사용 감지
+ 2. 효율성 증가
+ 3. 사용에 관한 통계 수집
+ 4. 기본 메모리 관리자의 오버헤드 축소
+ 5. 제때에 원하는 동작 수행
+ 6. 최적화된 바이트 정렬 보장
+ 7. 관련된 객체들을 모아놓기 위해
+
+	항목51. new 및 delete를 작성할 때 따라야 할 기존의 관례를 잘 알아 두자.
+
+-operator new 관례:
+ -제대로된 반환 값
+  -할당 가능 시 그 포인터 반환. 안될 시 bad_alloc 예외
+ -가용 메모리 부족 시 new_handler 호출
+  -new_handler는 무한 루프 내포. 탈출 방법:
+   -throw exception
+   -set_new_handler
+   -가용 메모리 확보
+   -new_handler 설치 제거
+ -0바이트 요청
+  -1바이트를 요청한 것처럼 처리
+ -전역 operator new 가리지 않기
+
+-할당 문제 발생 시 가장 쉬운 방법:
+ 틀린 메모리 크기 확인 후 전역 operator new로 넘기기
+
+-nullptr가 들어왔을 때 operator delete의 역할은 아무것도 안하는 것.
+
+	항목52. 위치지정 new를 작성한다면 위치지정 delete도 같이 준비하자.
+
+-new 호출 시 생성자에서 에러 -> 런타임이 할당 취소
+ -> 비기본형 new는 매개변수 개수, 타입이 맞는 operator delete 호출 -> 일치 delete버전 없으면 메모리 누수
+
+	항목53. 컴파일러 경고를 지나치지 말자.
+
+-컴파일러 경고 제거 전 명확히 이해 필수
+
+-컴파일러 경고를 없애되,  컴파일러 경고에만 의존하면 안된다 -> 컴파일러마다 차이점 존재
+
+	항목54. TR1을 포함한 표준 라이브러리 구성요소와 편안해 지자.
+
+-TR1 구성요소:
+ -스마트 포인터
+ -tr1::function: 다른 함수 시그내처와 호환되는 시그내처를 갖는 함수호출성 객체 표현 템플릿
+ -tr1::bind
+ -tr1::reference_wrapper: 참조자를 객체처럼 행동하게 해주는 템플릿
+ -타입 특성정보(type traits)
+ -tr1::result_of: 함수 호출 결과 추론 템플릿
+
+-TR1은 명서세 -> 구현 필요 -> 구현 자료처: boost
+
+	항목55. 부스트를 늘 가까이에
+
+-부스트는 무료 C++라이브러리와 그 개발 모임을 동시에 일컫는다.
+
+-여러 범주의 라이브러리 존재.

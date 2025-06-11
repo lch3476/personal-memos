@@ -1,0 +1,5 @@
+-animation blueprint에 attack을 위한 state machine 추가
+-공격하고 있는지를 나타내는 bool 변수 추가.
+-animation blueprint event graph에서 공격 상태 변수 set 및 animation transition 설정.
+-공격 키 액션 이벤트 - disable movement - stop movement immediately -  set isattack true - delay - set isattack false
+ - set movement mode

@@ -1,0 +1,6 @@
+1.쿨다운 표현을 위해 HUD의 스킬 아이콘 위에 progress bar 추가. size, fill type, position 조정.
+2.Character blueprint에 스킬 쿨다운 변수 추가.
+3.ability event의 시작 지점에 쿨다운 시간이 쿨타임보다 작으면 실행이 안되게 branch 사용.
+4.ability event의 마지막 파트에 쿨다운 시간 0으로 설정.
+5.HUD의 cool down progress bar percent 바인드.
+6.action의 마지막 파트에 쿨타임이 다 차지 않으면(branch) 채울때까지 loop가 돌도록(delay 필수) 노드 짜기.

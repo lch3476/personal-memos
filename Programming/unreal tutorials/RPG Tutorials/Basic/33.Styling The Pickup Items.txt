@@ -1,0 +1,2 @@
+-액터의 파일을 따로 만들고 필요한 에셋들 임포트(texture, mesh 등)
+-material 작성

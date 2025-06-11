@@ -1,0 +1,6 @@
+-새로운 폴더를 만들어서 스킬들을 표현할 enum을 만든다.
+-character blueprint에 enum list 변수를 생성한다. ex) acquired skill
+-Skill UI에 update skill tree 함수 생성 > character ref - get enum skill list- foreach - list에 대해 switch > 
+ 각 스킬 enum에서 다음 트리 스킬 button set is enabled  > 각 버튼의 끝에 character ref - get enum skill list - 
+ 버튼에 맞는 enum값 addunique - completed에 스킬 포인트 text값 업데이트 함수 호출 > construct의 끝에
+ update skill tree

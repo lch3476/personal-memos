@@ -1,0 +1,2 @@
+-Character Blueprint에 currency 변수 추가.
+-HUD에 currency이미지와 text를 추가하고 text에 currency 변수 binding

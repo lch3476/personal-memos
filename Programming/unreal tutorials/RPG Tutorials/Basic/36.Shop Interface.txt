@@ -1,0 +1,7 @@
+-Widget Blueprint 작성(background image, purchase button, close button etc)
+-shop을 열게할 actor blueprint 생성 > mesh, collision, text box등을 추가 > beginoverlap, cast to character, create widget
+ , add to viewport > get player controller > show mouse cursor > widger 요소들 binding
+
+-shop slot의 아이템 버튼 > get game mode > cast to > get character selection > switch > 각 핀에 캐릭터 정수마다
+ get player character > cast to > get currency > currency와 상점 가격 branch > true면 inventory 설정(pickup처럼 하지만
+ destroy actor 대신 set currency)

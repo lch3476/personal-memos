@@ -1,0 +1,5 @@
+-gamemode에서 선택된 class를 알기 위해 Class Selected integer 변수 생성 > class(캐릭터) selection widget에서 
+ class selected 값을 초기화할 수 있도록 캐릭터 선택시 set class selected
+-gamemode에 loot coin의 양인 amount found int변수 생성 - widget event graph - construct - get game mode -
+ cast to - set amount found - random int in range - switch - 각 핀에서 cast to - set currency
+-widget의 loot coin text binding

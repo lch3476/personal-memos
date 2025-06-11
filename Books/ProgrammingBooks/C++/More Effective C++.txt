@@ -1,0 +1,675 @@
+	Item 1: Distinguish between pointers and references.
+
+-First, recognize that there is no such thing as a null reference. A reference must always refer to some object. As a result, if you have a variable whose purpose is to refer to another 
+ object, but it is possible that there might not be an object to refer to, you should make the variable a pointer, because then you can set it to null.
+
+-On the other hand, if the variable must always refer to an object, i.e., if your design does not allow for the possibility that the variable is null, you should probably
+ make the variable a reference.
+
+-Because a reference must refer to an object, C++ requires that references be initialized. Pointers are subject to no such restriction.
+
+-The fact that there is no such thing as a null reference implies that it can be more efficient to use references than to use pointers. That’s because there’s no need to test the validity
+ of a reference before using it.
+
+-Pointers, on the other hand, should generally be tested against null.
+
+-Another important difference between pointers and references is that pointers may be reassigned to refer to different objects. A reference, however, always refers to the object
+ with which it is initialized.
+
+-In general, you should use a pointer whenever you need to take into account the possibility that there’s nothing to refer to (in which case you can set the pointer to null) or 
+ whenever you need to be able to refer to different things at different times (in which case you can change where the pointer points). 
+
+-You should use a reference whenever you know there will always be an object to refer to and you also know that once you’re referring to that object, you’ll never want to refer to
+ anything else.
+
+	Item 2: Prefer C++ style casts
+
+2 reasons why C++ style casts are recommended:
+ To specify more precisely the purpose of each cast.
+ C style casts are hard to find.
+
+const_cast is used to cast away the constness or volatileness of an expression.
+
+dynamic_cast, is used to perform safe casts down or across an inheritance hierarchy.
+They cannot be applied to types lacking virtual functions, nor can they cast away constness.
+
+reinterpret_cast is used to perform type conversions whose result is nearly always implementation-defined. As a result, reinterpret_casts are rarely portable
+The most common use of reinterpret_cast is to cast between function pointer types. 
+
+Casting function pointers is not portable (C++ offers no guarantee that all function pointers are represented the same way), and in some cases
+such casts yield incorrect results, so you should avoid casting function pointers.
+
+Programs that use the new casts are easier to parse (both for humans and for tools), and they allow compilers to diagnose casting errors that would otherwise go
+undetected.
+
+	Item 3: Never treat arrays polymorphically
+
+-C++ allows you to manipulate arrays of derived class objects through base class pointers and references. This is no feature at all, because it almost never works the
+ way you want it to.
+
+-The distance between elements is i*sizeof(an object in the array), because there are i objects between array[0] and array[i]. If you’ve passed an
+ array of BalancedBST objects to printBSTArray, your compilers are probably wrong. In that case, they’d assume each object in the array is
+ the size of a BST, but each object would actually be the size of a BalancedBST.
+
+-The result of deleting an array of derived class objects through a base class pointer is undefined because delete[] includes pointer arithmetic too.
+ When an array is deleted, a destructor for each element of the array must be called.
+
+-Polymorphism and pointer arithmetic simply don’t mix. Array operations almost always involve pointer arithmetic, so arrays and polymorphism don’t mix. 
+
+	Item 4: Avoid gratuitous default constructors.
+
+-For many objects, there is no reasonable way to perform a complete initialization in the absence of outside information.
+
+-If a class lacks a default constructor, there are restrictions on how you can use that class.
+
+ -The first is the creation of arrays.
+  -There are three ways to get around this restriction:
+    -A solution for non-heap arrays is to provide the necessary arguments at the point where the array is defined. There is no way to extend this strategy to heap arrays.
+    -A more general approach is to use an array of pointers instead of an array of objects:
+     -Two disadvantages to this approach:
+      -You have to remember to delete all the objects pointed to by the array.
+      -The total amount of memory you need increases, because you need the space for the pointers as well as the space for the objects.
+       -You can avoid the space penalty if you allocate the raw memory for the array, then use “placement new” (see Item 8) to construct the objects in the memory:
+         void *rawMemory = operator new[](10*sizeof(EquipmentPiece));
+         EquipmentPiece *bestPieces = static_cast<EquipmentPiece*>(rawMemory);
+         for (int i = 0; i < 10; ++i)
+         new (bestPieces+i) EquipmentPiece( ID Number );
+        -The downside to using placement new is that you must manually call destructors on the objects in the array when you want them to go out of existence, then you
+         must manually deallocate the raw memory by calling operator delete[].
+
+-The second problem with classes lacking default constructors is that they are ineligible for use with many template-based container classes.
+ That’s because it’s a common requirement for such templates that the type used to instantiate the template provide a default constructor.
+ Inside the template, an array of the template parameter type is being created.
+
+-Careful template design can eliminate the need for a default constructor. Example: the standard vector template
+ Classes without default constructors will be incompatible with many templates. 
+
+ Virtual base classes lacking default constructors are a pain to work with.
+ That’s because the arguments for virtual base class constructors must be provided by the most derived class of the object being constructed.
+
+ The transformation occurred by providing default constructor almost always complicates the other member functions of the class, because there is no longer any guarantee 
+ that the fields of an EquipmentPiece object have been meaningfully initialized.
+
+ Inclusion of meaningless default constructors affects the efficiency of classes, too. If member functions have to test to see if fields have truly been initialized, clients of 
+ those functions have to pay for the time those tests take. Furthermore, they have to pay for the code that goes into those tests, because that makes executables and 
+ libraries bigger. They also have to pay for the code that handles the cases where the tests fail. All those costs are avoided if a class’s constructors ensure
+ that all fields of an object are correctly initialized.
+
+It’s best to avoid default constructors in classes where they make no sense.
+
+	Item 5: Be wary of user-defined conversion functions.
+
+-Conversion Functions C++ allows compilers to perform implicit conversions between types.
+
+-Two kinds of functions allow compilers to perform such conversions:
+ single-argument constructors and implicit type conversion operators.
+
+-An implicit type conversion operator is simply a member function with a strange-looking name: the word operator followed by a type specification.
+
+-The fundamental problem is that such functions often end up being called when you neither want nor expect them to be The result can be
+ incorrect and unintuitive program behavior that is maddeningly difficult to diagnose.
+
+-The disadvantage of implicit type conversion operators: their presence can lead to the wrong function being called (i.e., one other than the one intended).
+
+-The solution is to replace the operators with equivalent functions that don’t have the syntactically magic names. For example, to allow conversion of a Rational object
+ to a double, replace operator double with a function called something like asDouble.
+
+-Solution: explicit, proxy classes
+                       -No sequence of conversions is allowed to contain more than one user-defined conversion.
+                       -So Declare and Use nested proxy class as a constructor parameter type
+
+-Don't provide conversion functions unless you're sure you want them.
+
+	Item 6: Distinguish between prefix and postfix forms of increment and decrement operators
+
+-UPInt& operator++(); // prefix ++
+ const UPInt operator++(int); // postfix ++
+
+ ++i; // calls i.operator++();
+ i++; // calls i.operator++(0);
+
+-prefix returns a reference(increment and fetch), postfix returns a const object(fetch and increment)
+
+-why posfix returns a const object:
+ 1. it's inconsistent with the behavior of the built-in types.
+    -A good designing classes rule: when in doubt, do as the in do.
+ 2. double application of postfix increment almost works differently from your expectation, and returning const easily prohibit it.
+
+-Since postfix increment, decrement create a temporary objects, when dealing with user-defined types, clients should use prefix for efficiency
+
+-For maintenance, postfix increment and decrement should be implemented in terms of their prefix counterparts.
+
+	Item 7: Never overload &&, ||, or ,
+
+-If you overload&&, ||, or , , short-circuit semantics are replaced with function call semantics.
+ -when a function call is made, all parameters must be evaluated -> no short-circuit
+ -c++ specification leaves undefined the order of evaluation of parameters to a function call
+
+-There is no way let programmers provide short-circuit.
+
+-Overloading operator, cannot guarantee it evaluates the expressions left-to-right order.
+
+	Item 8: Understand the different meanings of new and delete
+
+-new operator:
+ -built into the language, like sizeof
+ -you can't change its meaning
+ -twofold: allocates enough memory to hold an object, calls a constructor
+ operator new:
+ -void * operator new(size_t size);
+ -new operator calls operator new to allocate memory
+ -can add more parameters but the first one must be size_t
+ -no resposibility of calling constructor.
+
+-You can't directly call the constructor in a raw memory.
+
+-placement new implicitly accepts memory location arguement and returns it.
+
+-placement new is part of the standard C++ library. #include <new> is required.
+
+-The relationship between delete operator and operator delete is similar to the relationship between new operator and operator new.
+
+-The memory deallocation is performed by operator delete
+
+-If you want to deal only with raw, uninitialized memory, you should use operator new, operator delete; This is the C++ equivalent of calling malloc and free.
+
+-Do not call delete operator to deallocate memory allocated by placement new since the memory wasn't allocated by operator new, which mean the memory location is unsure.
+
+-Instead, you should undo the effect of the constructor by explicitly calling the object's destructor:
+ void * mallocShared(size_t size);
+ void freeShared(void *memory);
+ void *sharedMemory = mallocShared(sizeof(Widget))
+ Widget *pw = constructWidgetInBuffer( sharedMemory, 10);
+
+ delete pw;
+ pw->~Widget();
+ freeShared(pw);
+
+-In case of array allocation, operator new[] is called instead of operator new
+
+-There is only one global operator new with the “normal” signature, which means cusomizing operator new for copilers not supporting operator new[] will occur pervasive effect.
+
+-Custom memory management for arrays is not usually a reasonable design decision for compilers lacking support for operator new[].
+
+-Between operator new and operator new[], the number of constructor calls is different.
+
+	Item 9: Use destructors to prevent resource leaks.
+
+-Use smart pointers
+
+-Use the idea of smart pointers to the other objects. e.g Window object creation and destruction.
+
+	Item 10: Prevent resource leaks in constructors.
+
+-C++ guarantees it’s safe to delete null pointers.
+
+-C++ destroys only fully constructed objects. An object isn't fully constructed until its constructor has run to completion. Hence, If a constructor throws exceptions, raw memory will not be destroyed.
+
+-If new operator throws an exception, the initialization will fail and the pointer will stay as null-pointer
+
+-Because C++ won’t clean up after objects that throw exceptions during construction, you must design your constructors so that they clean up after themselves.
+
+-Using smart pointer members instead of pointer member reduces the risks of memory leak and need to deallocate resources manually in destructor.
+
+-Use smart pointers
+
+	Item 11: Prevent exceptions from leaving destructors.
+
+-Two cases when destructors are called:
+ -normal conditions e.g. leaving scope
+ -stack unwinding
+
+-If control leaves destructor due to an exceptino while another exception is active, C++ calls the terminate function.
+
+-An exception may or may not be active when a destructor is invoked, and there is no way to distinguish between these conditions from inside a destructor.
+ -So you must write destructors under the assumption that an exception is active because C++ immediately calls terminate function if control leaves a destructor due to an exception while another exception is active.
+
+-To solve the problem, use try catch block:
+ Session::~Session()
+ {
+     try {
+         logDestruction(this);
+     }
+     catch (...) {}
+ }
+
+-The second reason an exception must not leave destructor is to ensure destructor accomplish what it is supposed to do.
+
+	Item 12: Understand how throwing an exception differs from passing a parameter or calling a virtual function
+
+-You can pass both parameters and exceptions by value, by reference, or by pointer.
+
+-But the difference is function calls return to the call site while throwing an exception doesn't return to the throw site.
+
+-Whether catch clause catch exception by value or reference, copy of the exception is made to avoid passing object reference that destructor has already been called when getting out of the scope.
+
+-The copying occurs even if the object being thrown is not in danger of being destroyed e.g. static object
+
+-When an object is copied for use as an exception copy constructor is called. This copy constructor is corresponding to static type not dynamic.
+
+-throw; // no copy made, rethrow the current exception without type change
+ throw w;
+
+-When you catch an exception by value, another copy operation occurs.
+
+-Throw by pointer is equivalent to pass by pointer. Either way, a copy of the pointer is passed.
+
+-About all you need to remember is not to throw a pointer to a local object
+
+-No implicit type conversion happens in matching exceptions to catch clause.
+
+-Two kinds of converision that are applied to catch caluses:
+ -Inheritance-based conversions.
+ -conversion that is from a typed-pointer to an untyped-pointer // catch(const void * e); // can catch any types of pointer.
+
+-catch clauses are always tried in the order of their appearance unlike functions.
+
+-Never put a catch clause for a base class before a catch clause for a derived class.
+
+	Item 13: Catch exceptions by reference.
+
+-Three choices: by value, by reference, by pointer
+
+-Catch an exception by-pointer:
+ -you can't clarify if you delete the pointer. 
+ -runs contrary to the convention established by language itself. The four standard excpetions(bad_alloc, bad_cast, bad_typeid, bad_exception) are all objects, not pointers to objects
+  -So avoid throw by-pointer.
+
+-Catch an exception by-value:
+ -Inefficiency of copying twice
+ -Slicing problem.
+
+-Catch-by-reference suffers from none of the problems
+
+	Item 14: Use exception specifications judiciously.
+
+-Advantages: documentation aid, enforcement mechanism for constraints on exceptino usage
+
+-Functions throwing exceptions not listed in exception specification > calls unexpected > unexpected calls terminate > terminate calls abort
+
+-Exception specification is deprecated since c++11
+
+	Item 15: Understand the costs of exception handling.
+
+-Costs of exception handling:
+ -Identify the objects that require destruction if an exception is thrown
+ -Making note of each entry to and exit from a try block
+ -For each try block, they must keep track of the associated catch clauses and types of exceptions those clauses can handle
+ -Runtime specification to ensure exception specification is satisfied
+
+-Cost paid even when exception handling features are not used:
+ -The space used by the data structure needed to keep track of which objects are fully constructed, and you pay for the time needed to keep these data structures up to date.
+ -In theory, this cost is inevitable, but In practice, vendors allow you control the use of exception handling features.
+
+-Cost arises from try blocks:
+ -the cost varies from compiler to compiler but roughly 5-10% of code size and runtime increase occurs
+ -avoid unneccesary try blocks
+
+-Exception specification takes additional costs.
+
+-If lots of exceptions are thrown, it may run orders of magnitude slower
+
+-Be aware of the costs described in this item, but not to take the numbers very seriously.
+
+-To minimize the exception-related costs:
+ -compile without support for exceptions when that is feasible.
+ -limit the use of try blocks and exception specification.
+ -throw exceptions when they are truly exceptional.
+
+	Item 16: Remember the 80-20 rule.
+
+-The 80-20 Rule The 80-20 rule states that 80 percent of a program’s resources are used by about 20 percent of the code
+ -the overall performance of your software is almost always determined by a small part of its constituent code
+
+-Use profiler for detecting bottleneck
+
+-Use representative data when using profiler
+
+	Item 17: Consider using lazy evaluation
+
+-lazy evaluation: defer computations until the results are required
+
+-the idea is lazy evaluation: don’t make a copy of something until you really need
+
+-If you have a huge objects to persist across program runs, use lazy fetching:
+ -only the “shell” of an object is created, and data is retrieved from the database only when that particular data is needed
+const string& LargeObject::field1() const
+{
+if (field1Value == 0) {
+read the data for field 1 from the database and make
+field1Value point to it;
+}
+return *field1Value;
+}
+
+-No good programmer would deliberately compute a value that’s not needed
+
+-4 examples of lazy evaluation:
+ -To avoid unnecessary copying of objects
+ -To distinguish reads from writes using operator[]
+ -To avoid unnecessary reads from databases
+ -To avoid unnecessary numerical computations
+
+-Lazy evaluation won’t save your program any work if all your computations are necessary
+
+	Item 18: Amortize the cost of expected computations.
+
+-over-eager evaluation
+
+-eager evaluation: calculate every time a function has called
+ lazy evaluation: a function returns a data structure of potentially correct value
+ over-eager evaluation: keep track of the right value
+
+-over-eager evaluation can reduce the cost than eager evaluation and lazy evaluation.
+
+-By judicious data structure designing, frequent computation request can reduce average cost
+
+-One of the simplest ways: cache frequently used values.
+
+-iterators are objects, not a pointer, which means "->" application is not guaranteed. 
+ -The STL requires iterators to guarantee "." and "*". So use (*it).something.
+
+-Another way to amortize the cost of anticipated computation is prefetching
+ -it’s faster to read a big chunk once than to read two or three small chunks at different times.
+ -locality of reference phenomenon: if data in one place is requested, it’s quite common to want nearby data, too
+
+-operator new and operator delete are expensive because they typically result in calls to OS and OS calls generally
+ slower than in-process function calls.
+ -Applying over-eager evaluation, allocate more memory than is required
+
+-greater speed can often be purchased at a cost of increased memory usage
+ -Keeping track of necessary values
+ -Caching results
+ -Prefetching
+
+-You can often trade space for time.
+ -Not always. Using larger objects > paging activity increases, cache hit rate decreases > performance reduce
+
+-lazy evaluation: when the results are not always needed
+ over-eager evaluation: when the results are always needed
+
+	-Item 19: Understand the origin of temporary objects.
+
+-Usual cases that temporary objects arise:
+ -implicit type conversions
+ -when functions return objects
+
+-2 ways to eliminate temporary objects generation:
+ -redesign your code so conversions can't take place
+ -modify your software so that the conversions are unnecessary
+
+-The implicit conversions occur when:
+ -passing objects by value
+ -passing to a reference-to-const parameter
+
+-Switching to a similar function enables avoiding temporary objects cost.
+ ex) operator+ -> operator+=
+
+-Conceptually, avoiding temporary objects cost is impossible. But compilers could optimize them.
+ -most common: return value optimization
+
+-Train yourself to look for places where temporary objects may be created
+
+	Item 20: Facilitate the return value optimization.
+
+-Some functions (e.g. operator*) just have to return objects
+
+-What you need to do is channel your efforts into finding a way to reduce the cost of returned objects, not to eliminate the objects themselves
+
+-You can eliminate the cost of return objects:
+ return constructor arguments instead of objects
+ const Rational operator*(const Rational& lhs,
+ const Rational& rhs)
+ {
+     return Rational(lhs.numerator() * rhs.numerator(),
+     lhs.denominator() * rhs.denominator());
+ }
+ -The total cost of temporary objects is zero. Instead, you pay just one constructor call
+ -This enables the object construction defined by the return expression inside the memory alloted for the object
+
+-Using inline, you can eliminate the overhead of the call to functions
+
+-above strategy is called return value optimization.
+
+	Item 21: Overload to avoid implicit type conversions.
+
+-temporary objects cost from implicit conversion can be eliminated by utilizing overload.
+
+-overloaded operator must take at least one argument of a user-defined type.
+
+-Remember 80-20 rule. There is no need to implement a slew of overloaded functions unless the change is substantial
+
+	Item 22: Consider using op= instead of stand-alone op.
+
+-the good natural relationship between the assignment version of an operator (e.g., operator+=) and the stand-alone
+ version (e.g., operator+) exists is to implement the latter in terms of the former
+ const Rational operator+(const Rational& lhs,
+ const Rational& rhs)
+ {
+     return Rational(lhs) += rhs;
+ }
+
+-assignment versions of operators are more efficient than stand-alone versions
+ -because stand-alone versions must typically return a new object, and that costs us the construction and destruction of a temporary
+
+-By providing both assignment version of operator and stand-alone version, your clients can decide between efficiency and convenience.
+
+-Named objects are not able to take advantages of return value optimization.
+
+-When you have to choose between a named object and a temporary object, temporary is a better option.
+
+-assignment versions of operators are efficient than stand-alone versions of those operators.
+
+	Item 23: Consider alternative libraries.
+
+-Library design is an exercise in compromise.
+
+-You shouldn't utterly believe or ignore benchmarks.
+
+-stdio is almost always more efficient than iostream, and the performance gap is implementaion-dependent.
+
+-iostreams determine the types of their operands during compilation, while stdio functions typicallly parse a
+ format string at runtime.
+
+-The main point is that different libraries offering similar functionality often feature different performance trade-offs
+ -once you’ve identified the bottlenecks in your software, see if it’s possible to remove those bottlenecks by replacing one library with another.
+
+-Different libraries embody different design decisions regarding efficiency, extensibility, portability, type safety, and other issues
+
+	Item 24: Understand the costs of virtual functions, multiple inheritance, virtual base classes, and RTTI.
+
+-To trace the correct dynamic type, most implementations use virtual tables(vtbls) and virtual table pointers(vptrs)
+
+-A vtbl is usually an array of pointers to functions.
+
+-A class that declares of inherits virtual functions has its own vtbl.
+
+-The entries in a class’s vtbl are pointers to the implementations of the virtual functions for that class
+
+-Nonvirtual functions — including constructors — are implemented just like ordinary C functions -> no need for performance consideration
+
+-The first cost of virtual functions: the space for a virtual table for each class that contains virtual functions.
+ -The larger the number of classes and the number of virtual functions, the more space is needed.
+
+-Where to put vtbls?
+ 1. in each object file that might need it
+ 2. in the object file containing the definition of the first non-inline non-pure virtual functions in that class.
+
+-The compilers that follow 2. generates vtbls for each object file if all virtual functions are inline.
+ -Avoid declaring virtual funcions inline
+
+-Each object whose class declares virtual functions s carries with it a hidden data member that points to the vtbl for that class: vptr
+
+-The second cost of virtual functions: payment for extra pointer inside each object.
+ -> decrease performance
+
+-How to call the correct function:
+ void makeACall(C1 *pC1)
+ {
+     pC1->f1();
+ }
+ 1. Follow the object's vptr to its vtbl
+ 2. Find the pointer in the vtbl that corresponds to the function being called
+ 3. Invoke the function pointed to by the pointer
+ -(*pC1->vptr[i])(pC1);
+
+-The virtual function procedure is as efficient as a non-virtual function call. Virtual functions are not usually a performance bottleneck
+
+-The third cost of virtual functions: virtual functions are effectively not inlined.
+ -Virtual functions can be inlined when invoked through objects, but mostly the call made by pointers or references
+
+-In case of multiple inheritance, multiple vptrs within a single object -> special vtbls must be generated -> overhead increase.
+
+-RTTI information is stored in an object of type type_info, and typeid operator is used to access the type_info object
+
+-Accurate dynamic type information is guaranteed only if that type has at lease one virtual function.
+
+-RTTI was designed to be implementable in terms of a class’s vtbl
+ -For example, index 0 of a vtbl array might contain a pointer to the type_info object for the class corresponding to that vtbl.
+
+-It's important to understand that if you need the functionality the features(virtual functions, RTTI) offer.
+
+	Item 25: Virtualizing constructors and non-member functions.
+
+-virtual constructor:
+class NewsLetter {
+public:
+...
+private:
+// read the data for the next NLComponent from str,
+// create the component and return a pointer to it
+static NLComponent * readComponent(istream& str);
+...
+};
+NewsLetter::NewsLetter(istream& str)
+{
+    while (str) {
+        components.push_back(readComponent(str));
+    }
+}
+
+-virtual copy constructor:
+class NLComponent {
+public:
+// declaration of virtual copy constructor
+virtual NLComponent * clone() const = 0;
+...
+};
+class TextBlock: public NLComponent {
+public:
+virtual TextBlock * clone() const
+{ return new TextBlock(*this); }
+...
+};
+
+-No longer must a derived class’s redefinition of a base class’s virtual function declare the same return type
+ -If the function’s return type is a pointer (or a reference) to a base class, the derived class’s function may return a pointer (or reference) to a class
+  derived from that base class
+
+-Making non-member functions act virtual:
+ -write virtual functions to do the work, then write a non-virtual function that does nothing but call the virtual function.
+ inline ostream& operator<<(ostream& s, const NLComponent& c)
+ {
+     return c.print(s);
+ }
+
+	Item 26: Limiting the number of objects of a class.
+
+-The easiest way to prevent a class from being instantiated: declare the constructors private
+
+-class Printer {
+ public:
+     static Printer& thePrinter();
+ ...
+ private:
+     Printer();
+     Printer(const Printer& rhs);
+ ...
+ };
+ Printer& Printer::thePrinter()
+ {
+     static Printer p;
+     return p;
+ }
+
+-The singleton object must be static in function, not in a class.
+ -static in class: always constructed; initialization order in different translation units are not guaranteed.
+ -static in function: constructed when the function is called; able to control initialization order.
+
+-Functions with internal linkage may be duplicated within a program, and that includes static objects contained within the functions.
+ -Don't create inline non-member functions that contain local static data.
+
+-If you'd like to allow any number of objects while ensuring no class inhertis from the class:
+ -declare constructors private > declare static functions that allocate the resource of the class.
+
+-3 contexts that constructors are called:
+ -on their own
+ -as base class parts
+ -embedded inside larger objects
+
+-To allow more than 1 objects:
+ Printer::Printer()
+ {
+     if (numObjects >= 1) {
+     throw TooManyObjects();
+     }
+ proceed with normal object construction here;
+     ++numObjects;
+ }
+
+ Printer * Printer::makePrinter()
+ { return new Printer; }
+
+ Printer *p2 = Printer::makePrinter();
+-To prevent code duplication, encapsulate the static part as a separate component and use private inheritance
+
+-To restore the public accessibility of the function inherited as private, use using:
+ using Counted<Printer>::objectCount;
+
+	Item 27: Requiring or prohibiting heap-based objects.
+
+-To force objects creation to solely rely on new(heap):
+ -declare destructor private. Then implicit destructor call in stack will arise error.
+  -This prevent both containment and inheritance:
+   -declare destructor protected or contain pointers
+
+-There is no ways that constructors know whether they are called on heap or stack.
+
+-You might think about using the fact that in some systems, stack addresses grows down and heap addresses grows up.
+ But in fact, you can't because of static objects.
+ -Where they go is system-dependent while many of the systems put it below the heap.
+ -In the end, it fails to distinguish between heap objects and static objects.
+
+-Knowing safety for deleting a pointer is easier than determining whether a pointer points to something on the heap:
+ -Make a collection that contains addresses returned by operator new
+ -But 3 dampening points:
+  -defining anything at global scope
+  -efficieny
+  -comparison might not work because multiple or virtual base classes have multiple addresses.
+   -Utilize it as mixin class
+
+-A mixin class is one that provides a single well-defined capability and is designed to be compatible with any other capabilities an inheriting class might provide.
+ -Such classes are nearly always abstract
+
+-dynamic_casting a pointer to void*  yields a pointer to the beginning of the memory for the object pointed to by the pointer.
+
+-dynamic_cast is applicable only to pointers to objects that have at least one virtual function.
+
+-the most common reason to use a mixin class like "HeapTracked" is to determine the safety of “delete this,”
+
+-Prohibiting Heap-Based Objects:
+ class UPNumber {
+ private:
+     static void *operator new(size_t size);
+     static void operator delete(void *ptr);
+ ...
+ };
+ -But this doesn't work when it is contained and when derived classes has their own operator new.
+
+	Item 28: Smart pointers.
+
+-Clients of smart pointers are supposed to be able to treat them as dumb pointers.
+
+-If a smart pointer "owns" the object it points to, it is responsible for deleting that object when the smart pointer is destroyed
+
+-

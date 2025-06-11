@@ -1,0 +1,16 @@
+-character movement의 details > nav movement > enable can crouch(필요하면 can fly도)
+
+-project settings > input > action mappings에서 crouch, spring 매핑 추가
+
+-character blueprint에서 inputaction jump엔 jumping, stop jumping 각각 연결
+
+-inputaction crouch에선 character movement > is crouching > branch > true에선 uncrouch false에선 crouch
+ (branch 대신 flip flop도 사용가능)
+
+-inputaction sprint에선 character movement > set max walk speed를 각각 맞게 설정 후 set timer by event를 통해
+ stamina 시스템을 구현 > event에 custom event decrease stamina, increase stamina
+ decrease event에선 (stamina <= 0) branch - true면 set walk speed - decrease timer를 clear and invalid trace by handle - 
+ increase event로 set timer by event. false 면 stamina 감소 후 set. decrease event  set timer 후엔 increase event를 
+ invalid해주고 decrease event 내 increase timer event도 invalid
+ increase event 작성도 비슷하게.
+ -사용된 set timer by event를 알맞게 clear and invalidate trace by handle하기

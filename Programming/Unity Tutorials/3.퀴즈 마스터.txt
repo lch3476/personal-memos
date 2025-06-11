@@ -1,0 +1,204 @@
+	50. 게임 디자인 - 퀴즈 마스터
+
+-Mechanics 고려: UI, 버튼, 타이머 등
+
+-3 big questions:
+ Player Experience, Core Mechanic, Game Loop
+
+	51. UI 캔버스
+
+-UI elements live on the "Canvas"
+
+-The canvas generally exists in "Screen Space", which is mostly separated from the game world
+
+-we can have multiple canvases
+
+-Hierarchy > 우클릭 > canvas
+
+-canvas에 ui를 추가할 땐 canvas child이어야 한다.
+
+-world space와 screen space는 다르다. position 값을 변경해도 움직이는 정도가 다르다.
+
+-scene view가 아니라 game view에서 봐야 제대로 보인다.
+
+-추가한 ui의 stretch 사각형에서 pivot, position 쉽게 변경
+
+-canvas의 sort order로 맨 앞 정렬.
+
+	52. 텍스트 메쉬 프로
+
+-없으면 package manager에서 설치
+
+-window > testmeshpro > import essential resources
+
+-text보다 유연, 유용
+
+-UI > TextMeshPro
+
+-font를 다운로드 했으면 window > TextMeshPro > Font asset Creator로 asset 만들어줘야 사용 가능.
+
+	53. 버튼 레이아웃
+
+-UI에서 추가.
+
+-Button component의 interactable 토글로 상호작용 on/off 가능
+
+-Button component의 Transition에서 버튼 액션 시각 효과 조정 가능. None이면 off
+
+-button image 적용 방식을 바꾸려면 Image Type
+ -border 추가는 sprite에서 sprite edit
+
+-여러 개를 정렬해서 쓰려면 Create Empty Object > add component > layout > vertical, horizontal layout 등 선택
+
+-UI들을 그룹에 추가하고 layout group에서 child alignment로 정렬
+
+-layout group에서 control child size로 크기 조절.
+
+-font-size나 text color 변경
+
+-만든 button UI set을 Project window로 드래그해서 저장 가능
+
+	54. 스크립터블 오브젝트
+
+-font관련 저장 폴더는 TextMeshPro 폴더에; Fonts, Resources > Font & Materials
+
+-What is Scriptable Objects:
+ -data container
+ -keeps data out of scripts
+ -save memory by stroing data in one place
+ -don't need to be attached to game objects
+ -act as a template
+ -ex) weapon stats
+
+-스크립트에서 스크립터블 옵젝트에 저장된 정보를 참조해서 쓰는 식
+
+-Monobehavior 대신 ScriptableObject 상속
+
+-클래스를 [CreateAssetMenu(menuName = "Quiz Question", fileName = "New Question")] 어트리뷰트로 수식
+ -Create 메뉴에서 object를 만들 수 있게 해줌.
+
+-데이터 멤버를 유연하게 바꾸고 싶다면 SerializeField
+
+-[TextArea()] 어트리뷰트는 SerializeField의 기입란을 inspector에서 textarea로
+
+	55. 게터 메서드
+
+-gives read-only access to a private variable
+
+-protect a private variable
+
+	56. 배열
+
+-int[] intArray = new int[n];
+
+	57. 텍스트 메쉬 프로 UGUI
+
+-스크립트에서 TextMeshPro를 참조해서 동적으로 텍스트를 바꾸려면 TextMeshProUGUI 타입으로 참조 및 사용
+
+-새 스크립트
+
+-스크립터블 오브젝트 데이터 활용을 위해 그 타입의 SerializeField 데이터 멤버 추가.
+
+-TextMeshProUGUI 타입 멤버 추가 // SerializeField // using TMPro;
+
+-TextMeshProUGUI는 UI용 TextMeshPro는 인게임용
+
+-TextMeshProUGUI 타입 변수.text로 변경
+
+-inspector에서 TextMeshProUGUI의 객체 설정.
+
+	58.루프
+
+-타입에 관련해서 많은걸 할 것이 아니라면 GameObject 타입으로해도 양호
+
+-Child Component에 대한 참조를 얻으려면 GetComponentInChildren<>();
+
+	59. 스와핑 스프라이트
+
+-button 이벤트를 위한 메서드 정의 및 구현
+
+-Sprite 타입 데이터 멤버는 Sprite.
+
+-Image 타입은 using UnityEngine.UI; 헤더 필요
+
+-button에서 GetComponent로 Image 참조 후 변경
+ buttonImage = answerButtons[correctAnswerIndex].GetComponent<Image>();
+ buttonImage.sprite = CorrectAnswerButtonSprite;
+
+-OnClick() 이벤트 설정 필수
+
+	60. 버튼 상태
+
+-리팩토링 성실하게 하자
+
+-Button buttonToSet = answerButtons[i].GetComponent<Button>();
+ buttonToSet.interactable = state;
+
+	61. 단순 타이머
+
+-Image UI의 Image Type을 Filled로 하면 progress bar처럼 작동
+
+-Fill amount로 filled ratio 조절
+
+-TimeValue를 정해놓고 Time.deltaTime으로 -=
+
+	63. 타이머 연결하기
+
+-[Header(category-name)] 어트리뷰트로 데이터 멤버 카테고리화 가능
+
+-별도의 using없이 내가 짠 스크립트의 클래스 참조 가능 (FindObjectofType)
+
+	64. 리스트
+
+-difference between list and array:
+ lists are mutable
+
+-List<QuestionSO> questions = new List<QuestionSO>();
+
+-Useful methods & properties:
+ .Count, Contains(), Add(), Remove(), RemoveAt(), Clear()
+
+-f2로 변수 이름을 변경하면 참조된 그 변수가 다같이 변경됨.
+
+-난수는 Random.Range()
+
+	65. 점수 유지
+
+-UI에 스크립트 추가시 empty object를 wrapper로 활용
+
+-형변환 -> (correctAnswers / (float)questionsSeen) * 100
+
+-수학 연산 > Mathf
+ Mathf.RoundToInt((correctAnswers / (float)questionsSeen) * 100);
+
+	66. 슬라이더
+
+-UI에서 Slider 생성 > progress bar
+
+-slider의 child component는 그저 각각 배경, 게이지, 게이지 포인터를 나타내는 이미지
+
+-slider의 whole number를 enable하면 value를 정수로만
+
+	67. 종료 화면
+
+	68. 게임 매니저
+
+-empty object 생성 및 GameManager 스크립트 생성, attach. //아이콘 바꿔줌 
+
+-스크립트에서 필요한 다른 스크립트 및 객체 참조 // 메인 게임 루프 스크립트 or endscreen
+
+-GameObject.SetActive는 component 활성화 컨트롤 가능.
+
+-Inspector에서 unactive이면 스크립트에서 참조 불가.
+
+-게임 재시작 버튼 이벤트 설정
+ // public void OnReplayLevel()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+-GetActiveScene()은 현재 Scene 반환
+
+-buildIndex는 Scene의 build index값
+
+-데이터 초기화는 Awake()에서 하는게 낫다.

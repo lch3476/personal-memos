@@ -1,0 +1,8 @@
+-beginoverlap을 톻해 데미지를 구현하면 overlap이 두 번 발생하는 버그가 생길 수 있다.
+-canbehitwithmelee bool 변수를 생성해서 true일 경우 damage값을 적용하게 노드짜기.
+-데미지 적용이 된 후 enemy가 죽는 것이 false라면 상태 변수를 set false > delay > set true
+
+-character를 복사한 후 loot pick up을 못 먹는다면 복사된 캐릭터를 위한 overlap event 하나더 짜기
+
+-부자연스러운 움직임 수정은 idle과 walk/run 애니메이션을 분리하고 walk/run의 blend space에서 interpulation time을 주면
+ 된다.

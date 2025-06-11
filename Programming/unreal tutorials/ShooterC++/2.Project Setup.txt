@@ -1,0 +1,189 @@
+	1. Project Setup
+
+-_Game폴더를 생성해서 Character, GameMode, Maps 하위폴더 생성
+
+-Actor로부터 상속받는 클래스들은 C++코드에서 'A' prefix가 붙는다.
+
+-Unreal engine editor에서 C++ class를 기반으로 blueprint를 생성할 수 있다.
+
+-C++ gamemode를 기반으로 blueprint를 생성하고 world outliner 혹은 project settings에서 gamemode와 Maps 옵션을
+ 설정한다.
+
+	2. Character Class
+
+-C++ character class를 생성한다.
+
+-생성한 C++ charactaer class로 character blueprint를 생성한다.
+ -capsule component에서 hidden in game을 false로 하면 게임 내에서 볼 수 있다.
+
+-Gamemode에서 DefaultPawnClass를 설정한다.
+
+	3. UE_LOG Format String
+
+-UE_LOG macro호출은 editor의 output log에 message를 띄울 수 있게 한다.
+ -UE_LOG(LogTemp, Warning, TEXT("myInt value: %d"), myInt);
+ -첫 번째 매개변수는 log category, 두 번째는 verbosity
+
+	4. UE_LOG Format Specifiers
+
+-float 값은 f 접미어,  wchar_t은 L접두어 잊지않기.
+
+-int: d
+ float: f
+ double: lf
+ char: c
+ wchar_t: lc
+ bool: d
+
+	5. UE_LOG with FString
+
+-FString myString{ TEXT("My String") };
+ UE_LOG(LogTemp, Warning, TEXT("FString myString: %s"), *myString)
+ -Text format은 C스타일이고 myString은 문자열 객체이기 때문에 오버로딩된 * 연산자를 사용하여 C스타일 문자열을 
+  사용하여 타입을 맞게 바꾸어 주어야 한다.
+
+-GetName() 함수를 사용하면 현재 instance의 이름을 간편하게 얻을 수 있다.
+ UE_LOG(LogTemp, Warning, TEXT("Name of Instance: %s"), *GetName());
+ 
+	6. Camera Spring Arm
+
+-character class에 private section 추가 후 private member를 위한 getter, setter 선언을 위해 public section 추가.
+
+-private멤버 추가. class USpringArmComponent* CameraBoom;
+ -컴파일 의존성과 파일 크기를 줄이기 위해 class 키워드로 forward declaration한다. 헤더 파일은 cpp파일에서 추가.
+
+-CameraBoom을 위한 getter 선언.
+ -FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+ -아주 간단한 함수에 대해서는 inline으로 선언하고, 그것을 위해 FORCEINLINE을 추가해 준다.
+ -inline으로 선언할지에 대한 최종 결정은 컴파일러가 한다.
+
+-CameraBoom에 UPROPERTY Macro를 수식.
+ UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+ class USpringArmComponent* CameraBoom;
+ -VisibleAnywhere: 변수를 블루프린트의 detail panel과 게임 안 instance의 detail panel에서 모두 볼 수 있게 설정한다.
+ -BlueprintReadOnly: blueprint에서 getter node는 가지지만 setter node는 가지지 않는다.
+ -Category: Details panel에서 category를 부여한다.
+ -meta: private인 cameraboom을 blueprint에서 접근할 수 있도록 한다.
+
+-cpp파일의 Character 생성자에서 CameraBoom을 초기화한다.
+ CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"))
+ -CreateDefaultSubobject: 새로운 Subobject를 생성하는 함수이다. 생성하고자 하는 Subobject타입을 타입 매개변수로 받고,
+  함수 매개변수로 이름을 지정할 TEXT string을 넣는다.
+
+-cpp파일의 Character 생성자에서 CameraBoom을 RootComponent에 attach한다.
+ CameraBoom->SetupAttachment(RootComponent);
+ -RootComponent는 actor로부터 상속받은 변수이다.
+
+-forward declaration했던 클래스 타입에 대해 맞는 header를 include해줘야 한다.
+ -path 찾는 법
+  -solution explorer에서 <typename>.h를 검색하고 하단의 path에서 classes이하의 path를 include.
+  -unreal engine documentation.
+
+-TargetArmLength와 bUsePawnControlRotation set.
+ -CameraBoom->TargetArmLength = 300.f;
+ -CameraBoom->bUseControlRotation = true;
+
+	7. Follow Camera
+
+-CameraBoom과 같이 private에 UCameraComponent의 FollowCamera 멤버를 선언하고 getter또한 선언한다.
+
+-cpp 파일의 character 생성자에서 CreateDefaultSubobject를 통해 cameraboom과 비슷하게 camera를 생성하고 
+ CameraBoom에 SetUpAttachment(헤더 파일을 포함해 주어야 한다). 
+ -SpringArmComponent는 CameraComponent를 Attach할 수 있는 Socket name의 static 변수를 가지고 있다.
+ FollowCamera->SetUpAttachment(CameraBoom, USpringArmComponent::SocketName);
+
+-FollowCamera의 bUsePawnControlRotation을 false로 설정한다.
+ FollowCamera->bUsePawnControlRotation = false;
+
+-If we want to adjust camera relative to the player, we should adjust cameraboom.
+
+	8. Controllers and Input
+
+-Arrow Component는 어느 방향이 forward인지 알려준다.
+
+-Mesh가 Collision의 주체가 되면 연산이 비싸지기 때문에 capsule component와 같은 collision component가 collision의 
+ 역할을 한다.
+
+-The controller is an invisible entity
+
+-Though the controller is invisible, it has as orientation(rotation). There are functions to get and set the orientation.
+
+-There is no function to get the forward vector of controller rotation. But we can calculate it.
+
+-When a controller possess a character, it controls how the character moves.
+
+-An user provides input(keyboard, mouse) > a controller takes the information and uses it to move the character. 
+ >pass the information to a movement component 
+ >movement component takes the information and make sure that the input is valid(physics, collision etc)
+
+	9. Move Forward and Right
+
+-Action mapping: happen one time, Axis mapping: happen each frame
+
+-project settings에서 axis mapping추가(MoveForward, MoveRight).
+
+-Character class의 protected에 MoveForward, MoveRight헤더 추가.
+ -void MoveForward(int Value);
+
+-The direction a controller facing is the direction of the camera.
+
+-MoveForward 구현.
+ -Controller와 Value 값 유효성 확인
+  if ((Controller != nullptr) && Value != 0.0f) {}
+ -Control Rotation을 통해 FRotator타입의 Rotation 변수에 ControlRotation을 통해 set.
+ -Rotation을 사용해서 FRotator타입의 YawRotation 변수 생성.
+ -YawRotation을 이용하여 FVector타입의 Direction 변수 생성 및 초기화.
+ -AddMovement Input호출
+  FRotator Rotation{ Controller->GetControlRotation() };
+  FRotator YawRotation{ 0.0f, Rotation.Yaw, 0.0f };
+
+  FVector Direction{ FRotationMatrix{ YawRotation }.GetUnitAxis(EAxis::X) };
+
+  AddMovementInput(Direction, Value);
+
+-MoveRight에도 똑같은 코드를 실행하나 EAixs::Y값이 대신 들어간다.
+
+-MoreForward, MoveRight을 Bind해줘야 하는데, SetupPlayerInputComponent에서 한다.
+ -인자값으로 들어온 PlayerInputComponent가 유효한지 check macro를 사용하여 확인한다.
+ -PlayerInputComponent의 BindAxis를 호출한다.)
+
+	10. DeltaTime
+
+-DeltaTime: The time between frames
+ Frame: A single image updated to the screen
+ Frame Rate: Number of frames updated per second
+ Tick: Synonymous with Frame
+
+-To make constant calculation related to fps, you have to multiply the movement rate by the delta time
+
+	11. Turn at Rate
+
+-float 타입의 BaseLookUpRate과 BaseTurnRate 변수를 private에 추가.
+
+-void TurnAtRate(float Rate);
+ void LookUpAtRate(float Rate); protected에 추가 및 구현.
+ void AShooterCharacter::LookUpAtRate(float Rate)
+ {
+ 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+ }
+ Turn은 Yaw
+
+-Character의 생성자에서 BaseLookUpRate과 BaseTurnRate(45.f or else) 초기화
+
+-Axis mapping 추가
+
+	12. Mouse Turning and Jumping
+
+-Project settings에서 axis mapping 추가 및 SetupPlayerInputComponent에서 bindaxis
+ PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+ PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
+
+-Jump를 위한 action mapping 추가
+
+-SetupPlayerInputComponent에서 BindAction
+ PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+ PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+
+	13. Adding Mesh
+
+-원하는 Mesh를 프로젝트에 추가하고 Character Blueprint에서 Skeletal Mesh설정

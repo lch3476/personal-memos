@@ -1,0 +1,20 @@
+What is Anim Notify State:
+-Anim Notify State은 Anim Notify와 같지만 begin, end와 tick event가 있다.
+-Animation에서 anim notify state의 범위를 정하면 시작과 끝에 begin과 end event를 실행한다. tick event는 매 프레임에 실행된다.
+-Blend Space를 사용할 때 animation의 끝에 다다르기 전 loop를 실행하여 end가 실행되지 않을 수 있다. 그런 경우엔 anim notify state의 end 위치를 조정해준다.
+-미리 만들어진 Timed Particle Effect Anim Notify State을 통해 애니메이션 실행동엔 particle을 재생할 수 있다.
+
+Dealing Damage:
+
+-Character의 전투 시스템 구축.
+
+-Deal Damage를 위한 Anim Notify State생성 > tick event override > 
+ SphereTraceByChannel (World Context Object는 Sphere를 casting하는 object, Start와 End는 무기의 알맞은 socket location, Trace Channel은 Camera, 적당한 radius) 
+ Range Attack을 위해 SphereOverlapActors 사용도 가능.
+ > Apply Damage(Damage 설정, Damage Actor는 TraceByChannel의 Out Hit Actor)
+
+-Enemy Blueprint에서 Event AnyDamage(혹은 다른 DamageEvent)
+
+-Widget Blueprint의 Size Box를 실 사이즈로 보려면 desired로.
+
+Ranged:

@@ -1,0 +1,6 @@
+-weapon blueprint에 collision component 추가.
+-mesh와 collision component의 collision을 overlapalldynamic으로 설정
+-enemy mesh의 collision을 character mesh로 설정. capsult component collision Pawn으로 설정.
+-enemy collision - on component begin overlap - cast to weapon -get player character - cast to ... - 
+ get 공격 상태 변수 branch(true)를 사용해 공격 중일 때만 데미지가 들어가게 설정 - 데미지가 들어가게 health set
+ - 체력이 < 0 이 되면 death function - destroy actor

@@ -1,0 +1,76 @@
+-Rootmotion enabled
+
+-Action Mapping 추가.
+
+-InputAction Roll - Is Falling - branch - (false) - HasMovementInput - branch
+ -Macro 추가 (HasMovementInput)
+ Character Movement - get last input vector - equal (0, 0, 0) - output
+
+-Roll/Dodge AnimMontage생성 및 Play될 수 있게 Animation blueprint 조정
+
+-Roll Montage가 중복 재생되는 문제를 수정하기 위해 PlayHighPriorityMontage 함수를 생성.
+ -Character blueprint에 Anim Montage타입 변수 생성(HighPriorityMontage)
+ -PlayHighPriorityMontage는 play montage와 같은 signature(anim montage, float, name)를 갖는다.
+ -(mesh - get anim instance - montage is playing) - branch - false - set HighPriorityMontage(매개변수 montage로)
+  -play montage(HighPriorityMontage, name, rate)
+ -PlayHighPriorityMontage호출시 play rate값이 0이 아니게 해야한다.
+
+-HasMovementInput이 false일 때 PlayHighPriorityMontage를 호출하여 dodget backward montage play.
+
+-rotation roll 을 위해 roll montage 재생 전 get last movement input vector - RotationFromXVector - SetActorRotation
+ -그러나 이 작업은 부자연스러운 움직임을 만든다
+
+//부드러운 Rotation을 위한 작업
+-Interface Folder에 blueprint interface(BPI_RotateOwner) 생성
+ -함수 인터페이스 추가
+  rotator타입을 반환하는 Get Desired Rotation
+  두 개의 float 매개변수(MaxPossibleRotation, MaxDegreesPerSecond)를 가지는 StartRotatingWithLimit
+
+-character blueprint에 interface 추가
+
+-character blueprint에서 Get Desired Rotation구현
+ HasMovementInput - branch
+ -true: Get Last Movement Input - Rotation From X Vector - Return Node
+ -false: GetActorRotation - Return Node
+
+-AnimNotifies Folder생성
+
+-AN_RotateOwner Anim Notify Blueprint 생성
+
+-AN_RotateOwner에서 float 타입의 MaxPossibleRotation(180), MaxDegreesPerSecond(720)변수 생성(editable)
+
+-Override Received_Notify
+ -Mesh Comp - Get Anim Instance - StartRotatingWithLimit(MaxPossibleRotation, MaxDegreesPerSecond)
+
+-Animation Blueprint에서 BPI_RotateOwner Add, bool 타입 ShouldRotate 변수 추가.
+
+-(ShouldRotate - branch) collapse to node(RotationForDirectionalRoll)
+
+-Animation Blueprint에 float 타입 TimeElapsed, RotateTime, MaxDegreesPerSecond추가.
+
+-RotationForDirectionalRoll
+ -true: Set TimeElapsed (TimeElapsed + GetWorldDeltaSeconds) - branch (TimeElapsed <= RotateTime) - true
+         - GetDesiredRotation(TryGetPawnOwner) - SetActorRotation(TryGetPawnOwner, RInterptoConstant) - output
+         RInterptoConstant((TryGetPawnOwner - GetActorRotation), GetDesiredRotation, GetWorldDeltaSeconds, MaxDegreesPerSecond)
+ -false: output node
+
+-RotationForDirectionalRoll에서 StartRotatingWithLimit 구현
+ -Set Rotate Time(MaxPossibleRotation / MaxDegreesPerSecond) - Set Max Degrees Per Second(Max Degrees Per Second) 
+  - Set Time Elapsed(0) - Set Should Rotate(true)
+
+-StopRotating Custom Event 생성 및 구현 
+ - Set Should Rotate(false)
+
+-Roll Montage의 시작 지점에서 생성한 notify 실행.
+
+-------------------------
+
+-현재의 노드는 Montage priority에 관한 문제가 있다(scenario에 따라 다르게 해결할 수 있다).
+
+-PlayHighPriorityMontage를 복사 하여 TryPlayAnimMontage 함수 생성.
+
+-HighPriorityMontage Set노드를 제거하고, Montage Is Playing 매개변수를 NULL로 설정하여 어떤 Montage가 Play중인지 검사.
+
+-기존의 백스텝 Montage Play를 TryPlayAnimMontage로 실행(Play Rate 주의).
+
+-백스텝 - roll forward 시 캔슬되는 점이 문제되면 mesh - get anim instance - montage is playing(dodget backward) - branch 검사 후 roll anim 실행.

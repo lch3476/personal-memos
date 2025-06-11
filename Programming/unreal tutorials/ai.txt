@@ -1,0 +1,136 @@
+1.
+-메시, aicontroller, behavior tree, blackboard 한세트.
+-nav mesh bounds volume으로 이동 가능한 범위 설정
+-behavior tree task에서 맞는 task가 제공되지 않으면 new task를 만든다. 이 경우 event receive execute ai와
+ finish extcute를 필수적으로 가져야 한다.
+-blackboard는 트리의 task간의 소통에 역할을 한다.
+-만들어진 task에서 black board key타입의 변수를 생성하고, set blackboard value as 함수를 사용하여 블랙보드 내의
+ 변수 값을 task내에서 발생은 값으로 설정할 수 있다.
+-finish execute의 리턴 값을 true로 설정해야 성공적으로 실행된 것으로 인지한다
+
+2.
+-decorator는 sequence를 위한 조건문이다. decorator가 true인 경우에만 시퀀스를 실행한다.
+-black board에 bool키를 넣고, decorator에 추가해 tree를 적용할 수 있다.
+-aicontroller에 aiperception컴포넌트를 추가함으로써 ai가 어떻게 맵을 인지하는지 설정할 수 있다.
+-character에 aiperceptionstimulisource컴포넌트를 추가합으로써 ai가 character를 인지하게 할 수 있다.
+-on Target Perception Updated를 통해 perception에 관한 이벤트를 발생 시킬수 있다. 리턴되는 stimuli의 break하여
+ 블랙보드의 특정 키를 업데이트 할 수 있다.
+-블랙보드의 키를 설정할 때 make literal name을 쓴다
+
+3.
+-decorator의 flow control에서 flow의 흐름을 바꾸는 조건과 그 중단 방식을 설정할 수 있다. self는 그 decorator만,
+-lower priority는 낮은 우선도의 시퀀스들만, both는 모두 중단시킨다.
+-cool down 데코레이터를 통해 sequence의 호출 횟수를 조절할 수 있다.
+-use controller rotation yaw(부드러운 rotation을 위해 off, controlller desired location on)는 
+ player controller의 yaw를 통해서 업데이트 되게 설정한다.
+-charater movement component의 rotation setting을 통해서 rotation 설정 가능
+
+
+4.
+-actor blueprint를 만들고 vector array변수를 선언 후 editable 및 show 3d widget의 상태로 만들어서 patrol path를
+ 설정할 수 있다.
+-ai controlled charater에 patrol path정보를 가지고 있는 actor 타입의 변수를 선언하고 editable상태로 만들면
+ patrol path정보를 원하는 대로 설정할 수 있다.
+-patrol의 경우 경로를 찾고, 이동하고, 다음 포인트를 찾는 task 순으로 작업한다.
+-patrol path를 위한 vector와 index키를 black board에 추가하는 쪽이 편하다
+-변수의 값을 변경할 때에는 항상 변수가 범위 내의 값을 가지는지 확인해야 한다.
+
+5.
+-시퀀스에 selector를 attach함으로써 tree를 더 세분화할 수 있다.
+-task가 fail이면 그 시퀀스의 다음 트리로 넘어간다.
+-어떤 상태에 대해서 ex) sprinting, running, looping.. bool 변수를 선언해 표현하는 것이 좋다.
+-bahavior tree의 black board에 값을 설정해서 사용하려면 behavior 트리를 사용하는 ai에서 black board 참조를 얻고
+ set value 를 사용하여 복사한다.
+-black board key의 디폴트 값 설정을 잊지 말자.
+
+6.
+-Services attach to composite or task nodes and will execute at their defined frequency as long as their branch is
+ being executed. These are often used to make checks and to update the blackboard keys.
+-services는 event receive activation부터 시작하고, owner controller는 ai controller이다.
+
+7.
+-enum타입을 통해서 다양한 상태를 나타낼 수 있고, black board based condition에 활용해 각 상태에서의 트리를
+ 만들 수 있다.
+-loop decorator를 통해 실행 횟수를 조절할 수 있다.
+-task 실행을 마친 후 success의 반환을 확실히 해줘야 한다.
+-guard ai가 player dectection에 실패했을 경우 플레이어의 마지막 위치로 이동시키는 task를 추가하면 더 생동감 있다.
+
+
+8.
+-ai나 캐릭터에 공격 애니메이션을 추가할 때, motage를 통해 더 유연한 설정을 할 수 있다.
+-애니메이션의 일부분만 사용하고 싶을 땐 motage에 slot을 추가하여 blend를 활용한다.
+-layered blend per bone을 animation blueprint에서 활용함으로써 bone을 기준으로 애니메이션을 blend할 수 있다.
+-animation blueprint에서 montage의 slot을 호출하여 사용할 수 있다.
+-blend를 사용할 시 state machine은 하나의 애니메이션만 사용 가능하기에 cache를 활용하여야 한다.
+-그 후 필요한 곳에 play montage를 사용하여 호출한다
+-blueprint interface is a collection of one or more functions in name only. There is no implementation.
+ blueprint interfaces can be added to a blueprint to guarantee that they have specific functions
+-The use of blueprint interfaces allows for a common method of interacting with multiple diaparate types of
+ objects that all share some specific functionality
+-blueprint interface를 사용하려면 class setting의 interface 파트에서 추가해주어야 한다.
+
+9.
+-service는 간단히 말하자면, 그 노드에 달하였을 때 실했됐으면 하는 코드이다.
+-does implement interface는 대상이 지정한 interface를 실행(add)하였는지의 bool값을 반환한다.
+-simple parallel은 두가지 task를 거의 동시에 실행할 수 있게 해준다. 보라 소켓은 main task인데, 검은 소켓의 task는
+ main task가 실행되는 동안 실행된다.
+-simple paralle은 두 가지 모드가 있는데 immediate은 main task가 완료된 즉시 다른 트리들을 종료하고 delayed는
+ 그것이 실행완료 될 때까지 유예한다.
+
+10.
+-'를 누르면 ai가 어떻게 작동하고 있는지 알려주는 디버그창을 볼 수 있다.
+-ai perception에서 ai의 인지 능력을 설정할 수 있다. 
+-noise를 이벤트에 활용하고 싶다면, play sound 노드 후 report noise event를 추가한다.
+-ai에 hearing perception을 추가하고 싶다면 aiperception에서 hearing config를 추가한다. 그러며 ai가 noise report를 
+ 캐치할 수 있다. 그리고 그 report는 on target perception updated에서 handle된다.
+-on target perception updated은 stimulus의 종류와 상관없이 항상 인식하고 다양한 상태를 black board key값으로 
+ 설정할 수 없기에, 이런 경우 on perception updated를 활용한다.
+-on perception updated의 리턴 값인 updated actors에 for each loop를 쓰고, 각 actor에 get actors perception을 써
+ stimuli정보를 얻은뒤 pin을 split해 나오는 stimuli array를 활용한다.
+-get actors perception이 반환하는 aistimuli array의 index는 perception config의 index를 따른다.
+-ai controller의 set focus와 behavior tree의 rotate to face BB entry를 활용하려면 use controller rotation과
+ orient rotation to movement를 disabled로 하고, use controller desired rotation을 enabled한다.
+-set focus는 캡슐을 rotate한다. ai perception는 view cone setup을 위해 capsule을 사용한다.
+
+11. 
+-데미지 적용 과정
+ 1.skeleton에 socket만들기(socket이 추가된 부분에 대한 참조 획득.
+ 2.데미지의 instigator 블루프린트에 가서 확인 후, 해당 animation montage에 notification(montage notifiy) 추가. 
+ 3.play montage노드의 on notify begin에 데미지 적용 블루프린트 작성.
+-complex collision이란 실제 렌더링 geometry를 collision에 활용한다는 것이다.
+-damage 이벤트를 보고 하기 위해서 report damage event 를 활용한다. 활용된 trace노드의 hit정보를 써서 보고한다.
+
+12.
+-nav link는 서로 다른 nav mesh 부분에 link를 제공하여 이동할 수 있게 한다. ex)분리된 nav mesh에서 점프로 이동
+-nav link의 smart link에서 link direction을 설정할 수 있다.
+
+13.
+-The Environment Query System(EQS) is a feature within the Artificial intelligence system that is used to collect data
+ from the environment. Within EQS, you can ask questions about the data collected through a variety of different tests
+ which produces an item that best fits the type of question asked.
+-An EQS Query can be called from a Behavior Tree and used to make decisions on how to proceed based on the results
+ of your Tests.
+-EQS Queries are primarily made up of Generators(which are used to produce the locations or Actors that will be tested
+ and weighted) and Contexts(which are used as a frame of reference for any Tests or Generators).
+-Actors of Class generator의 경우, Environmental Query에서 searched actor class를 설정해주고 eqs testing pawn 
+ 블루프린트를 만든 후 레벨에 배치한 다음, EQS 섹션에서 query template을 설정해주면 모든 searched actor class의 
+ actor들에 item을 attach한다.
+-generator에 test를 추가할 수 있다.
+-trace querier는 item을 볼 수 있는지 line trace를 활용하여 테스트한다. 볼 수 있다면 true를 리턴하고 아니면 false를 리턴한다.
+-bool match를 통해 return 되는 bool 값을 뒤집을 수 있다.
+-그 후 behavior tree에서 run eqs query를 추가한 뒤 실행할 query를 설정하면 query의 리턴 값을 사용할 수 있다.
+
+14.
+-context is a location from or to you're looking at. this location is usually the location of an actor or series or actors
+-EnvQueryContext_BlueprintBase를 통해서 원하는 context를 작성할 수 있다.
+ 1.EnvQueryContext_BlueprintBase생성
+ 2.Functions Override 중 선택
+ 3.원하는 값 반환.
+ 4.Query에서 원하는 context설정.
+-point grid generator generaters grid of point around the querier
+-projection data의 project up과 down을 통해 geometry에 끼인 item들을 올리거나 뜬 item들을 내릴수 있고, post projection
+ vertical offet으로 z index를 조절할 수 있다.
+-distance to의 test의 경우 가장 먼 item에 1의 score를 부여하고 scoring equation을 inverse linear로 설정하면 가장 가까운
+ item에 1의 score를 부여한다.
+-path exist test는 path를 찾을 수 없는 item들을 걸러낸다.
+-dot test는 두 벡터의 dot product를 계산한다.

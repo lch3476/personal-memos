@@ -1,0 +1,256 @@
+	1. The Anim Instance
+
+-Animation Blueprint is based on a C++ class called Anim Instance
+
+-C++ 클래스 Anim Instance 생성
+
+-Anim Instance class 헤더 파일에 두 함수 원형 추가.
+ UFUNCTION(BlueprintCallable) // Animation Blueprint eventgraph에서 호출할 수 있게 된다.
+ void UpdateAnimationProperties(float DeltaTime); // Tick과 같은 역할
+ -Tick처럼 행동하는 Native Update Animation이 있긴하다. 하지만 여기선 직접 생성.
+
+ virtual void NativeInitializeAnimation() override; // inherited from UAnimInstance. actor의 beginplay와 같은 용도. member variable initialization here
+
+-private section에 Reference to the character생성. 
+ UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+ class AShooterCharacter* ShooterCharacter;
+
+-TryGetPawnOwner()는 그 anim instance를 소유하고 있는 pawn를 return한다. 하지만 pawn타입이기에 cast해줘야 한다.
+void UShooterAnimInstance::NativeInitializeAnimation()
+{
+	ShooterCharacter = Cast<AShooterCharacter>(TryGetPawnOwner());
+}
+
+-UpdateAnimationPrperties에서 Character Ref가 nullptr를 참조하는 일은 있어선 안된다. 
+void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
+{
+	if (ShooterCharacter == nullptr)
+	{
+		ShooterCharacter = Cast<AShooterCharacter>(TryGetPawnOwner());
+	}
+}
+
+-UShooterAnimInstance의 private에 UPROPERTY()로 필요한 변수 추가(float speed, bool bIsInAir, bool bIsAccelerating.)
+
+-UShooterAnimInstance::UpdateAnimationProperties에서 private변수들 업데이트.
+if (ShooterCharacter)
+{
+	FVector Vector{ ShooterCharacter->GetVelocity() };
+	Vector.Z = 0; // z값을 0으로 set해야 X와 Y 축의 speed가 계산된다.
+	Vector.Size();
+	bIsInAir = ShooterCharacter->GetCharacterMovement()->IsFalling();
+	bIsAccelerating = ShooterCharacter->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0.f ? true : false;
+}
+
+-CharacterMovement를 사용하려면 CharacterMovement Component 헤더 파일을 include 해야 한다.
+
+	2. The Animation Blueprint
+
+-위에서 만든 Anim Instance를 기반으로 Animation Blueprint 생성.
+
+-Character에서 Animation Blueprint 설정
+
+-Animation Blueprint의 Event Blueprint Update Animation에서 c++ Anim Instance에서 만든 Update Animation Properties 호출.
+
+	3. Run Animation
+
+-state machine 추가. idle > jog start > run > jog stop (start <-> stop)
+ -각 state machine에 맞는 animation 설정.
+
+-transition 설정.
+ -transition details의 Automatic Rule Based On Sequence Player In State를 enable하면 remaining time 등에 기반하여 자동으로 transition rule을 설정한다.
+ -transition details의 blend duration을 통해 부드러운 blend가 가능하다.
+
+	4. Trimming Animations
+
+-폴더 만들고 복사해서 Trim.
+
+	5. Rotate Character to Movement
+
+bUseControllerRotationPitch = false;
+bUseControllerRotationRoll = false;
+bUseControllerRotationYaw = false;
+
+GetCharacterMovement()->bOrientRotationToMovement = true;
+GetCharacterMovement()->RotationRate = FRotator(0.f, 540.f, 0.f);
+GetCharacterMovement()->JumpZVelocity = 600.f;
+GetCharacterMovement()->AirControl = 0.2f;
+
+-블루프린트의 값은 C++ 클래스에서 설정한 값을 덮어쓴다.
+
+	6. Fire Weapon Function
+
+-Project Mapping에서 Fire Button Action Mapping 생성.
+
+-Character Blueprint의 protected에 void FireWeapon() 함수 프로토타입 정의 및 구현.
+
+-SetupPlayerInputComponent에서 Fire Button Action Bind.
+
+	7. Shooting Sound Effects
+
+-Assets 폴더를 만들어 에셋들을 따로 관리하는 것이 좋다. ex) Assets > Sounds
+
+-맞는 Sound 에셋을 찾아 import.
+
+-Sound Wave로부터 Sound Cue를 만든다.
+
+-Cue내에서 random 노드를 통해 wave들을 랜덤 재생할 수 있다.
+
+-ShooterCharacter private에 SoundCue 변수 생성.
+UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = combat, meta = (AllowPrivateAccess = "true"))
+class USoundCue* FireSound;
+ -EditAnywhere를 통해 블루프린트 내에서도 수정할 수 있게 된다.
+
+-FireWeapon 함수 정의에서 SoundCue null 검사 후 PlaySound2D를 통해 재생.
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
+void AShooterCharacter::FireWeapon()
+{
+	if (FireSound)
+	{
+		UGameplayStatics::PlaySound2D(this, FireSound);
+	}
+}
+
+-character blueprint내에서 sound cue설정
+
+	8. Shooting Particles
+
+-Socket을 사용해서 Particles를 Spawn할 위치 get
+
+-skeleton에서 Particle을 재생할 위치에 socket만들고 transform 조정
+
+-Character Class에 ParticleSystem 변수 생성.
+ UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = combat, meta = (AllowPrivateAccess = "true"))
+ class UParticleSystem* MuzzleFlash;
+
+-FireWeapon 함수에서 Socket 변수를 만들고 Transform값 얻기 및 emitter 스폰
+ const USkeletalMeshSocket* BarrelSocket = GetMesh()->GetSocketByName("BarrelSocket");
+ if (BarrelSocket)
+ {
+ 	const FTransform SocketTransform = BarrelSocket->GetSocketTransform(GetMesh());
+	if (MuzzleFlash)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash, SocketTransform);
+		}
+ }
+
+-필요하다면 particle system을 수정하고 설정.
+
+	9. Shooting Animation
+
+-Animation Trim후, Animation Montage, slot 생성, 및 Animation blueprint 조정.
+
+-Character Class에서 HipFireMontage AnimMontage 변수 생성.
+ UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = combat, meta = (AllowPrivateAccess = "true"))
+ class UAnimMontage* HipFireMontage;
+
+-FireWeapon 함수에서 AnimInstance를 통해 Montage 재생
+UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && HipFireMontage)
+	{
+		AnimInstance->Montage_Play(HipFireMontage);
+		AnimInstance->Montage_JumpToSection(FName("StartFire"));
+	}
+
+	10. Line Tracing for Bullet Hits
+
+-LineTrace를 통해 bulletHits을 구현한다. 
+
+-LineTrace함수는 Hit의 정보를 담고있는 FHitResult 구조체를 매개변수로 받는다.
+		FHitResult FireHit;
+		const FVector Start{ SocketTransform.GetLocation()};
+		const FQuat Rotation{ SocketTransform.GetRotation()};
+		const FVector RotationAxis{ Rotation.GetAxisX() };
+		const FVector End{ Start + RotationAxis * 50'000.f };
+		GetWorld()->LineTraceSingleByChannel(FireHit, Start, End, ECollisionChannel::ECC_Visibility);
+
+		if (FireHit.bBlockingHit)
+		{
+			DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.0f);
+			DrawDebugPoint(GetWorld(), FireHit.Location, 5.f, FColor::Red, false, 2.f);
+		}
+-FQuat은 로테이션을 위한 클래스
+
+-ECollisionChannel로 채널 조정
+
+-FColor struct는 color의 정적 상수값을 가지고 있다.
+
+-DrawDebugLine, DrawDebugPoint을 호출하기 위해 #include "DrawDebugHelpers.h"를 추가.
+
+-BeamParticle:
+ 새로 Particle 변수를 추가 하고 WeaponFire 함수에서 맞게 Location 생성 뒤 SpawnEmitter. Particle의 Target도 설정.
+	if (BeamParticles)
+	{
+		UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BeamParticles, SocketTransform);
+		if (Beam)
+		{
+			Beam->SetVectorParameter(FName("Target"), BeamEndPoint);
+		}
+	}
+
+Socket Offset:
+bUseControllerRotationYaw = true; FollowCamera->bUsePawnControlRotation = false; CameraBoom->SocketOffset = FVector(0.f, 50.f, 50.f);
+
+HUD class and crosshairs:
+HUD blueprint 생성 및 GameMode Blueprint에서 HUD class 설정.
+
+HUD blueprint에서 event receive draw HUD(x, y는 screen size)
+HUD blueprint에서 중심 벡터 값을 저장할 2D Vector 타입 변수 생성후 Receive Draw HUD의 인자값을 2로 나누어 2D Vector를 만들고 Set.
+Draw Texture -> 원하는 위치와 크기 조정; screen w, h은 크기(픽셀단위)
+
+	3.35  Directing Rifle Shots
+Mesh Socket보다 CrossHair를 이용하여 LineTrace 호출로 해결
+GEngine(engine pointer)과 GEngine->GameViewport 포인터를 사용하여 화면크기 값 획득 및 CrossHairLocation 2D Vector 변수 생성 및 초기화.
+UGamePlayStatics::DeprojectScreenToWorld()를 통해 Screen Position을 World Position 으로 변환
+UGamePlayStatics::DeprojectScreenToWorld()는 성공여부를 bool로 반환. local variable로 저장하면 좋다.
+얻은 CrossHairLocation 의 World값으로 LineTrace
+impact particle, beam particle spawn(Partible Target 설정도)
+
+	3.36 Trace From Gun Barrel
+CrossHair에서만 LineTrace하면 Hit지점 중간에 장애물이 있는 경우를 표현하지 못한다. GunBarrel에서도 BeamEndPoint로 LineTrace를 해주어야 한다.
+
+	3.37 Refactor Beam and End Code
+getting beam and end location 같은 일을 함수로 묶어서 관리를 용이하게 한다.
+함수의 호출에 맞게 function prototype을 만들어야 한다.
+
+	3.38 Movement Offset Yaw
+
+-key to knowing which strafing animation to play lies in the difference between our base aim rotation and the rotation corresponding to our character's
+ velocity
+
+-anim instance에서 rotation difference(MovementOffset)의 변수를 생성할 수 있다.
+
+-MovementOffsetYaw float변수 추가.
+ AimRotation은 ShooterCharacter->GetbaseAimRotation() 
+ #include "Kismet/KismetMathLibrary.h"
+ MovementRotation은 UKismetMathLibrary::MakeRotFromX(ShooterCharacter::GetVelocity()) 
+ MovementOffsetYaw = UKismetMathLibrary::NormalizedDeltaRotator(Movement Rotation, AimRotation).Yaw;
+
+	3.39 Strafing Blendspace
+
+-blendspace 생성 및 설정. 
+ horizontal axis: MovementOffsetYaw
+ vertical axis: Lean
+ run animation 대신 blend space 사용.
+
+	3.40-41 Jog Start, Stop Blendspace
+-Start:
+ 필요한 애니메이션을 조정하고, 1D Blendspace 생성
+ axis: OffsetYaw
+ strafe와 같은 논리로 blendspace 조정.
+ Animation Blueprint의 Runstart Statemachine에서 play
+
+-Stop:
+ stop의 경우 유사하지만 멈출 시 재생이기에 GetVelocity()를 기반으로 한 계산이 제대로 작동하지 않는다. 고로 Offset값을 stop전에 저장해 두어야 한다.
+ LastMovementOffsetYaw 변수를 새로 추가하고 velocity size가 0이 아닐때만 set한다.
+ if (ShooterCharacter->GetVelocity().Size())
+		{
+			LastMovementOffsetYaw = MovementOffsetYaw;
+		}
+
+	3.42 Smoothing Character Movement
+
+-Blendspace interpolation time 조정
+
+-lower CharacterMovement의 Max Acceleration, Braking Deceleration Walking, GroundFriction.

@@ -1,0 +1,5 @@
+-gamemode에 experience, max experience level 변수 생성. 레벨 시스템을 각 캐릭터마다 적용하고 싶으면 character 
+ blueprint에서 생성.
+-exp 및 level을 나타내는 HUD에 값 binding
+-enemy가 죽을 때 character의 exp값을 update하고 max 보다 크면 레벨 값++ 및 레벨업 시 max exp값 증가 시키기
+ 및 exp 0으로 초기화

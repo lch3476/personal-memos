@@ -1,0 +1,114 @@
+변환 시 어떤 C++ 클래스로 생성할 지는 class settings에서 parent class를 통해 확인한다.
+
+C++ 클래스 생성 후 Blueprint로 생성할 수 있도록 UCLASS에 Blueprintable 태그를 추가한다.
+
+Blueprintable 태그는 상속된다.
+
+Actor를 선택할지 Component를 선택할지 잘 고려해야 한다. 컴포넌트가 모듈화 하기 좋다.
+
+Blueprint내에서 변수 값을 조정하는 것은 Default이고 WorldOutliner에 Actor를 배치하고 값을 고치는 것은 instance이다.
+
+String, Name, Vector, Rotator, Transform은 C++에서 F prefix를 가진 class가 된다. ex)FString
+
+Object > UObject*
+Actor > AActor*
+Actorcomponent > UActorComponent*
+
+UFUNCTION(BlueprintCallable, BlueprintPure)
+>각 태그는 블루프린트에서 호출할 수 있게, Pure Function으로 바꾸어준다.
+
+블루프린트 함수 노드 C++에서 찾는법:
+1.blueprint에 커서를 두면 보이는 Target을 visual studio에서 ctrl + , 를 누르고 .h postfix와 함께 헤더 파일 찾기.
+  블루프린트 함수 노드의 이름을 찾고 메타 데이터로 지정된 이름이면 f12를 통해 c++에서 호출하는 함수이름 보기.
+
+본래 C++에서는 블루프린트를 참조하지 못하나, 함수 프로토타입을 C++클래스에 정의하고 UFUNCTION(BlueprintImplmentableEvent) 태그로 수식해주면 C++에 정의된 
+함수를 Event graph의 Event로 구현하여 호출할 수 있다.
+
+그러나 BlueprintImplmentableEvent이라고 해서 BlueprintCallable인 것은 아니기에 따로 수식해 주어야 한다. UFUNCTION(BlueprintCallable, BlueprintImplmentableEvent)
+
+BlueprintImplementableEvent와 BlueprintNativeEvent의 차이:
+BlueprintNativeEvent has default C++ implementation, can call to super, and doesn't have to be implemented in Blueprint
+UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+
+C++ 함수 내에서 포인터가 가르키는 객체의 값을 바꾸는 것이 아니라 포인터를 바꾸고자 한다면 int**, int*&처럼 포인터의 포인터나 포인터의 참조를 매개변수로 주어야 
+한다.
+
+BlueprintNativeEvent Function의 구현은 함수 이름에 _implementation postfix를 추가해 주어야 한다.
+
+BlueprintNativeEvent BlueprintImplmentableEvent은 C++함수를 블루프린트에서 오버라이딩하고 호출하는데 사용된다.
+
+Struct Conversion:
+Object클래스 생성
+class를 struct로 바꾸고 UObject public 상속 제거
+UCLASS() 매크로를 USTRUCT() 매크로로 변경
+블루프린트 내에서 변수의 타입으로 생성될 수 있도록 USTRUCT(BlueprintType)으로 설정.
+Struct내에 data 추가:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FString Name;
+컴파일하면 크러시가 난다.
+생성한 구조체를 사용하고자 하는 클래스에 구조체 변수 추가: ex)
+UPROPERTY(EditAnywhere, BlueprintReadWrite)
+TArray<QuestInfo> QuestList;
+Blueprint Class Defaults에서 Blueprint struct의 값들 복사해넣기. 
+blueprint struct의 references들을 찾아서 교환
+
+블루프린트 struct를 사용하는 public함수에서 return인 struct를 변경해주려면 일일이 참조를 바꿀 상황을 만드는 것보단 로컬로 blueprint struct 변수를 만들고 C++ 구조체
+의 값들을 break -> make struct 로 복사해 넣는 것이 낫다.
+
+Struct는 가급적 C++클래스로 만들고 사용하는 것이 낫다.
+
+Struct이름은 F prefix를 가져야 한다.
+
+BlueprintNativeEvent나 BlueprintImplementableEvent의 경우, const가 아니거나 return value가 없는 경우, override를 하면 event graph로 간다.
+
+UFUNCTION(BlueprintPure)로 수식하면 Blueprint에서 Pure로 호출된다.
+
+Blueprint에서 사용할 변수는 protected에 선언한다.
+
+Creating Components in C++:
+C++클래스생성
+protected에 변수 생성 UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+생성자에서 CreateDefaultSubobject
+[variable]->SetUpAttachment or SetRootComponent()
+BlueprintComponent의 details들 copy paste
+reference 찾아서 교체
+
+UPROPERTY는 언리얼 엔진의 garbage collection을 사용할 수 있도록 하기 때문에 포인터 변수라면 필요함을 불문하고 UPROPERTY로 선언해야 한다.
+
+CreateDefaultSubobject는 생성자 안에서만 호출될 수 있다.
+
+Declaring Delegates For Blueprint:
+ Dynamic: vs not
+  Can be serialized
+  Can be found by name
+  Can be used in Blueprint
+  Less performant
+
+ Multicast: vs Singlecast
+  Can have multiple listeners
+  No return value
+
+ Events: vs Delegates
+  Multiple listeners
+  No return value
+  Cannot broadcast outside the class
+
+ global scope에 매크로 선언
+ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCompletedQuestSignature, int32, Index)
+ 필요에 따라 DYNAMIC, MULTICAST,  Param은 조정.
+
+ public에 UPROPERTY 선언
+ UPROPERTY(BlueprintAssignable, BlueprintCallable)
+ FCompletedQuestSignature CompletedQuest;
+
+ Blueprint Event Dispatcher의 reference를 찾아서 교체.
+
+Broadcasting and Subscribe in C++:
+ CompletedQuest.Broadcast()
+
+ custom event는 c++에서는 function 
+ 
+ GetQuestManager()->CompletedQuest.AddDynamic(this, &QuestUpdate); // Dynamic이 아니면 Add
+  Add 되는 function은 UFUNTION()이어야 한다.
+
+Binding User Input:

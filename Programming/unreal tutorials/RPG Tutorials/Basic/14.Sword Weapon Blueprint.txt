@@ -1,0 +1,6 @@
+-무기를 장착하고자 하는 character의 skeleton에서 원하는 bone에 socket 생성
+ -preview asset 으로 미리보기 가능. 오른쪽의 animation preview를 통해서 애니메이션 미리보기도 가능
+-preview를 사용하여 socket을 맞는 위치에 배치
+-actor blueprint를 생성하고 weapon mesh 추가
+-character의 beginplay에서 spawn actor from class(transform은 mesh - get socket transform) - attach to component
+ (target은 spawn된 actor, parent는 mesh, transform rule은 snap)

@@ -1,0 +1,5 @@
+-pickupitems를 위한 폴더를 만들고 pickup blueprint 생성 > static mesh 추가 > collision 조정
+-onbeginoverlap > get game mode > cast to > 각 인벤토리 상태 표시 변수가 비어 있음을 표시하는지 branch
+ - true이면 그 정수값 pickup에 맞게 set false이면 다음 인벤토리 칸 branch - 각 끝에 destroy actor.
+
+*더 좋은방법..?

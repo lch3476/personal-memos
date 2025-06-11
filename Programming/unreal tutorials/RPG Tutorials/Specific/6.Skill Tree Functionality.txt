@@ -1,0 +1,6 @@
+-skill tree UI Widget에서 text를 update하는 파트는 따로 함수로 만들어 놓는게 좋다.
+-skill tree 버튼이 disabled일 때 style을 조정하고 behavior에서 조건을 충족할 때 on할 수 있도록 is enabled를 false로 한다.
+-widget의 event graph에서 is variable로 만들어 놓은 각 요소의 ref 변수의 onclicked를 사용한다.
+ character ref - skill points > 0 - branch - do once - 매개변수만큼 스킬 포인트를 빼주는 함수 작성 및 호출 > 
+ 버튼에 맞게 변수 값 수정(최대 체력, 현재 체력 수정 등)
+-스킬트리가 있으면 한 스킬 버튼을 누르면 아래 트리 버튼이 enbled 될 수 있게 그 버튼의 ref > set is enabled

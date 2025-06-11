@@ -1,0 +1,8 @@
+1.animation blueprint anim graph에 애니메이션을 위한 casting state추가. ex) casting 1H combat
+2.character blueprint에 casting 상태 bool 변수 추가 ex) casting 1H combat
+3.character blueprint에서 action event 노드 짜기. 다른 casting 변수의 상태도 조건문에 넣어야 한다.
+4.animation blueprint에서 transition condition 및 state machine에서 애니메이션 설정
+5.projectile actor로 쓸 particle 수정
+6.projectile actor로 사용할 액터 생성 후 particle system(혹은 mesh), projectile movent 추가
+7.projectile movement 설정(initial speed, max speed, gravity etc)
+8.action event에 spawn actor

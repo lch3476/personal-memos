@@ -1,0 +1,10 @@
+-actor 생성(recording actor)
+-select할 Character들의 수만큼 skeletal mesh추가 후, skeletal mesh 설정 > Animation mode를 use animation asset으로
+ 설정 후 원하는 animation(주로 idle)설정
+-camera, scenecapturecomponent추가
+-scenecapturecomponent - scene capture에서 render target으로 캡쳐 > Size 조정 > 카메라 조정
+-render target > 오른쪽 마우스 > create material > blend mode translucent
+-material > alpha pin > oneminus > opacity, texture sample to emissive color
+-class selection widget에서 image 추가 후 만든 material로 설정
+-recording actor를 월드 내에 추가하고 적절한 위치에 배치
+-widget에 background blur을 추가하여 흐릿한 배경 사용가능

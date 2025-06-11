@@ -1,0 +1,6 @@
+-추가적인 state addition을 대비하여 event graph에서 sequence로 시작.
+-idle, walk/run state는 따로 분리
+-speed > try get pawn owner - get velocity - vectorlength squared
+ direction > try get pawn owner - get actor rotation - calculate direction
+-blend space speed 값 0일 때 모두 idle. 180, -180 > backwards, 90 > right, -90 > left
+-나중에 다른 캐릭터를 만들 때, 캐릭터에 겹치는 점이 많으면 복사해서 필요한 부분만 교체해 주면 된다.

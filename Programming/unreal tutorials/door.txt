@@ -1,0 +1,54 @@
+1.
+-문 메시와 box collision을 합쳐서 플레이어가 접근하면 열리는 문을 만든다.
+-트리거로 사용하고 싶을 시 collision을 trigger로 설정한다.
+-collision 컴포넌트의 oncomponentbeginoverlap을 통해 overlap 이벤트를 설정할 수 있다.
+-cast to로 유효성 검사가 가능하다.
+-timeline을 통해서 일정 시간동안 값을 바꾸는 실행이 가능하다.
+-timeline의 reverse 핀을 통해 바뀐 값을 원래대로 돌림으로써 문을 다시 닫는 이펙트를 줄 수 있다.
+-collision 컴포넌트의 oncomponentendoverlap을 통해 overlap 종료시 이벤트를 설정할 수 있다.
+
+2.
+-상호작용형 문
+ 1. begin, endoverlap 이벤트에서 각각 enable, disable input사용 // enable input 을 통해 그 액터가 플레이어 인풋을 인지가능
+ 2. enable, disable input에 플레이어 컨트롤러를 인자 값으로 배정.
+ 3. 원하는 keyboard event 에 timeline play를 배정하고 disable 인풋이 실행되면 timeline reverse 실행
+
+3.
+키카드 문
+-rotation movement를 추가해서 빙빙도는 효과를 줄 수 있다.
+-키카드 액터에 keyvalue를 추가하고, 문 액터에 keyvalue를 추가 한다음, player character 액터에 boolean array인
+ keyvalue array를 추가한다. 그 후 키 카드 액터를 overlap해서 획득하면 keyvalue인덱스의 keyvalue array 값을 
+ true로 수정한 뒤, 문 액터에서 keyvalue 값과 keyvalue array의 인덱스를 비교 후, 그 bool 값을 다시 keyvalue array
+ 의 해당 인덱스 값을 비교한뒤 enable input을 실행할 지 조건문을 실행하면 키카드 문 완성
+
+4.
+스위치 문
+ 1.문과 스위치 액터 생성 후, 문 액터에 잠금 상태를 표현할 bool변수와 스위치에 대한 참조 변수 생성.
+ 2.islocked 변수를 사용해 unlock 상태일때만 상호작용이 가능하도록 수정.
+ 3.스위치 액터에 스위치 액터 참조를 인자 값으로 갖는 이벤트 디스패쳐 추가
+ 4.스위치 begin overlap 이벤트에 생성한 디스패쳐 call
+ 5.문 액터의 beginplay에서 디스패쳐에 이벤트 바인드.
+ 6.바인드 되는 이벤트에서 문의 switch변수와 input으로 사용되는 switch변수가 같다면, islocked 상태 변수를 unlock 상태로
+   표현되게 set 및 잠금상태 표현 point light이 있다면 색 설정.
+-문의 잠금 상태를 표현할 point light의 색을 변경하려면 construction script에서 set light color 사용
+
+5.
+Hinge Door
+1. Hinge로 쓰기 위한 scene component 추가.
+2. 축으로 쓸 좌표로 hinge를 옮기고, mesh를 attach.
+3. timeline을 생성하고, hinge의 setreleativerotation 사용.
+4. timeline의 알파값을 set relative rotation의 yaw 값으로 input.
+5. player character가 보는 방향이로 만 열리게 하고싶다면 문과 캐릭터의 forward vector의 dot product값을 round해서
+   timeline의 알파값과 곱한 후 사용.
+
+6.
+keypad door
+1.keypad 및 button widget interface 생성.
+2.키패드 디자인
+3.버튼 디자인 및 on button click event와 text 변수 설정 함수 작성.
+4.keypad widget에 grid panel을 추가하고 그안에 button widget 1~9 추가.
+5.그래프의 event construct에 make array로 버튼들의 array를 만들고 foreach 문으로 각각의 event bind.
+6.비밀번호를 표시할 string 변수를 만들고 버튼의 이벤트에서는 버튼이 눌릴 때마다 변수에 문자 추가.
+7.비밀번호가 적당한 길이면 condeentered에 대한 이벤트 디스패쳐 추가.
+8.문 액터에 키패드 위젯 추가.
+9.캐릭터에 widget interaction 추가

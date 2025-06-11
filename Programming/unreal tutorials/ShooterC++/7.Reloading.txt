@@ -1,0 +1,12 @@
+-PlayerController class를 통해 widget을 스크린에 표현할 수 있다. // 93
+
+-enum class를 한쪽 클래스에 둬서 컴파일 의존성을 높이는 대신 다른 헤더 파일에 enum class를 정의하고 include할 수 있다. 일련의 과정이 필요하다. // 102
+
+-checkf() 매크로를 통해서 assert를 활용할 수 있다. // 103
+
+-c++에 정의된 함수로 anim notify 활용하여 reload등 가능 // 103
+
+-bone이동은 scene component를 활용한다. // 106, 107
+ transform bone 또한 활용 // 109
+
+-notify를 이용하여 anim montage에서 sound 재생 // 110

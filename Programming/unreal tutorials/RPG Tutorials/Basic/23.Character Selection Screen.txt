@@ -1,0 +1,9 @@
+-Game Mode의 default pawn class none으로 설정
+-Selection 화면을 위한 Widget Blueprint 생성
+-각 캐릭터를 위한 button과 text추가.
+-button > onclicked > spawn actor from class > is valid > get player controller > possess > spawnactor class의 transform
+ 과 collision handling override 설정.
+-만든 Selection Widget을 display하기 위해 open level blueprint - create widget - add to viewport
+-character를 선택한 후 그 widget을 제거하도록 on clicked의 끝에 remove from parent
+-마우스 커서를 표시 및 제거하기 위해 selection widget의 construct에 get player controller > cast to > 
+ set show mouse cursor true > on clicked의 마지막에 set show mouse cursor false.

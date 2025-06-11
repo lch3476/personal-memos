@@ -1,0 +1,8 @@
+1.Popup message를 위한 widget blueprint 생성
+2.text box 추가 및 font, size, position 원하는 대로 수정.
+3.Fade의 경우 Appearance의 opacity를 0으로 설정 및 widget 애니메이션 추가 - timeline 추가 - track 추가
+4.track을 확장시켜 opacity track에서 애니메이션 시간에 따라 맞는 opacity 값 설정
+5.위에서 아래로 내려오게 하고 싶다면 똑같이 transform 트랙을 추가해서 translation 파트에서 설정.
+6.widget blueprint - graph - Construct(beginplay와 같은 것) - play animation - in Animation 핀에 참조 되있는 애니메이션
+  변수 사용
+7.메세지에 따라서 필요한 곳에 create widget - add to viewport.

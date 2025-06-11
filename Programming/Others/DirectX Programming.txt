@@ -1,0 +1,102 @@
+	1. WinMain
+
+-가장 작은 프로그램은 Single window 프로그램.
+
+-What windows are about: windows, messages
+
+-Components of windows: class, instance -> not c++ classes
+
+-In windows, everything is windows; everything is composed of windows; e.g. buttons, texts
+
+-Windows 객체를 생성하고 등록
+
+#include <Windows.h>
+
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow);
+
+> window entry point
+> WinMain과 wWinMain은 command line arguments를 unicode로 다루냐 ANSI로 다루냐 차이 // wWinMain is preferred
+> hInstance is used to handle the excutable(EXE)
+> hPrevInstance has no meaning. It was used in 16-bit Windows, but is now always zero.
+> pCmdLine contains the command-line arguments as a Unicode string.
+> nCmdShow is a flag that says whether the main application window will be minimized, maximized, or shown normally.
+
+	2. Window Creation
+
+-WINAPI, CALLBACK are modifier for functions. They make C++ to use different calling convention(stdcall)
+
+-The procedure to create window:
+ Register window class
+ Create window instance
+
+-Ex means functions are extended
+
+-RegisterClassEx(&wc);
+ HWND hWnd = CreateWindowEx();
+ ShowWindow(hWnd, SW_SHOW);
+
+	3. Message Loop/ WndProc
+
+-Message processing에는 Win32 side와 Appside 존재.
+
+-Win32에서 Mouse같은 event 메세지를 큐에 저장하고 App에서 GetMessage()를 통해 그 정보 획득
+ >TranslateMessage(): related to keyboard input. It translates keystrokes (key down, key up) into characters. remember to call it before DispatchMessage
+ > DispatchMessage(): Dispatches a message to a window procedure. It is typically used to dispatch a message retrieved by the GetMessage function.
+                             Then window procefure process the message
+
+-pipeline:
+ 버튼 눌림 > OS가 message queue에 버튼 메세지 put > GetMessage로 MSG structure 채움 > TranslateMessage, DispatchMessage > DispatchMessage에서 상응하는 window procedure
+ 호출
+
+-window procedure 리턴 시 DispatchMessage의 message loop로 돌아온다 > program 작동 시 항상 message가 큐로 전달됨 > loop 필요
+
+-The PostQuitMessage function puts a WM_QUIT message on the message queue.
+
+-WM_QUIT is a special message: It causes GetMessage to return zero, signaling the end of the message loop.
+
+-The DispatchMessage function calls the window procedure of the window that is the target of the message. The window procedure has the following signature:
+ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+-LRESULT is an integer value that your program returns to Windows.
+
+-A typical window procedure is simply a large switch statement that switches on the message code.
+
+-window procedure 직접 정의 -> handle msg
+
+	4. Window Message
+
+-WM_ 메세지 리스트는 검색
+
+-Msg의 WPARAM과 LPARAM은 각각 message에 대한 추가 데이터 포함.
+ > 자세한 정보는 항상 msdn 검색.
+
+	5. WM_CHAR / Mouse
+
+-WM_CHAR 메시지에는 누른 키의 문자 코드가 포함; WM_KEYDOWN은 x
+
+-WM_CHAR의 wParam은 키의 문자 코드; shift를 통한 uppercase, lowercase 전환도 지원
+
+-Use WM_CHAR when you're looking for text input
+ Use WM_KEYDOWN when you're looking for key stroke
+
+-TranslateMessage(): Translates virtual-key messages into character messages. The character messages are posted to the calling thread's message queue, 
+                          to be read the next time the thread calls the GetMessage or PeekMessage function.
+
+-SetWindowText로 title 변경.
+
+-WM_LBUTTONDOWN은 마우스 왼쪽 클릭 message.
+
+-const POINTS pt = MAKEPOINTS(lParam);로 클릭 좌표 획득.
+
+	6. Window Framework
+
+-Window Class를 Register했으면 Unregister도 동반.
+
+-Window procedure는 class method가 될 수 없다. WinApi side는 c++에 대해 알지 못하는데 method는 this 포인터를 가지고 있기 때문.
+
+-캡슐화 시 window procedure method의 wrapper로써 static member function을 추가한다.
+
+-기입하는 window size는 non-client 부분까지 모두 합한 것. RECT와 AdjustWindowRect를 통해 조정해줘야 한다.
+
+-AdjustWindowRect: calculates the required size of the window rectangle, based on the desired client-rectangle size.
+                          The window rectangle can then be passed to the CreateWindow function to create a window whose client area is the desired size.

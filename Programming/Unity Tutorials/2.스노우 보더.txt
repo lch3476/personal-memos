@@ -1,0 +1,188 @@
+	30. 게임 디자인 - 스노우 보더
+
+-어떤 메카닉, 게임 루프, Player Experience(유저가 느낄 감정 등)를 줄지는 사전에 정해 놓는 것이 좋다.
+
+	31. 스프라이트 셰이프 사용하기
+
+-Hierarchy 우클릭 > 2d object > sprite shape
+
+-Project 우클릭 > Create > 2D > Sprite Shape Profile
+
+-sprite shape에서 커스텀 sprite shape profile로 설정.
+
+-sprite shape profile에서 sprite와 fill texture 설정.
+
+-sprite shape에서 edit Spline
+
+	32. 엣지 콜라이더 사용하기
+
+-sprite shape에 edge collider 2D component 추가.
+
+-2d objects > physics > dynamic이면 collider 2d, rigid body 2d가 미리 추가된 object 생성 가능
+
+-sprite shape renderer의 Collider 부분에서 Offset으로 Edge Collider 위치 조절.
+
+-sprite shape 노드들을 드래그 하고 Height 조절로 sprite 수정
+
+-sprite 선택 후 edit sprite로 사용할 sprite 부분 조절.
+
+-sprite shape profile에 쓸 sprite들의 wrap mode 확인.
+
+	33. 시네머신 카메라 팔로우
+
+-cinemachine creates rules for the cameras(manage multiple cameras)
+
+-maincamera에 cinemachine brain을 추가, cinemachine은 virtual camera들을 포함.
+
+-virtual camera가 가진 rule을 main에 적용
+
+-window -> package manager -> Packages: Registry -> Cinemachine install
+
+-cinemachine -> virtual camera 추가시 Main camera에 CinemachineBrain 자동 추가.
+
+-virtual camera에서 follow 타겟 설정, Body option 선택.
+
+-Framing Transposer -> screen x y 값 조절.
+
+	34. 캐릭터 설정
+
+-sprite를 hierarchy에 드래그해서 넣으면 rederer만 있는 object 생성.
+
+-새 sprite에 맞는 collider
+
+-direction과 offset로 collision 위치 조절.
+
+	35. 서페이스 이펙터 2d 사용하기
+
+-surface effector applies tangent forces along the surfaces of colliders. Analogous to a conveyor belt
+
+-다른 다양한 이펙터들도 있다.
+
+-edge collider포함 container에 surface effector 2d 추가.
+
+-collider에서 used by effector enable
+
+-effector의 gravity scale은 받는 중력 조절.
+
+-rigid body 2d의 collision detection을 continuous로 설정 시 더 정확한 충돌 연산
+
+	36. 회전 - AddTorque
+
+-Transform.Rotate을 활용하면 물리 엔진과 조화 하락. Torque활용.
+
+-RigidBody 2d에 Torque 적용.
+
+-Input에서 입력과 관련된 것들 처리
+
+-Input.GetKey(KeyCode.LeftArrow)로 원하는 키가 입력됐는지 조건 처리.
+
+-rigidBodyRef.AddTorque(TorqueSpeed); // Torque 적용
+
+-RigidBody 2d의 Linear Drag는 마찰력 Angular Drag는 회전 마찰력
+
+	37. Triggers To Restart Level
+
+-empty object -> sprite 추가 -> collider 2d 추가 -> enable is trigger -> add script
+
+-collision과 trigger 역할 구분 명확히.
+
+	38. 네임 스페이스 & 씬 전환
+
+-네임 스페이스 사용엔 using 키워드.
+
+-using UnityEngine.SceneManagement;
+
+-SceneManager.LoadScene();
+
+-Build Settings에서 빌드할 Scene 추가, 삭제 가능.
+
+-SceneManager.LoadScene();에 Scene index나 이름 input.
+
+-ctrl + . 으로 네임스페이스 참조문 자동 추가 가능.
+
+	39. Invoke()로 딜레이하기
+
+-딜레이 방법:
+ invoke, coroutine
+
+-coroutine이 더 강력하지만 invoke가 더 쉽다. // invoke(function-name, delay);
+
+	40. 파티클 이펙트 소개
+
+-Hierarchy > 우클릭 > Effects > particle system | add component > particle system.
+
+-Gizmos에서 scene outline 처리 가능.
+
+-particle system은 particles와 emitter로 이루어져 있다.
+
+-emitter has a scene component and gives behavior to particles
+
+-emitter is a component
+
+-we use modules to control particles behavior
+
+-each particle is not a game object
+
+-renderer에서 sprite 설정 가능.
+
+-각 모듈에서 적절한 파티클이 될 때까지 옵션 조절.
+
+	41. 파티클 이펙트 트리거
+
+-class에 ParticleSystem 타입의 SerializeField 멤버 변수 생성 후 맞는 파티클 설정.
+
+-Play() 함수로 트리거 함수에서 실행.
+
+-디버깅할 때 3d 시야로 보는 것도 도움됨.
+
+-play on awake 옵션을 disable해야 게임 시작이 파티클 재생 안됨.
+
+-모듈의 simulation space옵션을 world로 바꾸면 객체를 따라가지 않음.
+
+	42. 모먼트 튜닝
+
+-게임을 지속적으로 튜닝(수정, 개선)하는 것은 중요.
+
+-그래픽이나 물리 엔진으로 인한 떨림은 Rigid body -> interpolate -> int
+
+	43. FindObjectOfType 사용하기
+
+-다른 객체(에 있는 컴포넌트)를 참조할 때 사용
+
+-스크립트도 참조 가능.
+
+-참조하고자 하는 객체가 여러 개일 때는 사용불가 // FindObjectsOfType이 대신
+
+-ctrl + . 로 메서드 추출 및 생성도 가능
+
+	44. OnCollisionExit2D 사용하기
+
+-Enter와 다르지 않다.
+
+-파티클 이펙트는 Stop()으로 정지 가능
+
+	45. 사운드 이펙트 작동시키기
+
+-Terminology:
+ Audio Listener: receives sounds and plays
+ Audio Source: Plays audio and allows us to adjust settings
+ Audio Clip: Contains audio data to be played
+
+-Audio Listener는 디폴트로 Main Camera에
+
+-객체에 Audio Source 컴포넌트 추가 및 Audio clip 설정.
+
+-Play on Awake 필요에 따라 Off
+
+-GetComponent<AudioSource>().Play();
+
+-SerializeField로 audio clip을 만들고 설정한 후 PlayOneShot()으로 더 유연하게 재생 가능.
+ // GetComponent<AudioSource>().PlayOneShot(CrashSFX);
+
+	46. 공용 액세스 한정자
+
+-public 등
+
+	47. 멀티 플레이 막기
+
+-bool 변수 활용.

@@ -1,0 +1,4 @@
+-움직이는 중 인지 표시하는 IsMoving bool 변수 추가
+-ai move to 노드가 실행되면 set IsMoving true
+-event tick - delay - ismoving branch false - set ismoving true - ai move to, desination은 getrandomreachablepoint
+ - on success, on fail에 set ismoving false

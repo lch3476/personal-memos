@@ -1,0 +1,22 @@
+-savegame blueprint 생성.
+
+-savegame blueprint에 저장하고자 하는 값들을 타입에 맞게 변수로 생성
+
+-character blueprint의 sequence 노드 0번에 Does save game exist 호출(slot name 변수 생성) > branch > 
+ true이면 slot name으로 load game from slot > load game 함수 호출
+ false이면 create save game object 및 두 부분 모두 return value를 cast to 후 promote to variable > same game 함수 호출
+
+
+-character blueprint에 savegame, loadgame 함수 생성
+
+-load game 구현.
+ -savegame의 변수 값들로 character blueprint의 변수들을 set 해준 후 equitment같은 경우 for each loop을 사용하여
+  attachequipment 함수도 호출해준다.
+ -load한 값에 따라 수정해줘야 하는 다른 값들도 수정해준다
+
+-save game 구현.
+ -savegame ref의 각 값을 현재 character blueprint의 변수 값들로 set해준다.
+ -save game to slot호출. save game object에는 save game ref를 넣어준다.
+
+-load game시 character capture를 사용하고 있다면 recorder actor도 equipment를 실행해줘야 한다.
+ 

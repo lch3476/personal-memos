@@ -1,0 +1,21 @@
+-base_weapon blueprint에서 get player character - cast to로 character reference를 얻는다.
+
+-base_weapon blueprint에 attack custom event를 추가하고 구현한다.
+ -multispheretracebychannel 호출(다수 공격 원치 않으면 그냥 single).
+   -start는 character ref > getactorlocation
+   -end는 character ref > getactorlocation +  (character ref > getforwardvector * weaponinfo > range)
+   -radius 설정
+   -Trace channel > camera(camera는 모두 block한다.)
+   -actors to ignore > make array > add pin > character ref
+ -multispheretracebychannel bool return 값 true일 때 out hits > for each > array element > break hit result > 
+  location 값으로 spawn emitter at location, play sound at location 실행.
+    -weapon info의 vfx와 sfx를 spawn emitter at location, play sound at location의 인자값으로 각각 사용한다.
+ -apply damage 호출
+    -damaged actor는 break hit result의 hit actor
+    -Damage causer는 character ref
+    -base damage는 weapon info의 damage.
+
+-사용하는 attack montage들에 가서 데미지를 적용할 시점에 add notify
+
+-animblueprint로 가서 notify event 구현
+ -get player character > cast to > get weapon item > cast to > 구현한 attack event 호출

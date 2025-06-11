@@ -1,0 +1,21 @@
+-Hierarchy: Obejct > Actor > Pawn > Character (is-a)
+             : Package > World > Level > Actor > Actor Component (has-a)
+               ex) World is a subobject of Package
+              -Meshes and Textures are nested inside the package(not subobject).
+
+-C++는 본래 reflection system이 존재하지 않지만 unreal engine은 제공한다. unreal engine reflection system을 사용하려면
+ special macro(UClass, UProperty 등)로 marked돼야 한다.
+
+-UHT(Unreal Header Tool)은 컴파일 타임에 special macro를 통해 얻어진 정보를 수집하는 프로그램이다. Macro가 포함된
+ 코드가 있으면 reflection system이 class로부터 정보를 가져오게 하는 추가 코드가 생성된다.
+
+-UCLASS는 reflection시스템을 위해 class를 mark한다. 클래스를 UCLASS로 표시하면, unreal engine garbage collection 
+ system에 의해 garbage collecting된다.
+
+-unreal engine garbage collection system의 혜택을 누리기 위해 class는 UCLASS(), 변수는 UPROPERTY(), 
+ 함수는 UFUNCTION()으로 수식돼야 한다. 이렇게 하는 것은 또한 멤버들을 blueprint system에서 볼 수 있도록 해준다.
+
+-classname.generated.h 헤더 파일이 필수적으로 include돼야 한다. reflection system에 필요한 클래스 정보를 수집하는데 
+ 필요한 코드를 포함하고 있다.
+
+-UCLASS(), UPROPERTY(), UFUNCTION()는 함수처럼 매개변수를 받을 수 있다.

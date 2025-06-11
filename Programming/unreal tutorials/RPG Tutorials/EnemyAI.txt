@@ -1,0 +1,55 @@
+*Attack, Damage 시스템 구비
+
+-AI Controller, Behavior Tree, BlackBoard 생성.
+
+-AI Controller의 BeginPlay에서 Run Behavior Tree 노드 실행.
+
+-Enemy Blueprint에서 AI Controller Class 설정.
+
+-Behavior Tree에서 맞는 Black Board 설정.
+
+-BlackBoard에서 Base Class Actor, Key Type Object의 Target Key, Vector 타입의 MoveDestination Key 추가.
+
+-Enemy Blueprint에서 Get Target, Set Target, Clear Target 함수 추가.
+
+-perception을 위한 Sphere Collosion 추가, 크기 조정 및 overlap event override
+
+-Sphere begin overlap - branch(other actor != self) - cast to character(other actor)
+
+-Set Target 구현
+ Actor 타입 input("Target")을 가진다. Self - Get AI Controller - Get BlackBoard - Set Value as Object(MakeLiteralName("Target"), Function Parameter)
+-Clear Target 구현
+ Get AI Controller - Get BlackBoard - Clear Value
+-Get Target 구현
+ Get AI Controller - Get BlackBoard - Get Value as Object("Target") - Cast to - return
+
+-BP_Enemy: Begin Overlap에서 Set Target 호출
+
+-BP_Enemy: End Overlap - (Other Actor == GetTarget()) - branch - (true) Clear Target 호출
+
+-Task는 폴더에 따로 관리한다.
+
+-Receive Execute AI는 BTT에서 beginplay처럼 동작한다.
+
+-Black Board에서 가져오고자 하는 값을 위해 BlackBoard Key Selector 변수를 생성하고 editable을 enable한다.
+ ex) MoveRandom이면 Radius변수를 생성 및 editable로 만든다.
+     Receive Execute AI - (Get actor location - GetRandomReachablePointImRadius - return value) branch - (true)SetBlackBoardvalueasVector - finishi execute(true)
+     (false) Finishi execute
+
+-AI Move를 위해 NavMeshBoundsVolume을 배치해주어야 한다.
+
+-Decoration은 조건을 설정하고 그에 따라 ai의 행동을 결정할 수 있다.
+
+-AI에게 공격을 명령하고자 할 때는 BP_Enemy에서 Attack 이벤트를 구현한 후 Task에서 호출함으로써 Behavior Tree에서 실행한다.
+ -Attack 구현 시 AI Enemy를 회전 시켜야 하는데 Attack event에서 Target을 매개변수로 받은 후 Fink Look at Rotation을 호출한다음 SetActorRotation에 return의
+  yaw 값을 인자값으로 준 후 호출하면 회전시킬 수 있다.
+ -AI의 Random공격을 원할 때는 Anim Montage의 Array를 만들고 Play AnimMontage 시 Random Integer In Range의 반환 값으로 get을 호출 함으로써 구현할 수 있다.
+
+-Attack Behavior Task는 Controlled Pawn을 맞는 BP로 cast후 Black board Key Selector를 통해 Target 값을 가져와 Attack 이벤트를 호출한다. 마지막에는 finish excute
+
+-Player와의 거리를 Decoration으로 쓰고자 할땐 BP_Enemy에 거리 변수를 만들고, Controlled Pawn과 Get Black Board Value를 통해 얻은 Target actor로 Get Distance To
+ 를 호출한 후 거리 변수와 비교 값을 return 한다.
+
+-BP_Enemy에 Damage Event 구현(shpheretracebychannel이나 sphereoverlbyactors 등 활용). 
+
+-Actor Has Tag를 통해 Damage 이벤트 효과적으로 구현 가능

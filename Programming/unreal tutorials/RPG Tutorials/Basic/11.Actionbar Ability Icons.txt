@@ -1,0 +1,2 @@
+1.cool down 을 구현할 때 사용한 progressbar의 style에서 fill과 nofill 때의 이미지 각각 설정.
+-위치가 맞지 않을 땐 anchor 옳게 설정

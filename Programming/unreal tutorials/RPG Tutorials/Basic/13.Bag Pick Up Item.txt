@@ -1,0 +1,7 @@
+-blueprint actor 생성 및 mesh 추가 아이템 표시를 할 particle system 추가.
+-아이템을 스폰시킬 ai blueprint에서 death 함수를 생성해 destroy actor 후 행동 호출
+-death function에서 spawn actor from class 및 destroy actor. 알맞은 transform 설정하기.
+-pickup blueprint로 돌아가서 collision 설정을 하고, beginoverlap - cast to - 이펙트를 주고 싶으면 
+ spawn emitter at location - destroy actor
+
+-mesh 자체에 collision이 없을 경우엔 collision component를 추가해 주어야함

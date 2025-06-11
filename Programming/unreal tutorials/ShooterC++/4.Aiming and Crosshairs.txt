@@ -1,0 +1,134 @@
+-Character class에 Aiming 상태를 표시하는 bAiming UPROPERTY변수 추가.
+
+-bAiming변수 상태를 추적하는 AimingButtonPressed, AimingButtonReleased함수 추가.
+
+-함수 구현 및 binding.
+
+-float타입의 CameraDefaultFOV (Field of View)변수 추가. -> how much of the world is the camera showing
+ -default value는 beginplay에서 follow camera로부터 get해서 설정. follow camera가 그 시점에 생성되기 때문에.
+void AShooterCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (FollowCamera)
+	{
+		CameraDefaultFOV = FollowCamera->FieldOfView;
+	}
+	
+}
+
+-float의 CameraZoomedFOV 변수 추가 및 멤버 초기화 리스트에서 초기화.
+
+-AimingButtonPressed, AimingButtonReleased에서 camera FOV set.
+void AShooterCharacter::AimingButtonPressed()
+{
+	bAiming = true;
+
+	if (FollowCamera)
+	{
+		FollowCamera->SetFieldOfView(CameraZoomedFOV);
+	}
+}
+
+-Zoom Interpulation:
+ float 타입의 CameraCurrentFOV 변수 추가.
+ float 타입의 ZoomInterpSpeed UPROPERTY변수 추가.
+ 두 변수 초기화(이 경우 interp speed는 20).
+ beginplay에서 CameraCurrentFOV을 defaultFOV값으로 초기화.
+ Tick에서 interp을 실행.
+   aim중이면 zoomedFOV로 else면 DefaultFOV
+
+ Animation blueprint에서 wire layered blueprint와 aiming animation blend layer
+
+-Aiming State Machine:
+ anim instance에 bAiming 
+    bAiming은 private변수라 getter가 필요.
+
+-Aim Look Sensitivity:
+ Hip과 Aiming TurnRate, LookUpRate float변수 추가 및 초기화.
+ Tick에서 aiming일 때 Base TurnRate, LookUpRate을 Aiming TurnRate, LookUpRate으로 대입
+ false일땐 Hip TurnRate, LookUpRate
+ (함수를 만들어 관리하는 것이 좋다.)
+ 마우스 Sensitivity의 경우엔 똑같이, 대신 moust Hip과 Aiming TurnRate, LookUpRate을 따로 만들어서
+
+-UPROPERTY내에서변수의 min max 설정가능:
+ meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0", UIMax = "1.0")
+
+-Crosshair Spread Velocity:
+ CrosshairSpreadMultiplier, CrosshairVelocityFactor, CrosshairInAirFactor, CrosshairAimFactor, CrosshairShootingFactor float 변수 추가.
+ CrosshairSpread를 계산하는 함수 추가 및 구현. DeltaTime parameter
+ Tick에서 호출.
+ Spread 구현으로 위해 Multiplier getter blueprintcallable UFUNCTION으로 생성.
+ HUD에서 Crosshair를 4개의 texture로 draw하고 Vector 2D BaseCenter에 맞게 X Y를 계산하여 Draw.
+
+-It's good to check a variable is valid.
+
+-Crosshair In Air Factor:
+ CrosshairInAirFactor를 IsFalling()이 true일 때 interp해서 CrosshairSpreadMultiplier에 add.
+
+-Bullet Fire Aim Factor:
+ float ShootTimeDuration(short period of time after firing each bullet), bool bFiringBullet, FTimerHandle CrosshairShootTimer 변수 추가.
+ -every time you start a timer, you need a callback function.
+ void FinishCrosshairBulletFire() callback function 추가.
+ -callback function for an timerhandle has to be a UFUNCTION
+ void StartCrosshairBulletFire() function 추가.
+ StartCrosshairBulletFire, FinishCrosshairBulletFire 구현
+ StartCrosshairBulletFire를 fireweapon에서 호출.
+ void AShooterCharacter::StartCrosshairBulletFire()
+{
+	bFiringBullet = true;
+
+	GetWorldTimerManager().SetTimer(CrosshairShootTimer, 
+		this, 
+		&AShooterCharacter::FinishCrosshairBulletFire, 
+		ShootTimeDuration);
+}
+
+void AShooterCharacter::FinishCrosshairBulletFire()
+{
+	bFiringBullet = false;
+}
+
+-CalcCrosshairSpread에서 bFiringBullet을 이용하여 CrosshairShootingFactor 계산 및 적용
+
+
+-Automatic fire:
+ bool bFireButtionPressed , bool bShouldFire, float AutomaticFireRate, FTimerHandle AutoFireTimer 변수 추가.
+ void FireButtonPressed(), void FireButtionReleased() 추가 및 구현.
+ FireButtion BindAction event function 교체.
+ void StartFireTimer(); void AutoFireReset();//UFUNCTION() 추가 
+ void StartFireTimer(); void AutoFireReset(); 구현
+ float AutomaticFireRate 초기화
+
+void AShooterCharacter::StartFireTimer()
+{
+	if (ShouldFire)
+	{
+		FireWeapon();
+		ShouldFire = false;
+		GetWorldTimerManager().SetTimer(
+			AutoFireTimer,
+			this,
+			&AShooterCharacter::AutoFireReset,
+			AutomaticFireRate);
+	}
+}
+
+void AShooterCharacter::AutoFireReset()
+{
+	ShouldFire = true;
+	if (bFireButtonPressed)
+	{
+		StartFireTimer();
+	}
+}
+
+-Jump Animation:
+ Ground Locomotion아래 Locomotion State machine 생성
+     Idle/Jogs - Jump - JumpLand
+ 드래그 한번 더하면 transition 2개 가능
+ JumpLand에서 Idle/Jogs로 넘어갈 때 IsinAir Transition을 하나 더 추가한다. idle/jogs를 지나 다시 jump animation에 들어가기 위해서이다.
+ JumpLand Animation은 apply addtive를 활용하여 groundlocomotion과 jump_recovery_additive를 써서 재생한다.
+     alpha tells us how much we want to see that animation.
+ Jump statemachine에서 다른 statemachin 생성.
+     JumpStart - JumpApex - PreJumpLand

@@ -1,0 +1,19 @@
+-vertical이나 horizontal box같은 box추가후 그 안에 canvas panel을 추가하면 widget들의 relative position들을 anchor할 수 
+ 있다. size를 fill로 설정하면 box를 채운다.
+
+-size to content를 enable하면 container사이즈에 맞춘다.
+
+-positionx, y를 0으로 하고 alignment를 0.5로 하면 중앙에 맞춘다.
+
+-attach된 canvas panel안에 skill level을 올릴 수 있도록 button으로 widget 꾸미기.
+
+-character blueprint에 스킬 창을 열수 있도록 keyboard key에 create widget - add to viewport - get controller >
+ set input mode uionly(in widget to focus엔 create된 ui 참조변수) - set show mouse cursor true
+
+-close button onclicked에선 remove from parent 후 원래 상태로 되돌려 놔야 한다. get controller > set input mode game
+ only - set show mouse cursor false
+
+-widget내의 요소 들을 details 상단의 is variable을 enable하면 변수로 만들어서 event graph에서의 수정에 용이하게
+ 사용할 수 있다. 
+
+-text를 format하는데 string의 append를 활용할 수 있다.

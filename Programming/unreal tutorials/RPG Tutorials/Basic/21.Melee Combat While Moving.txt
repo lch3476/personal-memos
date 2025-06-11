@@ -1,0 +1,3 @@
+-Character의 Animation blueprint의 attack state maching에서 layered per bone 사용
+-Layered per bone의 두 애니메이션이 같은 rotation을 따르게 하려면 enable mesh space rotation blend
+-disable movement와 stop immediately, set movement move 제거.

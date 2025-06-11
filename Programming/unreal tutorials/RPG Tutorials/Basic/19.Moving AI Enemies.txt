@@ -1,0 +1,3 @@
+-Nav mesh Bounds 추가
+-AI에 PawnSensing을 추가하면 AI가 Pawn을 봤을 때나 들었을 때 event 설정 가능
+-On see Pawn(On hear Pawn) - cast to player character - AI Move To - Pawn은 self target은 필요에 따라.

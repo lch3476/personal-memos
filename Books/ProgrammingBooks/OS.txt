@@ -1,0 +1,64 @@
+	chapter 1
+
+-OS: a software manages computer hardware // intermediary b/w user and hardware
+ -responsibility: allocate hardware resources to programs
+ -provide environment that programs can work
+
+-4 components of computer system: harware, OS, applications, user
+
+-OS from 2 viewpoint:
+ -user view:
+  -varies according to interface
+  -for ease of use
+ -system view:
+  -resource allocator; solve conflicting requests
+  -control program: manages user programs execution to prevent errors and improper use
+
+-purpose of computer system: execute program and make problems easier
+
+-kernel: program running all times on the computer
+
+-2 types of program:
+ -system program: associated with OS, but not necessarily kernel
+ -application program: all programs not associated with OS
+
+-middleware: set of software framework providing additional services to application developer
+
+	1.2 Computer-System Organization
+
+-modern general-purpose computer system: one or more CPUs and device controllers
+ -device controllers:
+  -connected to a common bus that provides access between components and shared memory
+  -depending on the controller, more than one device can be attached ex) USB port, hub
+  -maintains local buffer storage and special-purpose registers
+  -responsible for moving data b/w the storage and peripheral devices
+
+-Typically, OS has a device driver per each device controller.
+ -device dirver understands device controller and provides OS with uniform interface to the device
+
+	1.2.1 Interrupts
+
+-I/O operation 
+ -> device driver loads proper registers in the device controller
+ -> device controller examine the register and determine action to take
+ -> controller transfers data from the device to local buffer
+ -> controller informs the driver the operation is finished
+ -> driver gives control to the other parts of OS
+
+ -how controller inform driver the completion -> interrupt
+ -Hardware may trigger interrupt at any time
+ -interrupts: key of hardware OS interaction
+
+-when CPU interrupted:
+ -stops current work and transfers execution to a fixed location(usually starting address of interrupt service routine)
+ -on completion, resumes interrupted computation
+
+-each computer design has its own interrupt mechanism.
+
+-interrupt must transfer control to proper interrupt service routine
+ -how:
+  -invoke generic routine to examine the interrupt information -> inefficient; slow
+  -interrupt vector: a table of pointers that holds the addresses of the interrupt service routine indexed with a unique number
+
+-interrupt architecture must save the state info to restore after servicing the interrupt
+

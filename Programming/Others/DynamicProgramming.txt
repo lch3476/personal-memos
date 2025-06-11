@@ -1,0 +1,12 @@
+-memoization: store values we repeatedly use
+ -how:
+  -pass a list to store values to a method
+  -check if the value is valid before calc
+  -store the value after before return
+ -can raise stack overflow
+
+-tabulation: bottom-up; use returned values to calc larger values
+ -how:
+  -create a list(or other collections) and fill it up from the bottom
+
+-work with pen and paper and draw a pseudo code; don't work just with brain

@@ -1,0 +1,12 @@
+-directional light에서 atmosphere sun light true로 해야 파란하늘 된다.
+
+-sky sphere blueprint를 추가하여 수정하면 원하는 sky를 표현할 수 있다.
+-sky sphere로 하늘을 수정하려면 default의 directional light actor를 none으로 설정하여 하늘 관련 셋팅을 skysphere에서 할
+ 수 있도록 한다.
+-sky sphere에서 색을 수정하려면 dafault의 colors determined by sun position이 unabled 돼야 한다.
+-결국 directional light, sky sphere blueprint, atmosphere fog가 필요하다.
+
+-character movement의 lookup에서 lookup하는 것은 캐릭터 전체가 아니라 카메라이다. 카메라 컴포넌트에서 use pawn
+ control rotation을 on 해줘야 한다.
+
+-animation blueprint에서 speed는 character validated get 및 get velocity , get length

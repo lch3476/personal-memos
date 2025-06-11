@@ -1,0 +1,5 @@
+-Widget blueprint 생성 및 import한 HUD assets 이미지 넣기
+-button의 hovered나 pressed에 이미지나 스타일 조정
+-close button - on clicked - remove from parent
+-loot가 떨어지는 시점에 create widget - add to viewport - set game paused true(게임 정지) - show mouse cursor true
+ loot screen widget의 close button on clicked - set pause game false - show mouse cursor false

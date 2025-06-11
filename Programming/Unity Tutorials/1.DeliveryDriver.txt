@@ -1,0 +1,133 @@
+	섹션 2: Delivery Driver
+
+	10. 게임 디자인
+
+-game mechanics(combat, pickup 등)을 먼저 디자인
+
+-player experience(유저가 게임으로부터 받는 느낌), core mechanics, game loop 설계
+
+	11. 방법 소개
+
+-각 컴포넌트는 클래스이다. 원하는 기능이 있으면 editor에서 찾아보자 ex) transform.rotate
+
+	12. Transform.Translate()
+
+	13. 변수 소개
+
+	14. SerializeField 사용 방법
+
+-[SerializeField] 어트리뷰트를 사용하면 변수 값을 inspector에서 조정 가능.
+
+	15. Input.GetAxis() 사용하기
+
+-Edit -> Project Setting -> InputManager -> Axes
+
+-Input.GetAxis()의 인수로 axis의 Name
+
+-GetAxis()의 리턴값 조정을 원하면 Multiplier 변수 생성.
+
+	16. Time.deltaTime() 사용하기
+
+-Deltatime is the time each frame took to execute
+
+-Multiplying by deltatime can make something "frame rate independent"
+
+-Time.deltaTime
+
+	17. 콜라이더 & 리지드 바디
+
+-Add Component -> 맞는 Collider(2D)
+
+-RigidBody추가: A Rigidbody 2D component places an object under the control of the physics engine.
+
+-Gravity Scale 조절.
+
+	18. OnCollisionEnter2D() 사용하기
+
+-각 Functionality마다 Script를 만드는 것이 나음.
+
+	19. OnTriggerEnter2D() 사용하기
+
+-collider 추가 후 is trigger 옵션을 enable하면 trigger로 쓸 수 있다.
+
+-OnTriggerExit도 활용
+
+-Sprite Renderer를 unable하면 안보이는 trigger 가능.
+
+	20. 프로젝트에 에셋 추가하기
+
+-에셋 폴더 혹은 파일 드래그 드랍
+
+-에셋 사이즈 조절.
+
+-스프라이트, 이미지 등은 픽셀로 이루어져 있다.
+
+-Resolution = the number of pixels in an image.
+
+-유니티엔 단위가 있다. 특별한 의미 없이 사용자가 나타내고 싶은 단위를 나타낸다.
+
+-pixels per unit은 1 unity unit 당 pixels 수를 나타낸다.
+
+	21. 기초 단계 레이아웃
+
+-sprite의 크기를 조절하고 싶으면 sprite의 inspector에서 pixels per unit을 낮춘다.
+
+-sprite renderer에서 sprite 변경가능.
+
+-sprite 변경 후엔 collider 같은 부분도 수정.
+
+-collider의 edit collider를 통해 collision 크기 수정 가능.
+
+-camera->size에서 카메라 거리 조절.
+
+-empty object로 object hierarchy 설정 가능.
+
+-Transform 우클릭 reset으로 transform을 0으로 초기화 가능.
+
+-다중 선택 후 component 추가 가능.
+
+-scene에서 global로 설정해야 Grid Snapping이 가능해짐
+
+-camera -> background에서 배경색 수정 가능.
+
+	22. 단순 카메라 팔로우
+
+-position update를 위한 스크립트를 생성 후 camera에 add.
+
+-다른 객체 reference 방법 중 하나는 SerializeField의 GameObejct 변수를 만들고 inspector에서 참조할 변수를 설정하는 것.
+
+-update에서 transform.position에 다른 object position의 z 값을 Vector3를 더해서 조정 후 대입
+
+	23. if 구문 & 태그
+
+-클래스 이름 변경 시 스크립트 파일과 클래스 이름을 꼭 같게 해줘야 한다.
+
+-태그는 객체가 어떤 카테고리에 속하는지 쉽게 파악할 수 있게 한다.
+
+-inspector의 component 이름 아래에서 add tag 가능
+
+-other.tag == "tagName" 으로 비교
+
+	24. Bools 사용하기
+
+-클래스 bool 변수 선언 후 사용
+
+	25. 객체 삭제하기
+
+-Destroy()호출. 삭제할 GameObject와 delay시간을 인자로 받는다. 즉시 제거면 delay 0
+
+	26. GetComponent 사용하기
+
+-sprite 색 변경 방법: 색만 다른 sprite로 변경, sprite renderer에서 color 변경.
+
+-색상 클래스는 Color32
+
+-Component를 참조하기 위한 멤버 변수를 선언하는 것이 좋다.
+
+-Component 참조 변수 값은 Start() 함수에서 GetComponent 호출로 대입
+
+-GetComponent<component-name>();
+
+	27. 부스트 & 범프
+
+-OnCollisionEnter2D 매개변수 타입은 Collider2D가 아니라 Collision2D

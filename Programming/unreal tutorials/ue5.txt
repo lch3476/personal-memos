@@ -1,0 +1,709 @@
+-actors: objects that go in level
+ components: objects that go on an actor
+
+-spawning actors: spawnactor method
+
+-GetPlayerActor, GetActorRotation, GetForwardVector
+
+-scaling: editing brush setting is better than changing scaling vector
+
+-mesh can be subtractive
+
+-default map change: gamemode, project settings
+
+-child components' location -> relative to parent
+
+-side effect: if a function modifies state variables outside its local environment
+ pure function: function without side effect
+
+-self node -> reference to current instance
+ delaying -> delay node
+
+-to set as a player pawn: auto possess player
+
+* if default game mode doesn't work -> check overriding gamemode in world settings
+
+* don't forget modifying Visual Studio settings for UE
+
+-UPROPERTY(): exposes variables to UE editor and include it in UE memory management system
+
+-game loop:
+ 1. process input
+ 2. update game state
+ 3. render to display
+
+-frame: a single picture in a video
+ frame rate: how many frame per second(FPS)
+
+-expression: code fragment that produces a value
+ statement: an action to be performed
+
+-deltatime: time to execute each frame
+
+-to make frame rate independent: multiply by deltatime
+
+-game mode: actor that controls the "rules"
+
+-UE_LOG(LogCategory, Level of Log, TEXT(), vars)
+
+-FString -> use dereference operator(*) for %s specifier
+
+-FRotator: CurrentRotation += RotationVelocity
+ -> doesn't work well due to FRotator details
+ -> use AddActorLocalRotation()
+
+-Draw the sketch of level design before lay it out
+
+-Lighting:
+ -skylight: captures distant parts of level and applies as a light
+  -> sky's appearance, lighting/reflection match
+
+ -add directional light, sky light, sky sphere BP
+  link sky sphere and directional light
+
+-Lumen: ue5 fully dynamic illumination and reflection system
+ -> works well with real time lighting, when lights set to movable
+
+-weird reflection on material:
+ disconnect not supported by lumen in material node ex) pixel depth offset
+
+-light can pass one side mesh
+ -> covering with other meshes is one solution
+
+-diff object version? -> use child blueprint
+ -> dont forget apply instance change to blueprint
+
+-character can't stand on mesh?
+ -> check collision and generate
+  -> can adjust collision features in details
+
+-GetOwner(): get the owner of actor component
+
+-compilation steps:
+ code
+ -> unreal header tool: manage unreal specific syntax and process it
+ -> standard C++ compilation: preprocessor - compiler - linker - executable
+
+-#include: include everything in the file
+
+-linker: link binary files to create executable
+
+-FMath::VInterpConstantTo(...): interpolate vector constant step // header file needed
+
+*utilize physics and math for speed, distance stuffs; remember vector operation
+
+*utilize offset for target vector
+
+-scene component: a component that can be attached to another component and has transform
+
+-GetComponentRotation(); FRotator::ToCompactString()
+
+-trace channel: create a list of objects that are responsive to trace
+ -> project settings -> collision
+ -> restart engine to see new channel
+
+-UWorld: the top level object representing a map that actors and components will exist and be rendered
+ -A World can be a single Persistent Level with an optional list of streaming levels
+
+-SweepSingleByChannel; SweepMultiByChannel; LineTraceSingleByChannel; LineTraceMultiByChannel
+ DrawDebugLine
+
+-Input Action Mappings:
+ project settings -> input
+
+-UFUNCTION(BlueprintCallable) -> c++ function available in blueprint
+ -> if Live Coding doesn't work -> manual compilation in editor
+
+-UPhysicsHandleComponent: to grab and move physical object
+
+-UPhysicsHandleComponent* PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
+
+-reference to nullptr -> engine crush -> use if
+
+-DrawDebugSphere()
+
+-HitResult.Location
+ HitResult.ImpactPoint
+ -In LineTrace: same
+ -In Sweep: diff; location: where object detected; ImpactPoint: where shape and object overlap
+
+-PhysicsHandle->GrabComponentAtLocationWithRotation(
+ HitResult.GetComponent(),
+ NAME_None,
+ HitResult.ImpactPoint,
+ HitResult.GetComponent()->GetComponentRotation()
+ )
+
+-PhysicsHandle->SetTargetLocationAndRotation()
+ //object should be Movable, Simulate physics true
+
+-UPrimitiveComponent: SceneComponents that contain or generate a geometry for collision data
+
+-RigidBody: object that simulates physics
+
+-UPrimitiveComponent::WakeAllRigidBodies(): enable simulation runs for all bodies in the component
+
+-UPhysicsHandleComponent::ReleaseComponent()
+ UPhysicsHandleComponent::GetGrabbedComponent()
+
+-ignore > overlap > block
+
+-overlap event, hit event
+
+-overlap event:
+ add collision component(blueprint, C++)
+ generate overlap event -> true
+ 
+ add by c++:
+ -edit UCLASS() to be available in editor
+ -copy paste beginplay()
+
+-component tick -> off for optimization
+ to turn on: PrimaryComponentTick.bCanEverTick = true;  to component constructor
+
+-TArray<Type>
+
+-box collision: GetOverlappingActors
+
+-actor tag: AActor::ActorHasTag(Tag)
+
+-when component depends on another component
+ -> can use UFUNCTION(BlueprintCallable) to help find the component:
+ make blueprint callable set method -> call it through beginplay node
+
+-AActor::AttachToComponent(): attach root component of this actor to supplied component
+
+-UPrimitiveComponent* Component = Cast<UPrimitiveComponent>(Actor->GetRootComponent())
+
+-UPrimitiveComponent::SetSimulatePhysics()
+
+-Adding and Removing Tags:
+ Actor.Tags.Add()
+ Actor.Tags.Remove()
+
+-Automatic Exposure(eye adaptation): automatically adjusts the exposure of the current scene view to become brighter or darker
+ -> provided by post process volume
+   -> exposure metering mode: provides settings to mimic real-world cameras
+ -> to recreate exp of human eyes
+
+-automatically brigher or dimmer -> post process volume -> exposure metering mode -> basic
+
+-level specific dependency -> set in level blueprint
+
+-Actor::DetachFromActor
+
+-Actor: can be placed in the world; can have visual representation
+ Pawn: + can be possessed by a controller and handles movement input
+ Charator: + character specific stuff(character movement); bipedal things
+
+-USceneComponent:
+ -has a transform
+ -supports attachment
+ -no visual representation
+ -child: UCapsuleComponent, UStaticMeshComponent
+
+-All actor has internal variable(protected, USceneComponent)
+
+-try best to keep header file light
+
+-include: preprocessor copy and paste the contents of the header file
+
+-include only what you use in .cpp
+ include as little as possible in .h
+ do need header: to construct, access members, inheritance
+
+-constructing components:
+ CreateDefaultSubobject<>()
+
+-UStaticMeshComponent -> no need forward declaration; already included
+ -> how to check? compilation
+
+* can use initialization list too; used to be special code in constructor for creating default obj; not anymore
+
+* when project issues: delete Binaries, Saved, Intemediate folders and Generate Visual Studio Project files
+
+-UPROPERTY() ARGS: 
+ -Controls in Detail Panel:
+  -Read Only: VisibleAnywhere, VisibleInstanceOnly, VisibleDefaultOnly
+  -Read/Write: EditAnywhere, EditInstanceOnly, EditDefaultOnly
+ -In Event Graph:
+  -BlueprintReadWrite, BlueprintReadOnly
+ -Category:
+  -Category = "Category Name"
+ -meta:
+  -meta = (AllowPrivateAccess = "true"); can access private var in Event Graph
+
+-UCameraComponent + USpringArmComponent
+
+-can change blueprint's parent class: class setting -> parent class
+
+-User Input:
+ -Axis Mappings: update every frame -> float parameter -> Move(float scale)
+  -button pushed? scale -> argument; else scale == 0
+
+-SetupPlayerInputComponent(): Allows a Pawn to set up custom input bindings
+ -PlayerInputComponent->BindAxis()
+
+-Actors have own local directions != world direction
+
+-AddActorLocalOffset: Moves actor in local direction
+ performs single movement
+ can use local forward vector
+
+-GettingDeltaTime:
+ UGamePlayStatics::GetWorldDeltaSeconds(this); param: World context object
+
+-sweeping: checking object overlap every frame
+ if bSweep of AddActorLocalOffset true: check blocking collision and block the movement
+
+-AddActorLocalRotation: for Rotation
+
+-FRotator::ZeroRotator
+ FVector::ZeroVector
+ -> static 
+
+-Hit Result under the cursor:
+
+-when a game begins: Controller possesses a pawn -> APawn::GetController();
+
+-constructor -> probly too early to get controller
+
+-APlayerController inherits from AController
+
+-GetController(): return a controller of this actor
+
+-Mouse cursor hitresult: Line trace result from the camera to the cursor point
+ -APlayerController::GetHitResultUnderCursor
+
+-Cast<>()
+
+-Rotation:
+ FVector::Rotation() -> convert vector to rotation
+ TargetVector: TargetLocation - ActorLocation
+
+-world location of component: USceneComponent::GetComponentLocation()
+
+-to set component world rotation: USceneComponent::SetWorldRotation()
+
+* HitResultUnderCursor based Rotation:
+ -snap rotation when cursor is on void -> use blocking volume
+ -snap when cursor cross the center -> FMath::InterpTo()
+
+-UGameplayStatics::GetPlayerPawn(): returns the player pawn at the specified index
+
+-PlayerInputComponent->BindAction()
+
+-Timers:
+ -World timer manager(FTimerManager) -> SetTimer() <- Timer rate, Timer Handle(FTimerHandle), Callback
+ -GetWorldTimerManager().SetTimer(FTimerHandle, ... )
+
+-TSubclassOf<>: allow to have C++ var representing UClass or subclass; even blueprint class type
+ -TSubclassOf<class AProjectile> Projectile
+
+-Spawning Actors:
+ UWorld::SpawnActor<>(); GetWorld()->SpawnActor()
+
+-Projectile Movement:
+ 1) Set location/rotation manully in Tick
+ 2) Add an impulse and let physics engine take it
+ 3) Projectile Movement Component; UProjectileMovementComponent
+
+* if the projectile is spawned inside another object, it might not move due to collision responses
+ -> mind the spawning point
+
+-UStaticMeshComponent inherits UPrimitiveComponent
+ -> UPrimitiveComponent contains Hit Event
+ -> UStaticMeshComponent contains OnComponentHit -> FComponentHitSignature OnComponentHit // it's struct
+
+-Hit event != Overlap event
+
+-Hit event (Multicast Delegate)
+ -can have multiple functions
+ -invocation list(list of functions to call) // have to be UFUNCTION
+ -broadcast when sth happens
+ -the functions called responing to the broadcast
+ -how? OnComponentHit.AddDynamic(User Object, Callback)
+  -call back function signature:
+ UFUNCTION()
+ void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+* sometimes, recreating blueprint object helps solving errors
+
+-UActorComponent -> USceneComponent // UActor doesn't have transform and attachment
+
+-Health Component:
+ -inherits from actor component
+
+-UE has internal Damage system:
+ OnTakeAnyDamage: Delegate // requires specific function signature
+ Callback: DamageTaken() // has to be UFUNCTION
+ UGamePlayStatics::ApplyDamage
+ 1. Create a callback
+	DamageTaken(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
+ 2. Bind it to the delegate
+	GetOwner()->OnTakeAnyDamage.AddDynamic(this, &UHealthComponent::DamageTaken);
+ 3. Generate damage event
+
+ instigator: AController responsible for the damage
+
+-we can set owner too: AActor::SetOwner()
+
+
+
+-AActor::GetInstigatorController()
+
+-StaticClass() -> to get UClass of any UE Class ex) UDamageType::StaticClass()
+
+void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	auto ProjectileOwner = GetOwner();
+	if (ProjectileOwner == nullptr)
+	{
+		return;
+	}
+
+	auto OwnerInstigator = ProjectileOwner->GetInstigatorController();
+	auto DamageTypeClass = UDamageType::StaticClass();
+
+	if (OtherActor && OtherActor != this && OtherActor != ProjectileOwner)
+	{
+		UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerInstigator, this, DamageTypeClass);
+		Destroy();
+	}
+}
+
+-AGameModeBase -> AGameMode
+
+-AGameModeBase -> game rules, win condition
+ AGameMode     -> match state, multiplayer matches
+ -> so we normally choose AGameMoseBase
+
+-Handling Pawn Death:
+ Projectile -> ApplyDamage()
+ Health Component -> DamageTaken()
+ GameMode -> ActorDied()
+ Pawn -> HandleDestruction()
+
+ 1.Create HandleDestruction()
+ 2.Create ActorDied()
+ 3.Call HandleDestruction() in ActorDied()
+ 4.Call ActorDied when Health reaches 0
+void AToonTanksGameMode::ActorDied(AActor* DeadActor)
+{
+	if (DeadActor == Tank)
+	{
+		Tank->HandleDestruction();
+		auto TankController = Tank->GetTankPlayerController();
+		if (TankController)
+		{
+			TankController->DisableInput(TankController);
+			TankController->bShowMouseCursor = false;
+		}
+	}
+	else if (ATower* DestroyedTower = Cast<ATower>(DeadActor))
+	{
+		DestroyedTower->HandleDestruction();
+	}
+}
+
+-Player Death:
+ In Actor:
+ -SetActorHiddenInGame(true)
+ -SetActorTickEnabled(false)
+
+ In GameMode:
+ -Disable input
+ -Remove mouse cursor
+
+* why handle death in gamemode? death is universal
+
+-Custom Player Controller:
+ -Enable/disable input
+ -set the mouse cursor type
+
+-Can get player controller: UGameplayStatics::GetPlayerController()
+void AToonTanksPlayerController::SetPlayerEnabledState(bool bPlayerEnabled)
+{
+	if (bPlayerEnabled)
+	{
+		GetPawn()->EnableInput(this);
+	}
+	else
+	{
+		GetPawn()->DisableInput(this);
+	}
+	bShowMouseCursor = bPlayerEnabled;
+}
+
+-SetTimer():
+ Timer Rate
+ TimerHandle(FTimerHandle)
+ Timer Dlegate(FTimerDelegate)
+
+FTimerDelegate PlayerEnableTimerDelegate = FTimerDelegate::CreateUObject(
+	PlayerController,
+	&AToonTanksPlayerController::SetPlayerEnabledState,
+	true);
+
+GetWorldTimerManager().SetTimer(
+	PlayerEnableTimerHandle,
+	PlayerEnableTimerDelegate,
+	GameStartDelay,
+	false);
+
+-Blueprint Implementable Events: c++ function should be implemented in blueprint, but can be called in C++
+ -cannot be private
+ -UFUNCTION(BlueprintImplementableEvent)
+  void StartGame();
+
+-Widget:
+ Canvas Panel: allow placing widget elements
+
+ Creating: Create Widget -> Add to Viewport
+
+ Set Is Variable true to change Widget properties in blueprint graph
+
+ Remove From Parent: to remove
+
+-Game Over:
+ BlueprintImplementableEvent in GameMode
+
+ when game over: hp < 0
+
+-to get actor count: GetAllActorsOfClass
+ -use StaticClass() to specify the UClass type
+
+-Select Node: can easily select value in blueprint
+
+-Particle System:UGameplayStatics::SpawnEmitterAtLocation(this, HitVisualEffect, GetActorLocation(), GetActorRotation());
+ * Don't forget validity test for a pointer
+
+-UParticleSystem: not a component; by SpawnEmitterAtLocation()
+ UParticleSystemComponent: component; by CreateDefaultSubobject
+
+-Sounds:
+ UPROPERTY(EditAnywhere, Category = "Component")
+ class USoundBase* LaunchSoundEffect;
+
+-Camera Shake:
+ easier from blueprint(LegacyCameraShake)
+ uses sine wave
+
+ UPROPERTY(EditAnywhere, Category = "Combat")
+ TSubclassOf<class UCameraShakeBase> HitCameraShakeClass;
+
+ if (HitCameraShakeClass)
+ {
+	GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(HitCameraShakeClass);
+ }
+
+-Smooth Camera Follow:
+ Spring Arm -> Enable Camera Lag, Enable Camera Rotation Lag, modify Lag Speed 
+
+-pawn vs character:
+ character is a pawn
+ add character-like features
+ movement, nav mesh movement
+
+-Character movement functions provided:
+ AddMovementInput();
+ AddControllerPitchInput();
+ AddControllerYawInput();
+ Jump()
+
+-LookUp and Turn w/ controller is not fps independent ->
+ AddControllerPitchInput(RotationRate * AxisValue * GetWorld()->GetDeltaSeconds());
+
+-dont move camera. move spring arm
+ use offset to move spring arm
+
+-skeletal mesh: a mesh that has skeleton
+
+-when discontinuing jerky motion: inspect collision
+
+-2d Blend space:
+ -set the axis name and value appropriately
+ -set the animations
+ -speed: GetVelocity() -> VectorLength()
+ -angle: GetActorTransform() -> InverseTransformDirection() -> RotationFromXVector() -> set angle with Yaw value
+
+-Calculating Animation Speeds:
+ -if character speed != blend space value -> anim doesn't match
+ -foot_speed = (y_finish - y_start) / (t_finish - t_start)
+  -> get speed, set the blend space Maximum value and number of grid to fit in the value
+
+-To hide attached skeletal mesh:
+ GetMesh()->HideBoneByName(TEXT("weapon_r"), EPhysBodyOp::PBO_None);
+
+-Attaching to meshes via sockets
+
+-gun shot:
+ -start from gun x start from camera o
+ -cuz more natural
+
+-can add more collision channels: project settings -> engine -> collision
+
+-TakeDamage:
+ virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
+ float AShooterCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	float DamageToApply = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	DamageToApply = FMath::Min(Health, DamageToApply);
+	Health -= DamageToApply;
+	UE_LOG(LogTemp, Warning, TEXT("%f"), Health);
+	
+	return DamageToApply;
+}
+
+-blend poses by bool
+
+-Blueprint Pure Nodes:
+ UFUNCTION(BlueprintPure)
+ bool IsDead() const;
+ -Can call c++ function as a blueprint pure node
+
+-Want ai? always need AIController
+
+-To Set AI Focus:
+ SetFocus() // ClearFocus()
+
+-To move AI:
+ add nav mesh
+ MoveTo()
+ StopMovement()
+
+-Chekcing AI Line of Sight:
+ LineOfSightTo(PlayerPawn)
+
+-BehaviorTrees and Blackboards:
+ Create BT, BB blueprint then
+ 
+ UPROPERTY(EditAnywhere)
+ UBehaviorTree* AIBehavior;
+
+ if (AIBehavior)
+ {
+	RunBehaviorTree(AIBehavior);
+ }
+
+-Setting Blackboard Keys
+AIBlackboard = GetBlackboardComponent();
+AIBlackboard->SetValueAsVector(TEXT("PlayerLocation"), PlayerPawn->GetActorLocation());
+
+-BT:
+ Sequence: run until one node fails
+ Selector: run until one node successes
+ 
+ Decorator: condition for the behavior composite node
+ Observer aborts:
+ Self: stop self and re-evaluate the selector
+ Lower-priority: stop whatever else it was doing and start this node
+ Both: become true? excute the node immediately false? stop whatever that was operating
+
+ ClearValue()
+
+-Custom BTTasks in C++:
+ BBTask_...
+ if linker error? go to Build.cs file and add "GameplayTasks" to PublicDependencyModuleNames
+
+UBTT_BlackboardBase::UBTT_BlackboardBase()
+{
+	NodeName = TEXT("Celar Blackboard Value");
+}
+
+
+-Executing BTTasks:
+EBTNodeResult::Type UBTT_BlackboardBase::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+{
+	Super::ExecuteTask(OwnerComp, NodeMemory);
+
+	OwnerComp.GetBlackboardComponent()->ClearValue(GetSelectedBlackboardKey());
+
+	return EBTNodeResult::Succeeded;
+}
+
+-BTTasks That Use the Pawn:
+
+ Observe Blackboard Value: if target location is changed, movement redirected
+
+ Can get AIController in Tasks functions: OwnerComp.GetAIOwner();
+ AShooterCharacter* Character = Cast<AShooterCharacter>(OwnerComp.GetAIOwner()->GetPawn()); and call functions
+
+-BTServices in C++:
+ Service: a way to execute sth every tick in BT
+
+ create c++ BTService_... class
+
+-Ignoring Actors In Line Traces:
+ FCollisionQueryParams CollisionParams;
+ CollisionParams.AddIgnoredActor(this);
+ CollisionParams.AddIgnoredActor(GetOwner());
+
+-To stop AI from making action after death:
+if (IsDead())
+{
+	DetachFromControllerPendingDestroy();
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+-unreal engine abstract class:
+ UCLASS(Abstract)
+ virtual void Foo() PURE_VIRTUAL(MyClass::Foo)
+ virtual bool Foo() PURE_VIRTUAL(MyClass::bool, return false;);
+
+-virtual void GameHasEnded(class AActor* EndGameFocus = nullptr, bool bIsWinner = false);
+ APlayerController::GameHasEnded
+
+ APlayerController::RestartLevel
+
+-Adding HUD C++:
+
+ UPROPERTY(EditAnywhere)
+ TSubclassOf<class UUserWidget> LoseScreenClass;
+
+#include "Blueprint/UserWidget.h"
+
+UUserWidget* LoseScreen = CreateWidget(this, LoseScreenClass);
+
+if (LoseScreen != nullptr)
+{
+	LoseScreen->AddToViewport();
+}
+
+can cause LNK error when failed to satisfy module dependency
+-> add "UMG" to Build.cs file -> enables #include "Blueprint/UserWidget.h"
+
+-Iterating Over Actors in a given level:
+AController* Controller : TActorRange<AController>(GetWorld())
+
+-Play Sound:
+ UGameplayStatics::PlaySoundAtLocation // sound at location
+ UGameplayStatics::SpawnSoundAttached // sound attached to mesh
+ 
+ Randomized Sound Cue:
+ make Sound Cue Blueprint -> wave players -> random node -> modulator(random pitch and volume)
+
+ Sound spacialization:
+ make Sound Attenuation blueprint -> set attenuation in sound cue
+
+-To remove Widget:
+ RemoveFromViewport()
+
+-Health Bar:
+ use progress bar -> make BlueprintPure function in C++ -> bind to progress bar percent(GetOwningPlayerPawn)
+
+-AimOffsets:
+ offset is additive (just connect the node)
+ value: GetControlRotation() GetActorRotation() -> Delta(Rotator) -> use Pitch(-90, 90) and Yaw(-180, 180)
+
+-Animation State Machine
+ enables transition between animation state
+
+ function to set transition bool var for jump -> IsFalling()
+
+ Animation state transition -> automatic rule based on sequence player in state -> true
+ ->automatically play next anim when the previous is over
+
+-Background Sound:
+ place Ambient Sound to the level

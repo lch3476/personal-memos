@@ -1,0 +1,13 @@
+-Turn in Place, AddOnScreenDebugMessage //112
+
+-Animation Curves // 114
+
+-NormalizeAxis // 115
+
+-AimOffset // 116
+
+-how to use mixamo // 123
+
+-Jump function override // 129
+
+-떠있는 애니메이션 조정 // 130

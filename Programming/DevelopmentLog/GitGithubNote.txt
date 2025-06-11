@@ -1,0 +1,52 @@
+error: src refspec master does not match any
+1. master branch doesn't exist or not set to default
+2. try to push w/o pull while local repository and remote repository have diff info
+>> to prevent the removal of info exclusively exists in remote repository
+3. it is empty directory or try to push w/o commit
+
+fatal: not a valid object name: 'master'
+-when there is no initial commit -> make first commit
+
+error: inflate: data stream error (incorrect data check)
+-reason: .git hash file is broken
+-solution: git fsck --full to detect broken files -> delete broken files -> git reset
+
+-git fsck --full: investigate git repository
+
+-when repository is corrupted
+$ git fsck --full
+broken link from    tree 2d9263c6d23595e7cb2a21e5ebbb53655278dff8
+              to    blob 4b9458b3786228369c63936db65827de3cc06200
+missing blob 4b9458b3786228369c63936db65827de3cc06200
+-> repository corruption
+-> blob 4b9458b3 is missing, and that the tree 2d9263c6 points to it
+
+$ git ls-tree 2d9263c6d23595e7cb2a21e5ebbb53655278dff8
+-> examine the tree
+
+-if you identify the file name and its directory, 
+ and the missing copy is the same as the copy of the working tree:
+ $ git hash-object -w somedirectory/myfile
+ -> create and store a blob object with the contents of somedirectory/myfile,
+    and output the SHA-1 of that object.
+ else:
+ $ git log --raw --all --full-history -- somedirectory/myfile
+ -> check the file versions
+ then -> $ git hash-object -w <recreated-file>
+
+-To clone git repository:
+ git clone <url>
+
+-diff between clone and fork:
+ forking: creates a separate copy on a remote server
+ cloning: downloads the entire repository onto your computer
+
+-fatal: refusing to merge unrelated histories
+ ->git pull origin main --allow-unrelated-histories
+
+-Managing large files requires a different approach
+
+-error: RPC failed; curl 92 HTTP/2 stream 0 was not closed cleanly: PROTOCOL_ERROR (err 1):
+ 1.git config --global http.version HTTP/1.1
+ 2.signal strength or buffer size:
+   git config http.postBuffer 524288000

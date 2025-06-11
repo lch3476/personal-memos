@@ -1,0 +1,114 @@
+Item Interping Slide:
+-Current Value -> Target Value
+-Each frame, move Current toward Target
+ -Amount based on the interp speed
+
+-In the Z direction, we don't exactly have a linear path to follow(curve).
+
+-Curves behave like functions; time(0.4) -> curve - >value(1.2)
+
+Camera Interp Location:
+아이템이 카메라 위에서 아래로 내려가는 이펙트를 원하는 경우:
+-Desired Location = Camera Location + (Forward Vector * A) + (Up Vector * B)
+
+-GetCameraInterpLocation 함수 정의 및 구현.
+
+-float CameraInterpDistance; float CameraInterpElevation; 변수 추가 및 초기화.
+FVector AShooterCharacter::GetCameraInterpLocation()
+{
+	const FVector CameraWorldLocation{ FollowCamera->GetComponentLocation() };
+	const FVector CameraForward{ FollowCamera->GetForwardVector() };
+
+	return CameraWorldLocation + CameraForward * CameraInterpDistance +
+		FVector{ 0.f, 0.f, CameraInterpElevation };
+}
+
+Get Pickup Item:
+-Pickup Item이 어떤 종류의 아이템인지 판별하는 함수 추가 및 구현.
+void AShooterCharacter::GetPickupItem(AItem* Item)
+{
+	auto Weapon = Cast<AWeapon>(Item);
+
+	if (Weapon)
+	{
+		SwapWeapon(Weapon);
+	}
+}
+
+Item Z Curve:
+UCurveFloat 변수 추가.
+UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = ItemProperties, meta = (AllowPrivateAccess = "true"))
+class UCurveFloat* ItemZCurve;
+
+-Curves 폴더를 따로 만들고 miscellaneous에서 curve추가.
+
+-용도에 맞게 Curve 수정.
+
+Item Interp Variables:
+interp에 필요한 멤버 변수들 추가 및 초기화.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = ItemProperties, meta = (AllowPrivateAccess = "true"))
+	FVector ItemInterpStartLocation;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = ItemProperties, meta = (AllowPrivateAccess = "true"))
+	FVector CameraTargetLocation;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = ItemProperties, meta = (AllowPrivateAccess = "true"))
+	bool bInterping;
+
+	FTimerHandle ItemInterpTimer;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = ItemProperties, meta = (AllowPrivateAccess = "true"))
+	float ZCurveTime;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = ItemProperties, meta = (AllowPrivateAccess = "true"))
+		class AShooterCharacter* Character;
+
+-interpulation timer를 시작하는 함수(캐릭터가 호출할 수 있도록 public)와 timer callback function 추가 및 구현.
+void StartItemCurve(AShooterCharacter* Char);
+void FinishInterping();
+
+Following the Z Curve:
+-SelectButtonPressed 수정: 
+void AShooterCharacter::SelectButtonPressed()
+{
+	if (TraceHitItem)
+	{
+		TraceHitItem->StartItemCurve(this);
+	}
+}
+
+-Tick에서 호출할 AItem class에 Interp 함수 선언 및 구현
+void AItem::ItemInterp(float DeltaTime)
+{
+	if (!bInterping) 
+		return;
+
+	if (Character && ItemZCurve)
+	{
+		const float ElapsedTime = GetWorldTimerManager().GetTimerElapsed(ItemInterpTimer);
+
+		const float CurveValue = ItemZCurve->GetFloatValue(ElapsedTime);
+
+		FVector ItemLocation = ItemInterpStartLocation;
+
+		const FVector CameraInterpLocation{ Character->GetCameraInterpLocation() };
+
+		const FVector ItemToCamera{ FVector(0.f, 0.f, (CameraInterpLocation - ItemLocation).Z) };
+
+		const float DeltaZ = ItemToCamera.Size();
+
+		ItemLocation.Z += CurveValue * DeltaZ;
+		SetActorLocation(ItemLocation, true, nullptr, ETeleportType::TeleportPhysics);
+	}
+}
+
+-Item의 Item Z Curve설정.
+
+Interp Item X and Y:
+-InterpXValue, InterpYValue float 변수 추가 및 초기화
+-InterpXValue, InterpYValue에 FMath::InterpTo return 값 대입
+-ItemLocation.X, Y에 위 값 대입
+
+Interp Rotation:
+YawOffset = Item Yaw - Camera Yaw
+Set Item Yaw = Camera Yaw + Yaw Offset

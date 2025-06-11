@@ -1,0 +1,66 @@
+-skeleton에 retarget manager를 사용하여 같은 skeletal hierarchy를 갖게 하면, 사이즈가 달라도 애니메이션을 적용할 수 있게
+ 된다. rigging을 마친 후에는 우클릭, retarget anim assets를 실행해줘서 맞는 폴더에 집어넣는다.
+
+-animation blueprint, 1D 및 2D blendspace 생성
+
+-2D blendspace의 x, y를 direction, speed로 이름 붙이고 -180, 180 및 0 600의 범위로 설정 후 맞는 애니메이션 설정.
+ -blend를 하다보면 어색한 구간이 생기는데 그런 경우 division을 8로 둬서 세분화 시킬 수 있다.
+
+-Character Blueprint에 HasWeaponAttached, HasWeaponSheathed bool 변수 추가.
+
+-animation blueprint로 가서 Is falling, speed, direction 변수 생성 및 set.
+
+-animation blueprint에 HasWeaponAttached? bool 변수를 생성하고 try get pawn owner > cast > hasweaponattached로 
+ HasWeaponAttached? set.
+
+-locomotion ground에서 hasweaponattached를 transition으로 무기 장착시 blend space animation play
+ -맞는 곳에 character blueprint의 HasWeaponAttached를 수정해 주어야 한다.
+
+-calculate direction을 실행하기 위해선 use controller rotation yaw가 enabled 돼있어야 한다. set use controller rotation
+ yaw를 호출해서 맞는 곳에 true/false로 설정할 수 있다.
+
+-draw sword를 위해서 draw sword animation에서 animation montage를 생성해 주고, 필요한 animation들을 더 이어준다.
+
+-animation의 맞는 시간에 notify를 추가한다.
+
+-sheathe sword를 위해서 위의 두 단계를 똑같이 해준다.
+
+-animation blueprint에서 위에서 설정한 각 notify에 대한 이벤트 구현 노드를 호출하고, get player character > cast to
+
+-character blueprint에서 DrawWeapon, SheatheWeapon custom event 생성.
+
+-Draw weapon 구현. character에서 맞는 아이템 변수 > cast to base weapon > weapon info > break하여 socket name > 
+ attachtocomponent. target은 아이템 변수, parent는 character mesh. hasweaponsheated, hasweaponattached, Use
+ contoller rotation yaw set해주어야 한다.
+
+-sheath 구현도 비슷해야 하지만 hasweaponsheated, hasweaponattached, Use contoller rotation yaw set을
+ 반대로 해주어야 한다.
+
+-animation blueprint의 각 notify에서 맞게 구현한 drawweapon, sheatheweapon 호출
+
+-Toggle Wepon을 inputaction 구현. 무기 attach를 위한 item 변수 is valid > hasweaponsheathed true이면 mesh - 
+ get anim instance - motage play로 drawsword montage play. false이면 sheathweapon montage play
+
+-attach equipment할 때는 sheath된 weapon이 있는지에 따라 다르게 해야한다.
+
+-------Attack
+
+-project settings에서 attack action 추가
+
+-character blueprint에서 IsAttacking, SaveAttack bool 변수와 ComboCounter int 변수 추가
+
+-IsAttacking, SaveAttack, ComboCounter 변수를 0과 false로 set하는 ResetCombo 이벤트 추가.
+
+-공격을 이어나가게 할 SaveComboAttack custom event 추가.
+
+-inputaction attack 구현. hasweaponattached true일 때 > isattacking branch - true일 때 set saveattack true false일 때
+ combo counter - switch > 0일 때 set combocounter 1 및 mesh - animinstance - montageplay. 이어지는 콤보까지 동문
+
+-savecomboattack 구현. saveattack이 true이면 false로 set하고 attack inputaction의 switch 부분으로 노드 연결.
+
+-combo attack montage를 맞게 play할 수 있게 animation blueprint 수정.
+
+-각 combo attack montage의 맞는 곳에 notify add(savecomboattack, resetcombo).
+
+-animation blueprint에서 notify event 구현. 각각 character blueprint의 savecomboattack과 resetcombo 호출
+

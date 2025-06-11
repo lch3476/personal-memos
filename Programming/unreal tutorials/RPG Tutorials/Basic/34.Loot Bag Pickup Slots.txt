@@ -1,0 +1,4 @@
+-lootbag background의 각 칸에 image와 text등을 추가해서 slot 구성하기
+-gamemode에 lootbag의 각 slot을 표시할 int 변수 slot 개수 별로 추가
+-lootbag의 image에서 gamemode의 그 slot의 변수값에 따라 switch > make brush from texture > return
+-text의 경우엔 위와 같지만 return은 loot에 맞는 text

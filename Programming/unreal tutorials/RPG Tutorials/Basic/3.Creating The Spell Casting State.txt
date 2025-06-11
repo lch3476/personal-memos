@@ -1,0 +1,10 @@
+-Character Blueprint에 캐스팅 상태를 표시할 수 있는 bool 변수 생성. 다양한 캐스팅 애니메이션을 구분하여 쓸 수 있도록 
+ 변수 이름 잘 짓기.
+-Animation Blueprint에 캐스팅 상태 bool 변수 생성.
+-Animation Blueprint에서 speed direction 설정 다음 시퀀스에 get player character - cast to - get 캐스팅 상태 변수 및 set
+ animation 변수.
+-state macine에서 idle, walk/run에서 casting statemachine으로의 연결 생성
+ 비교문으로 condition 설정
+-Character Blueprint > 원하는 키 이벤트 > 캐스팅 상태 변수 true로 set 및 애니메이션 재생시간 동안 delay > 다시 캐스팅
+ 상태 변수 false.
+-Blend Space에서 interpulation time을 조정하면 더 부드러운 보간 가능.

@@ -1,0 +1,277 @@
+	1. Strategy
+
+-separate what varies from what stays the same
+
+-program to interface, not implementation
+
+-prefer composition to inheritance
+
+-how:
+ -create and implement behavior interface
+ -compose it by interface type
+
+-definition:
+ it defines a family of algorithm, encapsulate them, and make them interchangable
+
+	2. The Observer
+
+-subject + observer
+
+-loose coupling: can interact but don't know details
+
+-strive for loose coupling
+
+-how:
+ interfaces:
+  -Observable: AddObserver(), RemoveObserver(), NotifyObserver()
+  -Observer: Update()
+
+	3. Decorator
+
+-inheritance by:
+ subclassing: static, same behavior
+ composition: dynamic, flexible
+
+-a class -> open for extension, closed for modification
+
+-def:
+ attaches additional responsibilities dynamically
+
+-alternative to subclassing
+
+-how:
+ -create abstract decorator(inherit target interface)
+ -implement it(compose target obj)
+
+-downside: 
+ -large num of small classes
+ -instantiation complexity -> solve by Builder, Factory
+
+	4. Factory
+
+-new instantiation:
+ -concrete -> not flexible, fragile
+
+-simple factory:
+ -create a class that contains instantiating method
+ -compose it and call the method
+ -if static method? -> static factory
+ -but not flexible
+
+-factory method:
+ define interface for instantiating and implement in subclass
+ -creator <- concrete creator -> concrete product -> product
+ -inheritance
+
+-depend upon abstraction, not upon concrete class
+ -guidelines:
+  -no variables referring concrete class
+  -no inheritance from concrete class
+  -no overriding implemented method of base class
+
+-abstract method factory:
+ provides an interface for creating families of related objects
+ -Client -> AbstractProduct -> Product
+         -> AbstractFactory -> ConcreteFactory -> Product
+ -composition
+ -for families of product
+
+	5. Singleton
+
+-def:
+ ensures only one instance that provides global access
+
+-how:
+ private static Singleton instance;
+ private contructor
+ public Singleton getInstance(); // return new Singleton if instance == null
+
+-not working good with multithread
+
+	6. Command
+
+-to encapsulate and parameterize method call
+
+-Client(createCommand) 
+ -> Command(interface: execute();undo(); //stor(); load(); if necessary) 
+    // public void execute() { receiver.action(); } // compose Receiver
+ -> Invoker(setCommand()) // compose Command
+ -> Receiver(action())
+
+-macro command:
+ -create a command holding commands array
+
+-too much classes? can replace command objects to lambda
+
+	7. Adapter and Facade
+
+-Adapter def:
+ convert the interface into another to solve interface incompatibility
+
+-how:
+ -create adapter class that implement target interface
+ -compose target object
+ -implment
+
+-object adapter: use composition
+ class adapter: use inheritance
+  -client -> target <- adapter -> adaptee
+
+-Facade def:
+ provides unified interface to a set of subsystem interfaces
+ -client -> facade -> sybsystem classes
+
+-how:
+ -create facade class
+ -compose subsystem components
+ -implements methods for simplifying
+
+-increased dependency -> fragile system
+
+-talk only to immediate friends
+ -how -> call methods that belong to:
+  -object itself, passed parameter, instantiated in the method, components
+
+	8. Template Method
+
+-define algorithm skeleton and let subclasses redefine
+
+-hook: method in abstract class for optional redefinition
+
+-trade-off: abstract method num <-> flexibility
+
+-The Hollywood Principle: Don't call us, we'll call you
+ -solve "dependency rot": complicatedly interwined dependency
+ -high-level components decide when low-levels are needed
+
+	9. Iterator and Composite
+
+-Iterator def:
+ provides generalized way to access a collection
+ 
+-how:
+ -create iterator interface and implement
+ -create common interface for collection and define createInterface()
+
+-class should have only one reason to change
+ -responsibility -> change
+ -keep single responsibility
+
+-cohesion: how much close to single responsibility?
+
+-Composite:
+ -composes objects into tree for part-whole hierarchy
+ -can treat leaf and composite objects uniformly
+
+-Client -> Component <- Composite
+                     <- Leaf
+
+-how:
+ -create abstraction for components
+ -implement leaf and composite
+
+	10. State
+
+-def:
+ allow changing behaviors by internal state changes
+
+-how:
+ -create abstraction for state and implement
+ -create client(compose states and the tracer)
+ -implement methods
+
+-transition can be controlled by context or state
+
+	11. Proxy
+
+-def:
+ provide a surrogate for another object to control access
+
+-diagram:
+ RealSubject -> Subject(interface) <- Proxy(compose RealSubject)
+ -Proxy can substitute RealSubject -> same interface
+
+-remote proxy: local representative of remote object
+ virtual proxy: representative of expensive object // surrogate
+ protection proxy: access control based on access right
+
+	12. Compound
+
+-def:
+ combines more than 2 patterns to solve a problem
+
+-MVC:
+ -Model: holds logic, state, data // observer
+ -View: presentation of model // composite
+ -Controller: takes uesr input
+
+-1. user interacts with view
+ 2. controller asks Model to change its state
+ 3. controller masy asks View to change
+ 4. Model notifies view when changed
+ 5. view asks Model for state
+
+-Model -> Observable; Controller, View -> Observe
+ View -> composes Controller, Model
+ Controller -> composes View, Model
+
+	13. Better Living with patterns
+
+-pattern -> guidelines; can be flexible
+
+-category:
+ creational: involve instantiation
+ behavioral: how classes and objects interact
+ structural: composes classes or objects into larger structure
+
+-solve in the simplest way
+ -simpler solution if it works
+
+-remove pattern when no need
+
+-don't need it now? don't do it now
+ -hypothetical reason -> don't
+
+-use pattern when necessary and sure about the future
+
+-anti-pattern: for prevention; e.g. golden hammer
+
+	Appendix. More patterns
+
+-Bridge:
+ -to vary implementation and abstraction
+ -two separate hierarchies for impl and abs
+ -abs compose impl
+
+-Builder:
+ -encapsulate complex construction
+ -allow multistep and varying process of construction
+ -client(composite builder; builder.getObject()) -> 
+  abstract builder(building methods) -> 
+  concrete builder(composite object to be created)
+ 
+-chain of responsibility:
+ -want many objects handle request
+ -Handler(compose successor; handleRequest())
+
+-Flyweight Pattern:
+ -when numerous same objects
+ -reduces instance num in runtime, saving memory
+
+-Interpreter:
+ -when you implement simple language
+
+-Mediator:
+ -centralize complex communication and control b/w objects
+
+-Memento:
+ -saving and encapsulating the important state of a system's key object
+ -create a class that encapsulates and offers methods for managing game state object
+  -> client call the methods
+
+-Prototype:
+ -when instantiation is complex and expensive
+ -some cases, copying is more efficient than creating
+
+-Visitor:
+ -adding new operations to a Composite structure without changing

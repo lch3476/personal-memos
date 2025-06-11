@@ -1,0 +1,12 @@
+-필요한 에셋들 import
+-widget blueprint 생성 및 background, 필요한 button image추가
+-project settings에서 input 키 설정
+-캐릭터(혹은 컨트롤러)같은 원하는 곳에 키 이벤트로 create widget > add to viewport > show mouse cursor
+
+-만든 inventory 창에 각 칸을 표시할 image 추가하여 배치
+-무슨 정보를 담을지 알려주기 위해 gamemode(혹은 필요한 다른 곳)에 인벤토리의 각 슬롯을 표시하는 정수 변수 추가
+
+-HUD Asset 폴더에 Inventory Icon을 위한 InventoryIcon 폴더 생성 및 에셋 임포트
+
+-각 인벤토리 칸에 맞는 아이템을 집어 넣으려면 정수 값에 따라 각 슬롯의 brush binding을 바꿔주면 된다
+ -get game mode - cast to - get inventory slot int variable - switch - 각 int 별로 make brush from texture - return node

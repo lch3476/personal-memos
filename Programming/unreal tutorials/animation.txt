@@ -1,0 +1,27 @@
+1.
+-player character의 spring arm, camera와 gamemode설정들 잊지 않기. 
+-moveforward와 moveright엔 add movement input을 쓰고 world direction엔 get controller rotation -> get forward/right
+ vector 사용.
+-Turn과 lookup엔 add controller yaw input, add controller pitch input 사용.
+-lookup을 위해선 springarm의 camera settings에서 use pawn control rotation사용.
+
+2.
+-animation blueprint를 만든 후  player character에 대한 참조를 얻은 후 변수로 저장한다. 이를 위해 try get pawn owner를
+ 사용한 다음, player character 형식으로 cast한 후 저장한다.
+-event blueprint update animation은 항상 updated되기에 한번 실행되길 바라면 beginplay를 쓸 수 있다.
+-저장된 player character reference 변수를 사용해서 원하는 player character 값을 사용할 수 있다.
+-speed 값을 얻기 위해서 get velocity + vector length를 사용한다.
+-state machine은 character가 어떤 상태에 있는지 말해주는 방법이다.
+-blend space는 서로 다른 애니메이션들을 다양한 기준으로 blend할 수 있게 해준다.
+-작성한 blend space를 사용하려면 animation blueprint의 animation목록에서 드래그 드랍한다.
+-blend space에서 direction을 x 축으로 사용하려면 animation blueprint에서 calculate direction을 사용한다.
+-캐릭터가 이동을 하는 애니메이션에서 이동을 막으려면 root motion에서 force root lock을 enable한뒤 root motion root
+ lock 을 anim first frame으로 설정한다.
+
+3.
+-sprint같은 경우는 action mapping을 설정한 후, 키가 눌리면 sprint speed로 max walk speed를 설정하고 떼이면 다시 
+ walk speed로 설정하는 식으로 구현한다.
+-그 후 적절하게 애니메이션과 state machine을 수정하고 적용한다.
+
+4.
+-animation의 additive setttings에서 어떻게 다른 animation과 합쳐질지 설정할 수 있다.

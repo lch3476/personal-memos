@@ -1,0 +1,144 @@
+-각 무기나 방어구, 아이템은 base_interactable > base_item > base_weapon or base_armor > sword/plate와 같이 상속 관계
+ 를 만드는 것이 편하다.
+
+-각 장착 슬롯을 표현하기 위한 enum을 추가한다. (head, torso, arms, righthand etc.)
+
+-iteminfo에 slot정보와 itemvalue정보를 추가한다.
+
+-EAttackType enum을 추가한다. (Melee, Magic, Range etc.)
+
+-WeaponInfo Structure를 추가한다. 
+ (AttackType, Damage, Range, AttackSpeed, slotname:PrimaryRightHand, PrimaryLeftHand, AttackVFX, AttackSFX, 
+  HitVFX, HitSFX, AttackMontage etc.)
+
+-WeaponInfo Structure 변수를 BaseWeapon blueprint에 추가
+
+-필요하다면 Armor 타입을 표현하기 위한 enum을 추가한다
+
+-ArmorInfo structure를 생성 및 baseArmor blueprint에 추가한다. (DamageRating, AttachPoint)
+
+-Inventory function들을 위한 interface를 만들고 구현할 함수를 추가한다. 그리고 interface를 필요한 곳에 add 해준다(이
+ 경우엔 character, inventory button widget).
+ BPI_inventory -> UseItem, UnUseItem, DropItem, EnableActionbar etc.
+
+-Equipment UI와 Equipment slot UI를 생성한다.
+
+-project settings에서 Equipment UI를 열 action키를 설정하고 inventory와 같이 노드를 짠다.
+
+-inventory와 equipment ui의 input mode설정이 섞이지 않도록 각 창을 닫을 때 open 변수를 branch하여 다른 UI가 false일
+ 때 만 input mode를 바꾸도록 한다.
+
+-Equipment slot UI에 iteminfo 변수를 추가한다.
+
+-Equipment UI 꾸미기
+
+-Equipment UI에서 쓰일 Character Capture를 위해 별도의 Scene Captures등의 폴더 생성
+
+-blueprint actor 생성(character recording을 위해)
+
+-scene component를 추가하면 default scene의 하얀 구체를 없앨 수 있다.
+
+-skeletal mesh를 추가하고 캐릭터의 mesh로 설정한 후, 원한다면 anim class도 설정.
+
+-scenecapturecomponent2d 추가. 캐릭터를 캡쳐하는 카메라 처럼 작동하며, 그 결과물을 Texture Target으로 rendering한다.
+ -capturecomponent에 arrowcomponent를 추가하여 바라보는 방향을 알기쉽게 한다.
+
+-capture폴더에 render target 생성 및 texture target 설정, 위치나 view조정
+
+-Texture Target > 우클릭 Material 생성.
+ -material domain을 user interface로, blend mode를 translucent로 설정 및 Texture Sample을 Final Color로, Alpha 값을
+  1-x 하여 opacity로
+
+-recording actor를 월드 내에 보이지 않는 적정한 위치에 배치 및 equipment ui의 image에서 record texture를 사용하도록
+ 설정
+
+-Equipment UI에서 Equipment slot update를 위한 CreateEquipment Custom Event 생성 및 event construct에서 호출.
+
+-Character Blueprint에 inventory와 같은 equipment iteminfo list 생성.
+
+-equipment ui의 create equipment 함수에서 character의 equipment iteminfo 리스트 get
+ -loop의 index값을 item index로 하는 새로운 iteminfo를 만들고 slot enum > switch
+
+-equipment ui에 slot과 iteminfo를 매개변수로 받는 setequipmentslot 함수를 생성해서 slot의 iteminfo를 매개변수 iteminfo
+ 로 set하고 스타일을 조정해준다.
+
+-create equipment의 iteminfo > switch 노드에서 각 slot reference에 setequipmentslot 호출.
+
+-equipment slot ui에 text나 style등을 기본값으로 되돌리는 emptyslot 함수 생성.
+
+-Switch가 none일 때 모든 slot에서 emptyslot호출
+
+-inventory에 add하고 create inventory를 재호출 하기전에 inventory slot을 담고있는 wrapper에 clear children을 호출하여
+ 겹치지 않게 해주어야 한다.
+
+-다음과 같은 함수를 만든다.
+ RemoveFrominventory, RefreshInventory, AddToEquipment, RemoveFromEquipment, RefreshEquipment, 
+ UpdateEquipment, AttachEquipment, UnattachEquipment
+
+-어떤 아이템을 사용하거나 info 변수에 대한 참조가 필요할 때, 항상 유효한 지 검사 해주어야 한다.
+
+-use item interface function을 character blueprint에서 구현해준다.
+ -remove from inventory(매개변수 iteminfo) 호출
+  -character의 inventroy iteminfo list에서 매개변수 iteminfo의 index 값을 활용하여 removeindex 호출
+ -매개변수 iteminfo에서 itemtype 값을 switch > type > weapon이나 armor이면 updateequipment, attachequipment호출
+  -updateequipment 구현. 매개변수 iteminfo > slot 타입 > switch > equipment ref 변수 valid 검사 > 
+   invalid일시, add to equipment, refresh inventory 호출 > valid일 경우, equip ref > switch pin에 맞는 slot > slot의 
+   iteminfo class가 none일 경우 invalid 실행핀으로, 아닐 경우 그 iteminfo로 add to inventory, remove from equipment
+   호출 및 매개변수 item info로 add to equipment
+    -add to equipment 구현. 매개변수 iteminfo equipment iteminfo list에 add 및 equiment ui ref가 유효하면
+    create equipment 호출
+    -refresh inventory 구현. inventory ref 변수 is valid > slot을 담은 grid panel > clear childer > create inventory
+    -remove from equipment 구현. iteminfo의 index값으로 remove index
+    -각 switch pin에 slot만 다르게 해서 똑같이 실행해준다.
+
+-un use item interface function 구현
+ -remove from equipment, add to inventory, refresh equipment, unattach equipment 호출.
+
+-equipment slot button의 on clicked event 구현. iteminfo의 class값이 none이 아니면 has space in inventory > branch
+ > un un use item 호출
+
+-refresh equipment 구현. equipment reference의 create Equipment호출.
+
+------Attaching Items to Character
+
+-attach equipment, unattach equipment 는 둘다 iteminfo 구조체 객체를 매개변수로 갖는다.
+
+-character blueprint에 각 slottype에 장착될 base_item타입의 item 변수들을 추가한다. ex) headitem, torsoitem..
+
+-attach equipment 구현. 
+ -매개변수 iteminfo의 slottype과 class정보 필요.
+ -slottype > switch > 각 핀에 맞는 item 변수 is valid > invalid이면 spawnactorof class 호출(getactor transform, ignore
+  collision) > return 값으로 item var set > cast to base weapon/armor > armor/weaponinfo의 attachpoint/slot 정보 값을 
+  socket name 으로 사용하여 attachtocomponent 호출(target은 slot에 맞는 item변수, target은 character mesh, rule은 
+  snap to) > attach한 item > set actor enable collision을 false로.
+  > valid일 경우에는 원래의 slot item > destroy actor 후, 위의 spawn과정으로 노드 연결.
+ -secondarylefthand처럼 weapon과 armor(shield)류가 둘다 들어갈 수 있으면 weapon cast failed일 때 armor로 cast하여
+  amorinfo를 이용해 attachtocomponent하면 된다.
+
+-캐릭터의 skeletal mesh에 가서 slot에 쓰이는 각각의 위치에 socket 추가.
+ -한쪽에 서로 다른 transform을 가져야 하는 actor가 있다면(ex: shield와 weapon모두 가능한 왼손 파트) 추가로 socket 생성
+
+-무기가 장착되고자 하는 slot을 설정해 놓는 것을 잊지 말아야 한다.
+
+-unattachequipment는 attach와 비슷하지만 slot > switch > item변수 destroy actor를 호출한다.
+
+-equipmennt ui 내 캐릭터 캡쳐도 장비에 따라 다르게 캡쳐되게 하는 기능을 구현하기 위해서 BPI(BPI_RecorderComm)를 
+ 추가한다.
+ -BPI는 BP_CharacterRecorder를 매개변수로 가지는 PassReference, iteminfo를 매개변수로 가지는 equipitem, unequipitem
+  를 가져야 한다.
+
+-character blueprint의 use item과 un useitem 구현부 끝에 equipitem, unequipitem을 각각 호출해준다.
+
+-equipitem, unequipitem의 target 정보를 얻기 위해 BP_CharacterRecorder의 beginplay에서 playercharacter를 타켓으로 
+ passreference 호출(넘길 reference는 self). 
+
+-character blueprint에서 passreference구현. passreference의 매개변수를 set으로 변수화
+
+-character recorder에도 각 slot에 맞는 baseitem 변수들을 추가해준 후, iteminfo를 매개변수로 가지는 attachitem, 
+ unattachitem 함수를 추가해준다(구현은 character blueprint의 attach, unattachitem구현 copy).
+
+-inventory에서의 drop함수를 구현할 땐, iteminfo의 class정보를 사용하여 spawnactorofclass를 호출하고, return 값을
+ 사용하여 set actor enable collision 및 return값 > mesh > set simulate physics(true)를 호출하면 된다.
+
+-Arms나 legs와 같이 양쪽에 모두 들어가야 하는 장비는 각각에 socket을 따로 만들고 info structure에도 각 slotname을
+ 추가한다. 그리고 attch할 때 두 부분에 모두 넣어준다.

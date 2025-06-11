@@ -1,0 +1,6 @@
+-basic input axis, input action 추가하기
+-springarm component가 control rotation을 사용하게 하는 것 잊지 않기
+-movement orient rotation true로
+-inputaxis에서 뒤로 움직이는 키와 왼쪽으로 움직이는 키 scale 음수값으로 하는거 잊지 않기
+-health, stamina, mana 현재 값과 max 값, 각각의 regen값 모두 변수로 만들고 초기값 제공.
+ -만든 변수들 attributes등의 category를 만들어서 분류

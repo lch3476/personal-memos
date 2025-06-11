@@ -1,0 +1,31 @@
+-Inventory와 Inventory Item을 위한 widget blueprint 생성
+
+-Base_Interactable > Create Child Blueprint class(BP_BaseItem)
+
+-Item 타입을 위한 Enum 생성 후 아이템 타입 추가
+
+-Item의 정보를 담기 위한 FItemInfo Structure 추가 > 위의 enum 타입의 ItemType , text타입의 ItemName, Texture 2D 타입
+ 의 ItemImage, BPbaseItem class 타입의 Itemclass 추가
+
+-Bp_BaseItem blueprint에 itemfinfo FItemInfo structure 타입변수 추가
+
+-construction script에서 초기화.
+
+-inventory를 열 때 get player controller - set input mode game and UI only호출과 닫을 때 set input mode game only
+ 호출을 잊지 말자(show mouse cursor도).
+
+-inventory ui 토글을 위해서 set isopeninventory bool 변수를 조정하는 것을 잊지 말자.
+-inventory는 inventory창에 item widget을 추가하는 식으로 만든다. 이 때 item widget은 iteminfo 변수를 가진다.
+-inventory는 ui 내 아이템 위치 표현을 위해 row position, column position, row length 변수를 가진다.
+-inventory구현
+ 1. row position, column position 0으로 초기화
+ 2. player character의 inventory 사이즈 값 - forloop - create item widget - add child to uniform grid(inventory 안)
+    - set horizontal, vertical alignment - set column, row to column, row position variable
+ 3.set widget style: 추가한 인벤토리 버튼의 스타일을 iteminfo 구조체의 정보로 수정.
+ 4.추가된 아이템 버튼 안의 iteminfo 변수 값을 캐릭터의 inventory리스트에서 get한 요소로 set.
+ 5.아이템이 올바른 순서로 들어가도록 column, row position을 수정하는 incrementposition 함수 작성.
+ 6.inventory에 추가한 item widget(button)의 on clicked에서 blueprint interface function use item 호출 및 player character
+   blueprint inventory 변수에서 item widget iteminfo변수 remove, grid패널 clear children > create inventory 함수 호출
+
+-인벤토리에서 아이템을 제거할 땐 iteminfo 구조체에 index int 값을 추가해서 제거함으로써 같은 아이템이 동시에 사라지지
+ 않게 만든다.

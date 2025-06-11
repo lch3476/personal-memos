@@ -1,0 +1,411 @@
+	71. 게임 디자인 - 타일바니아
+
+-player experience
+ core mechanics // ex) run and jump
+ game loop // ex) get from A to B avoiding traps and enemies
+
+-Consider game theme(story telling)
+
+-Consider MVP(Minimum Viable Product) Gameplay Features
+ ex) In this game: Character movement, Traps/Obstacles, Level loading
+
+	72. 슬라이싱 스프라이트 시트
+
+-A sprite sheet is an image that consists of several smaller images (sprites) and/or animations.
+
+-스프라이트 시트 선택 > sprite mode를 multiple로 설정 > sprite editor > 윈도우 왼쪽 위 slice(옵션 맞게 선택) > apply
+ -animation같은 경우 cell by grid size로 조절 후 slice; 배경은 automatic
+
+	73. 유니티 타일맵 소개
+
+-Tilemap pipeline:
+ Sprite Sheet > Sliced Sprite Sheet > Tile Asset > add to tile Palette > add the palette to a tile map
+
+-create tile map(hierarchy > 2d objects > tilemap) > create palette > format palette
+
+-window > 2d > tile palette > create new palette > tile sprite drag and drop(타일 에셋 자동 생성)
+
+-타일 선택 후 scale -1 설정 시 180도 회전
+
+-Grid 라인이 보일 땐 pixels per unit을 줄여보자
+
+-Palette 수정 시 Edit 버튼 잊지 말자.
+
+	74. 유니티 타일맵 - 레이어
+
+-tilemap draw때 palette에서 active tilemap 선택
+
+-각 tilemap은 layer 설정 가능.
+ -Order in Layer 설정
+ -Tags & Layers > Sorting Layers > 레이어 add > additional settings에서 sorting layer 설정.
+
+	75. 유니티 룰 타일 사용하기
+
+-package manager에서 2D Tilemap Extras install
+
+-Create > 2d > Tiles > Rule Tile
+
+-tile palette에 drag, drop(가능한 새 palette 생성)
+
+-default sprite 설정.
+
+-Tiling Rules에서 +
+ > rule의 sprite 설정
+ > output에서 random 설정 시 random draw도 가능.
+
+-Tiling Rules에서의 순서는 Rule 적용 순서.
+
+	76. 플레이어 애니메이션 생성
+
+-Window > animation > animator
+
+-terminology:
+ -Animator Component: assigns animation to a game object through an animator controller
+ -Animator Controller: Arrangement of anmations and transitions
+ -Animation: specific pieces of motion
+ -Sprite Renderer: displays the 2d sprite on screen
+
+-Add Animator Component to a character
+ >Create Animation Controller and assign at the component
+ >Create Animation (choose the sprites > create > animation)
+ >Drag the animation into the animator
+
+-필요하면 animation clip에서 enable Loop Time -> 애니메이션 반복
+
+	77. 애니메이션 상태 & 전환
+
+-make transition
+
+-has exit time은 one shot animation에 주로 쓰인다. ex) 버튼을 눌러 애니메이션 재생 후 전 상태로 갈 때
+
+-Animator window > Parameters > + > 원하는 타입의 state 추가 > transition > Conditions > +
+
+	78. 프리팹 사용하기
+
+-What are prefebs:
+ Game objects that turned into reusable template
+
+-The original template: prefabs
+ The copies: instances
+
+-How to create a prefeb:
+ drag and drop from Hierarchy to Project window
+
+-overrides 에서 instance 변화 instance들에 적용 가능
+
+-instance 변경점은 prefeb을 수정해도 override되지 않는다. // 변경하지 않은 부분은 적용
+
+	79. 타일맵 콜라이더 구성하기
+
+-Tilemap Collider 2d 추가
+
+-Tile Collider 사이의 미세한 틈에 캐릭터가 낄 수 있다.
+
+-해결법:
+ Composite Collider 2d 추가 // Rigid Body 2d 자동 추가됨
+ Rigid Body 2d > body type 설정
+ Tile Collider에서 Used By Composite enable
+
+-Rigid Body의 Constraints에서 Z Rotation 고정 가능
+
+	80. 인풋 시스템 설정
+
+-package manager에서 input system install
+
+-player object에 player input 컴포넌트 추가
+ > Create actions
+ > 필요한 actions + // ex. jump
+ > 추가한 action에서 path, use in control scheme 설정으로 bind
+ >player input 컴포넌트 > open input settings > create asset
+ >input system bahavior > send messages > 다양한 on methods
+ >create player movement and attach to the character
+
+-Input의 action type이 Value이면 control type의 데이터 멤버 선언
+ > On..()에서 선언한 데이터 멤버 값 설정
+ // void OnMove(InputValue input)
+    {
+        movementValue = input.Get<Vector2>();
+        Debug.Log(movementValue);
+    }
+
+	81. 플레이어 수평 이동
+
+-이동 및 물리에 관한 사항 -> Rigidbody
+
+-이동을 수행할 메서드 따로 정의 후 Update에서 호출
+
+-Rigidbody2d의 velocity 설정으로 이동 구현
+
+-y축 이동 원치 않으면 On 함수에서 받은 vector2d 값의 y값을 0으로 해서 다시 생성.
+
+-rigidBodyRef.velocity의 y값을 rigidBodyRef.velocity.y로 설정하면 최근 y값 유지.
+
+	82. 플레이어 스프라이트 이동
+
+-move right -> positive velocity
+ move left -> negative velocity
+
+-can change facing direction by changing the localscale using +ve or -ve value
+
+-only change facing direction if moving
+
+-Mathf.Abs()
+ Mathf.Sign()
+ Mathf.Epsilon: The smallest value that a float can have different from zero.
+ anyValue +- epsilon = anyValue
+ 0 +- epsilon = epsilon
+
+    void FlipSprite()
+    {
+        bool hasHorizontalSpeed = Mathf.Abs(rigidBodyRef.velocity.x) > Mathf.Epsilon;
+        if (hasHorizontalSpeed)
+        {
+            transform.localScale = new Vector2(Mathf.Sign(rigidBodyRef.velocity.x), 1f);
+        }
+    }
+
+	83. 애니메이션 상태 - 코드
+
+-Animator에 대한 참조 멤버 추가 및 초기화
+
+-animatorRef.SetBool("isRunning", IsRunning());
+
+	84. Jumpy 점프
+
+    void OnJump(InputValue input)
+    {
+        if (input.isPressed)
+        {
+            rigidBodyRef.velocity = new Vector2(0f, jumpSpeed);
+        }
+    }
+
+-project settings -> physics 2d -> gravity에서 전체 gravity 조절가능
+
+-캐릭터의 gravity 조절은 rigidbody에서
+
+	85. IsTochingLayers시 점프
+
+-Layers는 여러 GameObject에 대해 같은 functionality를 가질 때 유용
+
+-Main camera의 culling mask에서 어떤 레이어를 render할지 선택 가능
+
+-Sorting layer와 같은 방법으로 layer 추가 가능
+
+-project settings -> physics 2d 아래의 layer collision matrix에서 어떤 layer끼리 충돌하는지 설정 가능.
+
+-layer 설정 후 if(colliderRef.IsTouchingLayers(LayerMask.GetMask("Ground"))) { return; }
+
+	86. 사다리 타기
+
+-sprite editor -> custom physice shape으로 collision shape 커스터마이징 가능.
+
+-특정 스프라이트와 접촉 중인지 여부(사다리 같은 경우)는 IsTouchingLayer로 해결
+
+-rigid body 추가 시 항상 body type 주의
+
+-캐릭터가 sprite와 충돌 판정을 가지면서 막히지 않으려면 enable IsTrigger
+
+	87. 사다리에서 슬라이딩 멈추기
+
+-gravity scale 조정
+
+	88. 사다리 타기 애니메이션
+
+-조건에 맞게 animation parameter 설정
+
+	89. 시네머신 팔로우
+
+-cinemachine install, virtual cam 추가.
+
+-body ->Framing Transposer에서
+ damping은 축 offset을 유지하려는 경향
+ dead zone은 카메라 캐릭터를 따라가지 않는 공간
+ lens ortho size로 카메라 거리 조절
+
+	90. 시네머신 커파이너
+
+-배경같은 collider안에 카메라 이동 제한
+
+-배경 타일 맵에 polygon collider 추가 및 edit collider
+
+-virtual camera -> add extension -> cinemachine confiner -> shape 설정.
+
+-배경에 cinemachine confiner를 위한 collider 추가 시 충돌 에러 발생 -> 레이어 설정 후 project setting에서 충돌 관계 off
+
+	91. 상태 중심 카메라
+
+-hierarchy에 state-driven camera 추가 -> 원하는 카메라들을 child로 편입
+
+-state-driven camera에서 animated target 설정 -> animation에 맞는 카메라 설정(없으면 생성)
+
+-state에서 +하고 각 애니메이션에 어떤 카메라 쓸지 설정 가능
+
+-custom blend를 사용하려면 create asset -> + 후 설정
+
+	92. 물리 2D 머티리얼 사용하기
+
+-create > 2d > physic material 2d > tilemap(혹은 알맞는) collider에 가서 material 설정.
+
+-벽에 비벼서 떠있는건 friction 0의 material을 캐릭터 collider으로 설정하여 방지
+
+	93. 벽 점프 막기
+
+-feet을 표현하는 새 collider 추가 후 점프 및 climb 조건인 istouchinglayer 호출 collider를 교환.
+
+	94. 적 설정하기
+
+-kinematic is the study of motion without friction or mass
+
+-Dynamics is a branch of physics that deals with changes in physical quantities such as velocity
+
+-Dynamics is the study of forces and their effect on moving bodies.
+
+-물리 시스템 영향 없이 이동 -> rigid body type kinematic
+
+	95. 적 이동 & 뛰어넘기
+
+-이동: player character와 같이 rigidbody 참조를 얻고 velocity 값 수정.
+
+-적 회전 -> 이동 방향 쪽에 tirgger인 box collider를 추가하고 onexittrigger2d(); -> player sprite을 바꿀때와 같이 transform.locale 수정.
+
+-layer 설정 및 layer의 collision matrix 설정.
+
+	96. 플레이어 사망률
+
+-isAlive bool 변수를 추가하고 true일 때만 update 함수들 실행
+
+-Die() 여부 검사 함수 추가 및 호출
+    void IsDead()
+    {
+        if (bodyColliderRef.IsTouchingLayers(LayerMask.GetMask("Enemies")))
+        {
+            isAlive = false;
+        }
+    }
+
+	97. 플레이어 사망 상태
+
+-한 번 재생되는 애니메이션은 Parameter를 bool이 아닌 trigger로
+
+-Animator의 Any state에서 transition하면 모든 상태 변화에서의 변경에 애니메이션 재생.
+
+-animatorRef.SetTrigger("Dying");
+
+-플레이어 사망 시 이벤트 기획따라 추가
+
+	98. 위험 요소(장애물) 생성하기
+
+-다른 류와 같이 tilemap을 활용해서 처리
+
+-이 게임은 충돌 처리 때문에 캐릭터 발에 collider 추가로 장애물과 충돌이 안되는 버그
+ -> 장애물 collider를 trigger로.
+
+	99. 총의 총알 인스턴스화하기
+
+-hierarchy의 prefeb 객체 >를 누르면 prefeb asset을 연다. 이 안에서 수정 시 prefeb 전반에 적용.
+
+-character prefeb에 gun 객체 생성.
+
+-player input의 fire 이벤트에서 instantiate호출.
+ // Instantiate(bullet, gunTransform.position, gunTransform.rotation);
+
+	100. 총알 동작 설정하기
+
+-bullet prefeb에 rigid body와 collider 추가.
+
+-character의 localscale을 얻으려면
+ playerRef.transform.localScale.x;
+
+-oncollisionenter이나 ontriggerenter등에서 맞는 상호작용 코딩
+
+	101. 레벨 생성하기 
+
+-필요한 것들은 prefeb으로 만들어 놓는다.
+
+	102. 레벨 종료 포털
+
+-포털 객체 생성, sprite 설정, collider 추가 및 trigger on, script 생성, layer 설정, prefeb 생성
+
+-Coroutines are the ways to create a delay in a game
+
+-The concept is start a process, go off and do other things until conditions are met
+
+-StartCoroutine(DelayedLoadNextScene());
+
+    IEnumerator DelayedLoadNextScene()
+    {
+        yield return new WaitForSecondsRealtime(loadingDelayTime);
+        int currentLevelIndex = SceneManager.GetActiveScene().buildIndex;
+        SceneManager.LoadScene(currentLevelIndex + 1);
+    }
+
+-scene 개수를 얻을 땐 SceneManager에서:
+ SceneManager.sceneCountInBuildSettings
+
+	103. 게임 세션 컨트롤러
+
+-전반적인 게임 로직을 다루는 script 생성(GameSession.cs).
+ -> empty object에 attach 및 prefeb 생성.
+
+-singleton pattern 적용.
+    private void Awake() 
+    {
+        int gameSessionCount = FindObjectsOfType<GameSession>().Length; // 생성된 객체 수 추적.
+        if (gameSessionCount > 1)
+        {
+            Destroy(this.gameObject);
+        }
+        else
+        {
+            DontDestroyOnLoad(this.gameObject); // 새로운 level 로딩해도 객체 그대로.
+        }
+    }
+
+-플레이어 사망이나 다른 게임 로직 함수 작성.
+
+-게임 세션 리셋 시 싱글턴을 적용한 게임 세션 객체 반드시 destroy로 제거.
+
+-game session에서 public으로 선언된 게임 로직 함수들을 알맞은 곳에서 호출.
+
+	104. 코인 먹기
+
+-똑같이 애니메이션, 충돌, 등 
+
+	105. 코인 사운드 이펙트
+
+-Audio source를 통해서 하거나 PlayClipAtPoint()로 간단하게도 가능.
+
+-코인에 Audio source component 추가.
+
+-AudioSource.PlayClipAtPoint(coinSound, Camera.main.transform.position);
+ // 2d에선 listener가 camera이고 객체와 카메라 거리가 있으므로 카메라의 위치에서 소리 재생.
+
+	106. 스코어 유지 & lives
+
+-canvas 생성
+
+-canvas scaler의 UI Scale Mode로 다양한 스케일 모드 활용 가능.
+
+-TextMeshPro와 InputSystem을 같이 쓰면 에러 발생. Input Module replace
+
+-reload scene하였을 때 singleton 객체는 그대로지만 새로 로드된 객체들 중 singleton객체에서 값을 수정하는 객체가 있다면 수정되지 않는다.
+ -수정돼어야 하는 객체를 singleton 객체의 child로 놓는다.
+
+	107. 씬 유지
+
+-씬 유지를 위한 객체 생성 및 유지하고자 하는 객체들을 child로.
+
+-씬 유지 script 생성. singleton 패턴으로 구현
+
+-ScenePersist 객체를 prefeb화 해놓는다.
+
+-singleton으로 구현된 객체에 child로 넣으면 scene을 reload해도 DontDestroyOnLoad 때문에 유지가 된다.
+
+	108. 프리팹 변형
+
+-prefeb 객체로 prefeb variant 생성가능. 
+
+-variant에서의 변경점을 제외하고 다른 요소를 원본에서 변경하면 전체 적용
+
+-variant에서의 변경점은 variant에서만

@@ -1,0 +1,401 @@
+	section 2: introducing git
+
+-version control system(VCS): software that tracks and manages changes
+
+-git: software; own machine
+ github: a web service; cloud
+
+	section 3: installation & setup
+
+-git is for unix based OS -> not unix cmd -> need git bash
+
+-git config --global user.email
+ git config --global user.name
+
+-terminal commands: ls, start, pwd, cd, touch, mkdir, rm, rm -rf,
+
+	section 4: the very basics of git: adding & committing
+
+-repository: workspace managing files within a folder
+
+-git status: info of current git repo
+ git init: create new git repo; create .git folder including all git stuffs
+
+-one repository per one project
+
+-git commit -> make a checkpoint
+
+-git add: add to staging area; git add .: add all changes
+ git commit: commit changes from staging area
+ git commit -m "message": commit w/ message
+ git log: give commits info
+
+	section 5: commits in detail
+
+-atomic commits: keep commit focused on single thing
+
+-git docs recommends present-tense imperative style
+
+-Visual Studio Code: git config --global core.editor "code --wait"
+ -wait for typing commit message in editor; for long message
+ -can avoid waiting by using -m
+
+-git log --oneline
+ git commit --amend: to redo the previous commit(just one commit ago)
+
+-.gitignore file -> contain files and directories to ignore
+ -how: create .gitignore file in the repo root -> specify file name, folder name, *.log(any files with .log)
+ -gitignore.io
+
+	section 6: working with branches
+
+-branch: to create separate context; 
+
+-the master(main) branch: the default branch name; no special
+
+-common work flow:
+ main branch -> new branch; add new feature -> merging back to main
+
+-HEAD: a pointer referring to the current location in repo
+
+-git branch: to view existing branches
+ git branch <branch-name>: to create new branch based upon the current HEAD
+
+-git switch <branch-name>: to switch branch;
+ git switch -c <branch-name>: create and switch branch at once
+
+-git commit -a -m: add and commit with message
+
+-git checkout <branch-name>: switch branches or restore working tree files
+
+-git branch -d <branch-name>: delete branch; must be merged
+            -D              : force delete
+ git branch -m <branch-name>: rename the currenbranch
+
+	section 7: merging branches
+
+-merging: incorporate changes; git merge
+
+-we merge branches, not specific commits
+ we always merge the current HEAD branch
+
+-1. switch to the branch you want to merge
+ 2. use git merge
+
+-a fast forward merge: moving master pointer forward
+
+-non fast-forward merging -> create commit node
+
+-merge conflicts -> can't automatically merge -> need to manually resolve
+
+-git checkout -b: old way to create branch and switch
+
+	section 8: comparing changes with git diff
+
+-git diff: to view changes between commits, branches, files
+ 
+ git diff: list not staged changes in the working directory
+ git diff HEAD: list changes since the last commit
+ git diff --staged; git diff --cached: list changes b/w the staging area and our last commit
+
+ git diff --staged [file-name]; git diff HEAD [file-name]: view changes in a specific file
+
+ git diff branch1..branch2: list the changes b/w the branch1 and branch2
+
+ git diff commit1..commit2: compare two commits with the commit hashes
+
+	section 9: the ins and outs of stashing
+
+-switch without commiting change?
+ 1. changes come with the destination branch
+ 2. git won't let switch if conflicts
+
+-stashing: stash uncommitted changes w/o unnecessary commits
+
+-git stash( = git stash save): save uncommitted changes
+
+ git stash pop: remove and reapply recent stashed changes
+
+ git stash apply: apply the change stashed without removing from the cache
+
+-can add multiple stashes onto the stashes stack
+
+-git stash list: list of stashed changes
+
+ git stash apply stash@{2}: apply a particular stash in the stack
+ git stash drop stash@{2}: to delete a particular stash
+
+ git stash clear: clear all the stashes
+
+	section 10: undoing changes & time traveling
+
+-git checkout: can create and switch branches, restore files, and undo history
+
+-git checkout <commit-hash>: reattach the HEAD; detached HEAD
+ -to reattach HEAD -> git switch
+
+-git checkout HEAD~n: refers to n commit before the HEAD
+
+-git checkout HEAD <file>; 
+ git checkout -- <file>: revert a file
+
+-git restore: helps with undoing operations
+ git restore <file-name > // HEAD as the default source
+ git restore --source HEAD~n <file>: use another source prior to HEAD; can use commit hash too
+
+ git restore --staged <file-name>: unstage the file
+
+ git reset <commit-hash>: reset the repo back to specific commit. the commits are gone
+ -> but does not remove the change in working directory
+ -> have to commit it in another branch or restore
+
+ git reset --hard <commit>: undo both the commits and the actual changes
+ git reset --hard HEAD~n
+
+ git revert <commit-hash>: undo changes creating new commit
+
+-if the commit to revert is already on other machines -> revert
+
+	section 11: github: the basics
+
+-git clone <url>: to clone a repo; clone a project
+
+-SSH key: can connect to GitHub without supplying username and personal access token
+          Secure Shell Protocol to authenticate user
+
+-creating github repo:
+ -option 1: if have existing local repo
+  -create new github repo -> connect to local repo -> push up changes to github
+ -option 2: start from scratch; no local repo
+  -create new github repo -> clone it to machine -> do work -> push up to github
+
+-git remote; git remote -v: to view existing remotes
+
+-git remote add <name> <url>: adding a new remote
+ -origin: default remote name setup for cloning a github repo
+
+ git remote rename <old> <new>
+ git remote remove <name>
+
+-git push <remote> <branch>: push work to github
+ ex) git push origin master
+
+-github doesn't automatically sync to local repo
+
+-there is a distinction b/w local branch and github repo branch
+ push message: master -> master; push local master branch to github repo master branch
+
+ git push <remote> <local-branch>:<remote-branch>
+
+-git push -u <remote> <branch>: -u -> set upstream connection
+ -set upstream -> can use git push shorthand
+
+	section 12: fetching & pulling
+
+-remote tracking branch: most recently known state of the branch
+
+-git branch -r: view remote branches
+
+-git checkout origin/master: check out remote branch pointers
+
+-git clone <url> at main branch -> just remote main branch by default
+ -solution: git switch <remote-branch-name>: automatically create new local branch from remote
+  -old version: git checkout --track origin/puppies
+
+ -new branch in remote? just switch
+
+-fetching: download changes from a remote repo without automatic integration
+
+-git fetch <remote>: fetches branches and history from the remote
+ git fetch <remote> <branch>: fetch a specific branch
+
+-git pull: retrieve changes and update HEAD branch whatever changes
+ git pull = git fetch + git merge
+
+ git pull <remote> <branch>: where does matter
+
+-pulls can result in conflicts
+
+-pull before push to check conflict
+
+-shortcut: git pull -> default to origin, whatever tracking connection
+
+-git fetch -> safe anytime; updates the remote-tracking branches
+ git pull -> update current branch; not recommended if you have uncommitted changes
+
+	section 13: github grab bag: odds & ends
+
+-collaborator -> settings -> manage access
+
+-README.md file: for important info
+ md -> markdown: syntax to generate formatted text
+
+-github gist: simple way to share code snippets and useful fragments
+
+-github pages: public web pages hosted and published via github; github.io
+ -> static(no server side code)
+
+-one site per user/per github repo
+
+	section 14: Git Collaboration Workflows
+
+-centralizaed workflow: everyone works on main
+ -> too much conflict, disturb main, push incomplete code to collaborate
+
+-feature branches: new development should be done on seaprate branches
+ -> main as official history; main won't contain broken code
+
+-options for merging featrue branches: when you want; discuss with team; pull requests
+
+-pull requests: facilitate pull discussion
+
+-merging pull requests with conflicts: follow the direction
+
+-settings -> branch protection rules
+
+-forking: creating a personal copy(fork) of repo
+ -to make my own version
+
+-fork & clone: can accept contribution without being owner or getting permission
+
+-how to collaborate without direct permission: 
+ 1.fork the project
+ 2.clone the fork
+ 3.add upstream remote
+ 4.do some work
+ 5.push to origin
+ 6.open pr
+
+	section 15: rebasing: the scariest git command?
+
+-rebasing -> alternative to merging; cleanup tool
+
+-git rebase master:
+ -rewrite history by creating new commits
+ -move entire feature branch so that it begins at the master tip
+
+ git rebase <branch>: rebase the branch onto the branch
+
+-Never rebase commits that have been shared with others
+
+-You do not want to rewrite any git history that other people already have
+
+-Only rebase yours alone
+
+-rebase conflict?
+ -resolve conflict and git rebase --continue
+ -or git rebase --abort
+
+	section 16: cleaning up history with interactive rebase
+
+-git rebase -i HEAD~n: interactive mode -> allows edit commits, add files, drop commits
+
+	section 17: git tags: marking important moments in history
+
+-tags: pointers referring to particular points in Git history
+
+-two type:
+ -lightweight tags: just name/label to a particular commit
+ -annotated tags: store extra meta data
+
+-a.b.c:
+ a: major release; significant changes; backwards incompatible
+ b: minor release; new features or functionality, still backwards compatible
+ c: patch release; bug fixes, minor change
+
+-git tag: list all the tags
+ git tag -l "v<pattern>*": list tags based pattern
+
+-git checkout <tag>: view state of tag
+
+-git diff tag1 tag2: diff by tag
+
+-git tag <tagname>: create lightweight tag
+ git tag -a <tagname>: create annotated tag
+ git tag <tagname> <commit>: tagging previous commits; for annotated tag, add -a
+ git tag -f <tagname>: force our tag
+ git tag -d <tagname>: delete tag
+
+-git push origin tag: push single tag
+ git push --tags: push all tags to the remote server
+ -git push doesn't transfer tags to remote bt default
+
+	section 18: git behind the scenes - hashing & objects
+
+-config file: for configuration
+
+-refs/heads: contains one file per branch in a repo
+
+-HEAD file: file keeping track of where HEAD points
+
+-objects folder: contains all the repo files; backups of files, commits in repo
+ 4 types of git objects: commit, tree, blob, annotated tag
+
+-cryptographic has functions:
+ -infeasible to invert
+ -small change in input -> large change in output
+ -same input -> same output
+ -no 2 outputs with same value
+
+-git uses SHA-I(hashing function)
+
+-git is a key-value data store
+
+-git hash-object <file>: takes data, store in .git/objects and gives back SHA-1 hash
+
+-echo "sth" | git hash-object --stdin //just return hash
+ echo "sth" | git hash-object --stdin -w //create file and return hash
+
+-git cat-file -p <object-hash>: retrieve data with hash // -p for pretty print
+
+-git blob: binary large object is object type Git to store files contents
+
+-Trees: git objects to store directory contents; contains pointers can refer to blobs and other trees
+
+-git cat-file -p master^{tree}: // tree object of master branch
+ -cat-file: print out git object
+
+-commit: commit objects combine a tree object with context info
+ -store ref to parent commit, author, commiter, message
+
+-run git commit -> generate new commit object and connect to the current
+
+	section 19: the power of reflogs - retrieving "lost" work
+
+-reflogs: reference logs; record of when the tips of branches and other refs were updated
+
+-git reflog -> only local; not permenant(90 days)
+
+ git reflog show HEAD:
+ git reflog show <commit>
+
+-name@{qualifier} -> to access specific ref pointers and pass to commands like checkout, reset, merge
+ ex) git checkout HEAD@{2} 
+
+-timed references:
+ git reflog checkout diff <branch>@{timestamp}
+ ex) git diff HEAD HEAD@{yesterday}; git diff HEAD HEAD@{2.days.ago}
+
+-reflogs rescue:
+ lost commit by hard reset? still in reflog
+ then git reset --hard master@{1} or git reset --hard <commit-hash>
+
+-undoing a rebase w/ reflog
+
+	section 20: writing custom git aliases
+
+-cat ~/.gitconfig: see global setting
+
+-adding aliases: alias for commands
+ -how: in .gitconfig file,
+  [alias]
+  	s = status
+	l = log
+
+-set alias in cmd:
+ git config --global alias.b = branch
+
+-aliases with arguments:
+ git a a.txt b.txt
+
+-you can find many useful alias online

@@ -1,0 +1,214 @@
+	111. 게임 디자인 - 레이저 디펜더
+
+-bigger game -> more detailed game design document
+
+-core, secondary, poilish(VFX, SFX 등)의 중요도에 따라 우선순위 설정
+
+	112. 프로젝트 설정
+
+-3D 프로젝트 -> 2D:
+ -Directional light 삭제
+ -Main Camera: Projection -> orthographic
+                    Clear Flags -> Solid Color
+ -Skybox 비롯 particle system 제외 효과 제거
+ -2D 버튼 on
+ -package manager에서 2D Features install
+ -import한 sprite의 texture type을 default에서 sprite로
+
+-Layout customizing 가능
+
+-sprite renderer component만 가진 객체를 추가해서도 background 설정 가능. // 임시인듯
+
+	113. 유니티 인풋 시스템.
+
+-input system 만들고 Open input setting -> create asset setting 잊지 않기
+
+-Player Input -> Behavior의 Send message 옵션은 observer pattern 식으로 작동.
+
+-Player Input의 InputValue는 버튼을 누르고 땔때만 값이 바뀌기에 변수에 값을 저장
+
+-frame independent하게 만드는 것 기억.
+ Vector3 Delta = rawInput * moveSpeed * Time.deltaTime;
+ transform.position += Delta;
+
+	114. 경계
+
+-Viewport space represents a normalized position relative to the camera
+
+-ViewportToWorldPoint converts a normalized position on the screen to a 3D position in world space
+
+void Move()
+    {
+        Vector3 Delta = rawInput * moveSpeed * Time.deltaTime;
+        Vector2 newPos = new Vector2();
+
+        newPos.x = Mathf.Clamp(transform.position.x + Delta.x, minBound.x + paddingLeft, maxBound.x - paddingRight); // padding은 serializedField data member
+        newPos.y = Mathf.Clamp(transform.position.y + Delta.y, minBound.y + paddingBottom, maxBound.y - paddingTop);
+
+        transform.position = newPos;
+    }
+
+	115. 적
+
+-Wave Config scriptable object, enemy spawner, enemy pathing
+
+-transform만 가진 empty object로 path 표현.
+
+-SO추가 후 SerializeField로 Path object 지정하고 child인 waypoints를 리스트로 리턴하는 함수도 추가.
+
+	116. 길찾기
+
+-길찾기 script를 작성하고 attach
+
+-script에 WaveConfigSO 추가 후 waypoints 정보를 얻어 이동 알고리즘 작성.
+ //transform.position = Vector2.MoveTowards(transform.position, targetPosition, delta);
+
+	117. 적 인스턴스화하기
+
+-WaveConfig SO에 GameObject list 추가 후 필요 getter 작성.
+
+-EnemySpawner script 추가, 작성.
+
+	120. 데미지 처리하기
+
+-코드로 움직인다면 Rigidbody Body Type kinematic. physics system이면 dynamic
+
+-각 스크립트를 컴포넌트로 생각하고 재사용성 있게 짜야 한다. e.g Health.cs DamageDealer.cs
+
+-OnTrigger2D와 RigidBody활용.
+
+-한 기능의 스크립트를 최대한 재사용하게 짠다.
+
+	121. 발사체 설정하기
+
+	122. 플레이어 슈팅
+
+-coroutine 리턴 값을 coroutine 타입 변수에 저장하고 StopCoroutine 함수로 coroutine 정지 가능
+
+	123. 적 슈팅
+
+-Quaternion의 Euler() 함수로 Rotation 가능.
+
+-[HideInInspector]로 inspector에서 숨기기 가능
+
+-[Header] 어트리뷰트로 inspector에서 분류 깔끔하게
+
+	124. 파티클 이펙트
+
+-Particle System 생성 > material 생성 > shader mode particle system으로 > rendering mode 변경
+
+-particle sprite sheet으로 material albedo 설정.
+
+-particle system renderer에서 material 설정 및 texture sheet animation 조정.
+
+	125. 화면 흔들기
+
+-unit circle 안에서 random 하게 충분한 속도로 position을 변경해서 흔들리는 효과.
+
+    public void Play()
+    {
+        StartCoroutine(ShakeCamera());
+    }
+
+    IEnumerator ShakeCamera()
+    {
+        float elapsedTime = 0f;
+        
+        while (elapsedTime < shakeDuration)
+        {
+            transform.position = initPos + (Vector3)Random.insideUnitCircle * shakeMagnitude;
+            elapsedTime += Time.deltaTime;
+            yield return new WaitForEndOfFrame();
+        }
+
+        transform.position = initPos;
+    }
+
+	126. 배경 무한 반복
+
+-parallx scrolling: Multiple image layers scrolling at different speeds
+
+-배경을 레이어로 나누고 한쪽을 움직이는 식으로 구현
+
+-배경들 child로 추가 -> material 생성 -> shader 옵션 변경(unlit) 및 배경에 material 설정.
+
+-sprite wrap mode repeat으로 
+
+private void Awake() 
+{
+        material = GetComponent<SpriteRenderer>().material;
+}
+
+    void Update()
+    {
+        offset = moveSpeed * Time.deltaTime;
+        material.mainTextureOffset += offset;
+    }
+
+	127. 사운드 이펙트
+
+-AudioPlayer 객체와 스크립트를 만들고 오디오 재생과 관련된 코드는 이 곳에서 작성
+
+-PlayClipAtPoint는 한번만 재생 시 사용
+
+-Audio Listner(To hear the audio) <- Audio Source(To play the audio) <- Audio Clip(the sounds that get played)
+
+-3D sources are affected by spatial positiona and spread
+
+-audio player에 Audio source를 추가하고 배경음악 clip에 설정해서 재생.
+
+	129. 스코어 유지
+
+-nothing new
+
+	130. 게임 UI - 파트1
+
+-UI 작성 전 무슨 UI가 필요할지, 어디에 배치할지 꼭 계획
+
+	132. 씬 추가
+
+-여러 씬에서 공통적으로 쓸 객체는 prefab화 한다.
+
+-menu scene 생성.
+
+-image color take precedence to button color
+
+	133. 레벨 매니저
+
+-LevelManager script를 따로 작성 및 객체로 관리.
+
+	134. singleton pattern
+
+-시스템 전반에 단 하나의 객체만 필요할 때 사용
+
+-여러 문제를 야기하기 때문에 주의.
+
+-private void Awake() {
+        ManageSingleton();
+    }
+
+    private void ManageSingleton()
+    {
+        int instanceCount = FindObjectsOfType(GetType()).Length;
+        if (instanceCount > 1)
+        {
+            gameObject.SetActive(false);
+            Destroy(this.gameObject);
+        }
+        else
+        {
+            DontDestroyOnLoad(this.gameObject);
+        }
+    }
+
+-DontDestroyOnLoad로 보전된 객체는 따로 관리된다.
+
+-FindobjectsOfType의 length를 통해, class static 변수를 통해 싱글턴 구현 가능.
+
+	136. 균형 및 빌드
+
+-빌드 시 스크린이 이상하면 canvas scalar 옵션 조정 문제일 가능성이 크다.
+
+-빌드 전 게임 밸런스 맞추기
+
+-빌드 세팅 -> 플레이어 세팅 -> resolution and presentation에서 resolution 옵션 조정 가능.

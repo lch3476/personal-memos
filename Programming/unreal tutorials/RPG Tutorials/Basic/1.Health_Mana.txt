@@ -1,0 +1,7 @@
+-Health & Mana 정보는 캐릭터에(float variable)
+-Health와 Mana HUD를 위한 UI 블루프린트 생성 및 progress bar 추가.
+-Details에서 bar color, size 설정
+-percent bind function 작성
+ -get player character, cast to, 변수 값 참조
+-작성한 HUD display
+ -beginplay, create widget, add to viewport

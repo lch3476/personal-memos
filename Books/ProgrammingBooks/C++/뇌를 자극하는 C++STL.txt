@@ -1,0 +1,394 @@
+	1장 연산자 오버로딩
+
+-전위 증/감 연산자
+ 후위 증/감 연산자 -> 임시객체 생성 -> 더 느림
+
+-사용자 정의 타입 변환:
+ single parameter constructor -> to prevent: explicit keyword
+ type conversion operator
+
+	2장
+
+-함수 이름 = 함수 포인터 = 함수 시작 주소
+
+-3가지 함수 호출:
+ -정적 호출
+ -객체 호출
+ -객체 주소로 호출
+
+-서비스, 기능 제공: 서버
+ 제공 받은 측: 클라이언트
+ 
+-클라 -> 서버: call
+ 서버 -> 클라: callback
+
+	3장 함수 객체
+
+-함수 객체(Function Object)는 함수처럼 동작하는 객체이다. 함수처럼 동작하려면 객체가 '()'연산자를 정의해야 한다. 함수 객체는 함수자(Functor)라 불리기도 한다.
+
+-함수객체는 함수처럼 동작하는 객체이므로 다른 멤버 변수와 멤버 함수를 가질 수 있고 일반 함수에서 하지 못하는 지원을 받을 수 있다. 또한, 함수 객체의 서명이
+ 같더라도 객체 타입이 다르면 서로 전혀 다른 타입으로 인식한다. 속도도 일반 함수보다 함수 객체가 빠르다. 함수의 주소를 전달하여 콜백하는 경우 이 함수 포인터는
+ 인라인될 수 없지만(함수 포인터는 함수가 있어야 하므로 인라인 함수의 복사본 함수를 만들어 낸다.) 함수 객체는 인라인될 수 있고, 컴파일러가 쉽게 최적화할 수
+ 있다.
+
+-less는 < 연산자의 함수 객체이며, greater는 > 연산자의 함수 객체이다. plus와 minus는 두 객체의 합과 차 연산의 함수 객체이다. 
+ STL에 내장돼 있다(functional 헤더파일).
+
+-함수 객체: 함수처럼 동작하는 객체 -> operator() 연산자 정의
+ -멤버 함수 소지 가능
+ -일반 함수보다 빠름:
+  -주소를 통한 함수 호출은 인라인 불가 -> 함수 객체는 가능
+  -컴파일러 최적화가 더 용이
+
+	4장 템플릿
+
+-함수 템플릿
+ 클래스 템플릿
+
+-템플릿도 디폴트 매개변수 지정 가능.
+
+	5장 STL 소개
+
+-STL: 필요한 algorithm과 container를 iterator를 통한 연결로 제공
+
+-STL 구성요소:
+ -container
+ -algorithm
+ -iterator
+ -adaptor
+ -allocator
+ -functor
+
+-STL 컨테이너:
+ -sequence container: 원소 고유 삽입 위치 가짐
+ -associative container: 원소는 기준으로서 정렬
+
+-string, valarray: 근사 컨테이너(컨테이너 요건 조금 부족)
+
+-배열 기반 컨테이너: 데이터들을 하나의 메모리 단위에 저장. []가능
+ 노드 기반 컨테이너: 하나의 데이터는 하나의 메모리 단위
+
+-반복자:
+ -입,출력
+ -순방향
+ -양방향
+ -임의 접근
+
+-알고리즘 종류:
+ -modifying
+ -non-modifying
+ -removing
+ -mutating
+ -sorting
+ -sorted range
+ -numeric
+
+-어댑터: 인터페이스 변경
+ -컨테이너 어댑터: stack, queue 등
+ -함수 어댑터: bind
+ -반복자 어댑터: insert_iterator, reverse_iterator
+
+-not1, not2: 조건자 함수 객체 negate
+
+-할당자: 컨테이너 메모리 할당 정보, 정책 캡슐화 요소
+
+	6. 시퀀스 컨테이너
+
+-vector<T>::size()는 unsigned int
+ -unsigned int 크기는 implmentation dependent -> vector<T>::size_type 쓰자.
+
+-capacity()는 vector만
+
+-size 증가 -> capacity 증가
+ size 감소 -> capacity 그대로
+
+-size == 0 -> capacity 그대로 -> 메모리 낭비
+ capacity 0인 객체와 swap
+
+-시퀀스 -> front(), back()
+
+-시퀀스 and 배열: [], at()
+ at()은 범위 검사. 대신 더 느림
+
+-deque는 vector와 유사
+ 그러나 메모리 한 블럭x 여러 블럭 할당 후 한 블럭 처럼
+
+-erase(): 제거 원소 반복자 반환 
+ remove(): 검색, 제거
+
+-list: 시퀀스, 노드 기반
+ -추가, 삭제 상수 시간
+
+-중복 원소 제거: sort() and unique()
+
+	7장. 연관 컨테이너
+
+-set: 유일한 key의 컨테이너
+
+-연관 컨테이너: 균형 이진 트리로 구현 -> 탐색, 삽입 빠름(로그 시간)
+
+-연관 컨테이너는 모두 같은 인터페이스를 갖는다.
+
+-set::insert(): pair 반환 -> (반복자, 성공 여부)
+
+-multiset: 중복 가능 외엔 set과 같음
+
+-map: key와 value 페어 저장
+ []로 추가, 조회 가능
+
+-multimap: 중복 가능 외엔 map과 같음
+ []사용 불가
+
+	8장. 알고리즘
+
+	8-1. 원소를 수정하지 않는 알고리즘
+
+-찾기 알고리즘은 범위의 끝 반복자 반환
+
+-adjacent_find
+ count, count_if
+ find, find_if, find_end, find_first_of
+ equal
+ for_each
+ lexicographicla_compare // 사전 순 비교
+ max, min, max_element, min_element
+ mismatch // 첫 불일치 반복자
+ search, search_n -> n번 반복
+
+	8-2. 원소를 수정하는 알고리즘
+
+-copy:
+ overwrite
+ insert // insert_iterator
+
+-copy backward
+ fill, fill_n
+ foreach
+
+-foreach(), transform(): 사용자 함수류 원소에 적용
+ 차이점: transform은 원본 순차열 변화 없이 목적지 순차열로 저장. 덮어쓰기 모드로 작동
+
+-generate(): 동작의 값으로 순차열 수정
+ 차이점: 순차열의 원 값 사용 불가
+
+-swap, iter_swap, swap_ranges
+
+-merge(): 정렬돼 있어야 함.
+ 순차열이 특정 정렬 기준이 있다면 맞는 버전의 merge호출 필요
+
+-replace, replace_if
+ replace_copy, replcae_copy_if
+
+-modifying algorithm은 덮어쓰기로 작동
+ 삽입 원하면 insert_iterator 활용
+
+	8.3 제거 알고리즘
+
+-제거 알고리즘은 논리적 제거(다음 원소로 덮어씀):
+ -size 변경 x
+ -실제 제거는 컨테이너의 erase()
+
+-remove, remove_if
+ remove_copy, remove_copy_if // 원본 변경 x 목적지로 복사
+ unique
+ unique_copy
+
+	8.4 변경 알고리즘
+
+-mutating algorithm은 원소 교환, 이동을 통한 순서 변경
+
+-next_permutation, prev_permutation // 끝, 처음일 때 false 반환
+ 다음, 전 사전 순 기준 순열 반환
+
+-partition // 단항 조건자 기준 왼(true), 오(false) 정렬
+ stable_partition // 상대 순서 변화 x
+
+-random_shuffle
+ reverse, reverse_copy
+ rotate, rotate_copy // 순열 회전
+
+	8.5 정렬 알고리즘
+
+-힙: 트리 내의 모든 노드가 부모다 작은(큰) 완전 이진 트리
+ -make_heap
+ -push_heap
+ -pop_heap //가장 큰 노드 제거
+ -sort_heap
+
+-nth_element // 순차열 중 n개 원소 선별
+
+-sort: quick sort base; O(Nlog2N) - O(N^2)
+ stable_sort: merge sort base // 상대 순서 유지; O(Nlog2N) - O(Nlog2Nlog2N)
+ partial_sort: heap sort base // 순차열 상위 구간 유지 및 힙 정렬 특성 필요 시; O(Nlog2N)
+ partial_sort_copy
+
+	8.6 정렬된 범위 알고리즘
+
+-sorted range algorithms: 정렬된 구간에서만 동작
+
+-binary_search()
+ includes()
+ lower_bound(), upper_bound(), equal_range()
+ merge(), inplace_merge() // 하나의 순차열이 두 구간으로 정렬된 것을 하나로 정렬
+ set_union() // 합집합
+ set_intersection() // 교집합
+ set_difference() // 차집합
+ set_symmetric_difference() // 대칭 차집합
+
+	8.7 수치 알고리즘
+
+-numeric algorithm: 
+ 수치 관련 연산 // <numeric> 헤더
+
+-accumulate(): // 순차열 모든 원소의 합. 초기값 제공 가능. 함수 제공 버전 o
+
+-inner_product(): // 내적(원소 곱의 합) //inner_product(b, e, b2, x, f1, f2) -> f1은 +, f2는 *와 대응
+
+-adjacent_difference(): // (*iter - *(iter - 1))을 목적지에 저장 // 함수류 버전은 f(*iter, *(iter - 1))
+
+-partial_sum(): // 부분 합 // 함수류 버전은 연산 값을 목적지에 저장
+
+	9. STL 함수 객체
+
+-STL 함수 객체 분류:
+ -일반 함수 객체:
+  -산술 연산 함수 객체
+  -비교 연산 함수 객체 조건자
+  -논리 연산 함수 객체 조건자
+ -함수 어댑터
+  -binder: convert binary function to unary(bind1st, bind2nd)
+  -negator: functor 조건자 반대로(not1, not2)
+  -함수 포인터 어댑터: 함수 포인터 -> STL요구 함수 객체(ptr_fun)
+  -멤버 함수 포인터 어댑터: 멤버 함수 포인터 -> STL 요구 함수 객체(mem_fun, mem_fun_ref)
+
+-함수 객체 조건자(function object predicate): 내부 상태 변경 x(const operator()), return bool
+
+-어댑터 사용 함수 객체 요구사항:
+ -unary function: argument_type, result_type
+ -binary function: first_argument_type, second_argument_type, result_type
+ unary_function or binary_function 상속이 일반적이고 쉬움.
+
+	9.2 산술 연산 함수 객체
+
+-plus<T>, minus<T>, multiplies<T>, divides<T>, modulus<T> // %, negate<T>(단항 -)
+
+	9.3 비교 연산 조건자
+
+-equal_to<T>, not_equal_to<T>, less<T>, less_equal_to<T>, greater<T>, greater_equal_to<T>
+
+-operator()는 const로 -> 조건자는 상태 변경 x
+
+	9.4 논리 연산 조건자
+
+-logical_and<T> // && , logical_or<T> // || , logical_not<T> // !
+
+	9.5 바인더
+
+-바인더(binder):
+ bind1st: 첫 번째 인자를 고정하여 단항 함수자
+ bind2nd: 두 번째 인자를 고정하여 단항 함수자
+
+	9.6 부정자
+
+-부정자(negator):
+ not1: 단항 조건자를 반대로 변환
+ not2: 이항 조건자를 반대로 변환
+
+	9.7 함수 포인터 어댑터
+
+-ptr_fun()
+
+	9.8 멤버 함수 포인터 어댑터
+
+-mem_fun_ref(): 객체로 멤버 함수를 호출.
+ mem_fun(): 객체의 주소로 멤버 함수를 호출.
+
+-foreach() 알고리즘의 원소가 객체의 주소라면 mem_fun() 사용
+
+	10. 반복자
+
+-반복자 -> 포인터를 추상화한 클래스 객체:
+ 입력 반복자: 전방향 읽기; *iter, ->, ++, ==, !=, iterator(iter) //(복사 생성자)
+ 출력 반복자: 전방향 쓰기; *iter, =, ++, iterator(iter)
+ 순방향 반복자: 전방향 읽기, 쓰기; *iter, ->, ++, ==, !=, =, iterator(), iterator(iter)
+ 양방향 반복자: 양방향 읽기, 쓰기; 순방향 반복자 기능 + -- 연산
+ 임의 접근 반복자: 랜덤 읽기, 쓰기; 양방향 반복자 기능 + [], +=, -=, +, -, <, >, <=, >= 연산
+
+-모든 STL 컨테이너 X::iterator, X::const_iterator, X::reverse_iterator, X::const_reverse_iterator 가짐
+
+-list, set, multiset, map, multimap: 양방향
+ vector, deque: 임의 접근
+
+-역방향 반복자: 가리키는 원소와 실제 값 다름. 가리키는 다음 원소 값 참조.
+
+-reverse_iterator 어댑터로 일반 반복자 -> reverse_iterator 변환 가능.
+
+	10.4 삽입 반복자
+
+-insert_iterator는 삽입 모드로 동작하게 한다:
+ inserter(): insert_iterator 생성 // insert() 사용
+ back_inserter(): back_insert_iteartor 생성 // push_back 사용 // deque, vector, list
+ front_inserter(): front_insert_iterator 생성 // push_ front 사용 // list, deque
+
+	10.5 입/출력 스트림 반복자
+
+-입/출력 반복자:  스트림과 연결된 반복자. 알고리즘이 스트림에 읽/쓰기 가능케 함
+ -istream_iterator<T>: 입력 스트림과 연결. T타입 값을 스트림에서 읽는다.
+ -ostream_iterator<T>: 출력 스트림과 연결. T타입 값을 스트림에 쓴다.
+
+	10.6 반복자 특성과 보조 함수
+
+-iterator traits: 반복자의 5가지 공통 정보를 통일 인터페이스로 제공하는 템플릿 클래스
+ -> iterator_category, value_type, difference_type, pointer, reference
+
+-두 함수로 임의 접근 연산 지원 가능:
+ advance(p, n) // p += n
+ distance(p1, p2) // return p2 - p1
+
+	11. 컨테이너 어댑터
+
+	11.1 stack 컨테이너
+
+-stack: LIFO, 기본 컨테이너 deque
+
+-stack 템플릿 인자 컨테이너 요구사항:
+ empty(), size(), push_back(), pop_back(), back() // vector, deque, list 가능
+
+	11.2 queue 컨테이너
+
+-queue: FIFO, 기본 컨테이너 deque
+
+-queue 템플릿 인자 컨테이너 요구사항:
+ empty(), size(), push_back(), pop_front(), front() // list, deque 가능
+
+	11.3 priority_queue 컨테이너
+
+-priority_queue: 우선순위 큐, 기본 컨테이너 vector
+ 내부적으로 heap() 관련 함수들로 구현 -> 임의 접근 반복자 컨테이너 필요
+
+-priority_queue 템플릿 인자 컨테이너 요구사항:
+ empty(), size(), push_back(), pop_back(), front()
+
+	12. string 컨테이너
+
+	12.1 string의 주요 인터페이스와 특징
+
+-string, wstring: 문자열 조작을 위한 시퀀스, 배열 기반 컨테이너.
+ typedef: basic_string<char>, basic_string<wchar_t>
+ \0 요구 사항 없음
+ 임의 접근 -> reserve(), capacity() 지원
+
+-지원:
+ += // 전체 문자열 덧붙이기
+ append() // 부분 문자열 덧붙이기
+ = // 전체 문자열 할당
+ assign() // 부분 문자열 할당
+ c_str() // cstyle 문자열로 변환. \0 포함
+ data() // cstyle 문자열로 변환. \0 미포함
+ 비교 연산 or compare()
+ length() == size()
+ find(), rfind() // 못찾으면 string::npos 반환
+ insert()
+ replace() // 인덱스 지정 or 반복자 지정 버전
+ substr(pos, n) // 부분 문자열 반환. n이 string::npos이면 마지막 문자 까지
+ >>, getline() // 문자열 입력. >>는 whitespace를 구분자로.

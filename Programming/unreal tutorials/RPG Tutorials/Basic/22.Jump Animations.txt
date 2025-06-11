@@ -1,0 +1,4 @@
+-animation blueprint의 event graph에서 IsFalling bool 변수 추가
+-Try get pawn owner - cast to - character movement - isfalling - set
+-jump state machine 추가 및 transition 수정
+-타이밍에 맞도록 animation rate scale 조정

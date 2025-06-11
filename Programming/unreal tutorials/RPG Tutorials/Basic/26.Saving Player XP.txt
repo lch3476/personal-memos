@@ -1,0 +1,8 @@
+-SaveGame actor 생성. 모든 permanent save data를 저장한다.
+-savegame actor에 저장해야 하는 데이터를 담을 변수를 만들고, default 값 설정.
+-게임을 시작할 때 데이터 파일이 있으면 load하고 없으면 새로 생성해야 한다.
+ -gamemode blueprint > beginplay > does save game exist > branch > 
+ true이면 load game from slot > promote to variable > cast to savegame > savegame의 값들을 각 필요한 곳에 대입
+ false이면 create save game object > promote to variable > save game to slot
+-data update를 위해서 gamemode에 update를 위한 함수 생성 >위에서 변수로 만든 save game 참조 변수 >
+ cast to > 데이터들을 gamemode의 값들로 초기화 > save game to slot > 필요한 곳에서 save하는 함수 호출

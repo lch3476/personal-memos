@@ -1,0 +1,6 @@
+-Quest background 등 quest HUD를 위한 asset들 import
+-HUD에 quest banner를 위한 Quest background image 및 text추가.
+-배너 아래에 퀘스트 목록 추가를 위해 gamemode blueprint에 text 변수 추가
+-위 text 변수의 binding에서 get game mode - cast to - get text
+-새로운 퀘스트 추가 이벤트를 하기 위해서 새로운 actor 생성 > collision 추가 및 beginoverlap > cast to character
+ > cast to gamemode > set quest name list

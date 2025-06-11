@@ -1,0 +1,501 @@
+	1. Intro to Design Pattern - Strategy pattern
+
+-Design principle:
+ Separate(encapsulates) what changes from what stays the same
+ -> less unexpected behavior
+ -> increase code reusability
+
+-Design principle:
+ Program to interface, not implementation == program to supertype
+ -> enhance encapsulation 
+
+-Adding a function(behavior) that varies(strategy pattern):
+ -Create an interface of the behavior
+ -implement it
+ -Add a variable which type is the interface 
+ -Add functions that perform the implementations of the behaviors to the class
+
+ -change dynamically: add set methods for the behaviors
+
+-Design principle:
+ Prefer composition(containment) to inheritance
+ -> more flexibility
+ -> can change behavior runtime
+
+-Strategy pattern definition:
+ Defines a family of algorithms, encapculates them, and makes them interchangable
+
+-Good OO designs are reusable, maintainable, extensible
+
+	2. The Observer Pattern
+
+-Subject + Observers = Observer pattern
+
+-Observer pattern definition:
+ one-to-many dependency: when one changes? -> many changed and updated automatically
+
+-Loose coupling: objects can interact but knows little about each other
+
+-Observer pattern is loosely coupled:
+ -subject know only about interface
+ -we can add new observer any time // it soly depends on the interface
+ -can reuse the objects independently
+ -no need to modify subjects for adding observers
+ -changes to either never affect one another
+
+-Design principle:
+ Strive for loosely coupled designs between objects that interact
+
+-2 interfaces:
+ -Subject: AddObserver(), RemoveObserver(), NotifyObserver()
+ -Oberserver: update()
+
+-Java built-in Observer pattern:
+ -Java.util.Observable; //call setChanged() to notify -> for flexibility
+  Java.util.Observe;
+ -limit: Observable is class, setChanged() is protected -> can't be containment
+
+-Don't depend on a specific order of notification
+
+	3. The Decorator Pattern
+
+-inheritance by subclassing: behavior set statically; inherit the same bahavior; compile time
+ inheritance by composition: runtime(dynamic); can add functionality by adding new code not modifying
+
+-Design principle:
+ Classes should be open for extension, but closed for modification
+
+-Applying open-closed principle everywhere -> waste of time
+
+-The Decorator pattern definition:
+ Attaches additional responsibilities to an object dynamically
+ -Decorator -> flexible alternative to subclassing for extending functionality
+
+-How:
+ -Create an abstract decorator(interface or abstract class) that inherits abstract component
+  -have abstract methods for all functionalities of the abstract component
+ -Implement decorators
+  -have a variable type of abstract component(composition)
+  -extend functionalities by implement the decorator
+
+-downside: 
+ -large number of small classes -> hard to understand
+ -now working well when a client code relies on a specific type
+ -instantiation complexity increases
+  -> solve by Factory pattern, Builder parttern
+
+-Decorator classes mirror the type of the compoenents they decorate
+
+	4. The Factory Pattern
+
+-instantiating with new -> concrete
+ -not flexible, fragile
+ -adding new classes -> modification
+
+-factories handle details of object creation
+
+-simple factory: create an class that has method for instantiation and compose it(containment)
+ -not a pattern. idiom
+
+-simple factory as a static method -> static factory
+ -> but can't subclass and change the behavior of instantiating method
+
+-factory method pattern: handles object creation and encapsulate it
+ -abstract Product factoryMethod(String type) // may be parameterized or not
+
+-factory method pattern definition:
+ it defines an interface for creating an object, but lets subclasses decide which class to instantiate
+ -creator <- concrete creator -> concrete product -> product
+ -can decouple object's production and use
+  -good even when there is just one product class
+
+-Design principle:
+ Dependency inversion principle: depend upon abstractions. do not depend upon concrete class
+
+-guidelines for Dependency Inversion Principle:
+ -No variable referring to a concrete class
+  -using new? -> reference to a concrete class -> use factory
+ -No deriving from a concrete class
+  -derive from abstraction
+ -No overriding an implemented method of base classes
+
+-abstract factory pattern definition:
+ it provides an interface for creating families of related/dependent objects
+ -Client -> AbstractProduct -> Product
+         -> AbstractFactory -> ConcreteFactory -> Product
+
+-abstract factory -> composition
+ -group related products
+ -additional product? -> have to change interface
+ -when you have families of products
+-factory method -> inheritance
+ -one product
+ -when not sure of the products you need
+ -to defer instantiation to subclasses
+-both encapsulates object creation and decouple your code from concrete types
+
+	5. The Singleton Pattern
+
+-for one and only instance
+
+-Singleton pattern definition:
+ it ensures a class has only one instance that provides a global access
+
+-how:
+ private static Singleton instance;
+ private contructor
+ public Singleton getInstance(); // return new Singleton if instance == null else return instance
+
+-in multithreading -> not working as expected:
+ -add synchronized keyword to getInstance() method
+  -> but overhead increase // need to be sychronized only at beginning
+  -solution:
+   -do nothing if overhead is acceptable
+   -eager instantiating:
+    private static Singleton singleton = new Singleton();
+    public static Singleton getInstance() { return singleton; }
+   -double-checked locking:
+    -instance should be volatile
+    -if instance == null -> synchronized (Singleton.class) { if (instance == null) { instance = new Singleton(); }}
+
+-one class, one responsibility
+
+-singleton meant to be used sparingly
+
+-global variable -> can't guarantee only one variable; namespace pollution
+
+	6. The Command Pattern
+
+-to encapsulates method call
+
+-Client(createCommand) 
+ -> Command(interface: execute();undo(); //stor(); load(); if necessary) // public void execute() { receiver.action(); } // compose Receiver
+ -> Invoker(setCommand()) // compose Command
+ -> Receiver(action())
+
+-The command pattern definition:
+ it encapsulates a request as an object -> can parameterize objects with diff requests
+
+-undo():
+ -add undo to the Command interface and implement it
+ -add a tracer to a invoker for a command to be undone
+
+-Macro command:
+ -create a command that holds an array of commands
+ -execute() -> loop through the array and execute()
+
+-too much classes?:
+ -can replace Command objects to lambda expression
+  -> if interface of parameter has only one method and lambda has a compatible signature -> it works // Java
+ -can use method reference: Receiver::method;
+  -if Command do more than one thing? -> create variable holding a lambda that execute mutiple things and pass it
+
+	7. The Adapter and Facade Patterns
+
+-The Adapter pattern definition:
+ it converts the interface of a class into another that the clients expect -> solves interface incompatibility
+
+-how:
+ -create Adapter class that implements the target interface
+ -the Adapter class compose an object of the class to be converted
+ -implments the interface using the composed object
+
+-Client -> Target(interface) <- Adapter -> Adaptee
+
+-Adapter: object adapter, class adapter
+ -object adapter: use compostion for adaptee
+  -more flexible
+ -class adapter: subclass target and adaptee // use multiple inheritance; unavailable in Java
+  -can override
+  -no need to reimplement
+  -client -> target <- adapter -> adaptee
+
+-Decorator pattern:
+ -adding new responsibilities
+ -similar but doesn't change interface
+ Adapter pattern:
+ -client doesnt know when it works
+ -change interface
+
+-to simplify an interface -> facade pattern
+
+-facade doesn't encapsulate subsystems; subsystems are still available
+
+-facade intent -> simplify
+ adapter intent -> convert an interface
+
+-how to use facade:
+ -create a class for facade
+ -use composition to access all subsystem components
+ -implement methods for simplifying e.g. watchMovie(), endMovie()
+
+-The Facade Pattern definition:
+ it provides a unified interface to a set of interfaces in a subsystem
+ -defining high-level interface that makes the subsystem easier to use
+ -client -> facade -> sybsystem classes
+
+-Design principle:
+ -principle of least knowledge: talk only to your immediate friends
+  -mind the number of classes it interacts and how to interact
+  -increase in dependency? -> fragile system
+ -how? should call methods that belong to:
+  -object itself
+  -objects passed in as a parameter to the method
+  -any object the method instantiates
+  -any components of the object
+
+	8. The Template Method Pattern
+
+-The Template Method Pattern:
+ defines the algorithm skeleton and let subclasses redefine some steps without changing the structure
+
+-hook:
+ a method that is declared in the abstract class and free to override but doesn't have to
+
+-abstract method -> when subclasses must implement
+ hook -> when redefining is optional
+
+-trade off: number of abstrac method <-> flexibility
+
+-Design principle:
+ The Hollywood Principle: Don't call us, we'll call you
+ -solve "dependency rot": complicatedly interwined dependency// high -> low -> high; structure hard to understand
+ -high-level components decides when low-level components are needed
+
+-Strategy:
+ -more flexibility(composition)
+ Template method:
+ -little more efficient when slight diff
+ -less complicated
+ -more dependent(redefinition in subclass)
+
+	9. The Iterator and Composite Patterns
+
+-The Iterator Pattern definition:
+ it provides a way to access a collection without exposing underlying representation
+ -enable polymorphic code
+ -place the responsibility of traversal on iterator -> simpler code, more focused behaviors
+
+-how:
+ -create iterator interface // hasnext(); next(); Java has internal iterator interface
+ -implement iterators for collections
+ -define common interface for collections if needed
+ -define createIterator() in collections
+ -traverse with Iterator
+
+-Concrete Aggregate <- Aggregate <- Client -> Iterator -> Concrete Iterator
+
+-external iterator: use next() to iterate
+ internal iterator: controlled by itself
+
+-Design principle:
+ A class should have only one reason to change
+ -responsibility -> potential change
+ -more than one responsiblity? more than one reasons to change
+ -keep single responsibility
+
+-Cohesion: how closely a class supports a single responsibility
+
+-The Composite pattern:
+ -composes objects into tree to represent part-whole hierarchy. 
+ -client can treat individual objects and compositions of object uniformly
+ -composite objects: components that contains other components
+ -leaf objects: don't contain others
+ -when consists of several parts but you think is as a whole e.g. GUI
+
+-Client -> Component <- Composite
+                     <- Leaf
+
+-how:
+ -create abstract class for Component // give default implementation -> throwing UnSupportedOperationException might work
+ -create leaf and composite and implement suitable methods of Component
+
+-we can choose to violate design principle -> tradeoff
+ e.g. composite interface have to contain methods for a leaf and a composite
+
+-iterator -> when nothing to iterate:
+ -return null
+ -return null iterator -> iterator with no operations
+
+-composite pattern strength: simplifying -> uniform treatment for both leaf and composite
+
+	10. The State Pattern
+
+-The State Pattern definition:
+ allows an object changes its behavior when its internal state changes
+
+-how:
+ -create an interface(or abstract class) for state
+ -implement state interfaces(defince states)
+ -create a client and contain states and a state tracer
+ -define methods that call methods in states
+
+-Context -> State -> concrete States
+
+-same class diagram with The Strategy Pattern but the intent is diff
+
+-num of classes increase -> but what really matters is num of classes exposed to clients
+
+-State transitions can be controlled by State class or Context class
+
+-State classes can be shared among Context instances
+
+	11. The Proxy Pattern
+
+-remote proxy: acts as a local representative to a remote object
+ remote object: object in the heap of diff JVM
+ local representative: forward methods call to the remote object
+
+-client object acts like calling remote method -> truth: dealing with low-level network communication details
+
+-RMI(Remote Method Invocation): to communicate with a remote heap
+ -client object -> 
+  client helper(proxy; pretends to be the service) -> 
+  service helper(gets request; call the method) -> 
+  service object(real service, method does real work)
+
+-The Proxy Pattern definition:
+ it provides a surrogate or placeholder for another object to control access.
+ -representative for another object
+
+-diagram:
+ RealSubject -> Subject(interface) <- Proxy(compose RealSubject)
+ -Proxy can substitute RealSubject -> same interface
+
+-Remote Proxy: manages interaction between a client and remote object
+
+-Virtual Proxy:
+ representative for an object that is expensive to create
+ -defers the creation until necessary
+ -acts as a surrogate before creation
+ -Client -> proxy -> RealSubject
+ -same class diagram with Remote Proxy but diff intent: hide expensive object creation
+
+-Proxy and Decorator similar but diff intent:
+ proxy -> control access; decorator -> attach responsibilities
+
+-Protection Proxy: access control based on the access right
+
+-dynamic proxy:
+ -implement IvocationHandler // import java.lang.reflect.*;
+ -create proxy class and instantiate // Proxy.newProxyInstance(...);
+
+-additional proxies:
+ -firewall proxy: controls access to a set of network resources
+ -smart reference proxy: provides additional actions when referenced
+ -caching proxy: provides temporary storage for the result of expensive operations
+ -synchronization proxy: provides safe access from multiple threads
+ -complexity hiding proxy: hide the complexity
+ -copy-on-write: controls the copying and defers the copying until required
+
+	12. Compound Patterns
+
+-most powerful patterns: use patterns together
+
+-apply pattern only when it makes sense
+
+-Compound Patterns:
+ -combines more than two or more patterns to solve a general problem.
+
+-MVC(Model-View-Controller):
+ -Model: holds all state, data, and application logic // Observer
+ -View: presentation of Model // Composite
+ -Controller: takes user input // Strategy
+ -to decouple the three
+
+-1. user interacts with the view
+ 2. controller asks Model to change its state // C takes user action and interpret
+ 3. controller may asks View to change
+ 4. Model notifies the view when changed
+ 5. View asks the Model for state
+
+-Model -> Observable; Controller, View -> Observe
+ View -> composes Controller, Model
+ Controller -> composes View, Model
+
+	13. Better Living with Patterns: Patterns in the Real World
+
+-A pattern is a solution to a problem in a context:
+ -context: recurring situation
+ -problem: goal and constraints in the context
+ -solution: a general design
+
+-patterns are just guidelines. you can be flexible
+
+-pattern categories:
+ -creational: involve instantiation
+ -behavioral: how classes and objects interact and distribute responsibility
+ -structural: composes classes or objects into larger structure
+
+ -class pattern: relationship b/w classes via inheritance
+ -object pattern: relationship b/w objects
+
+-guide to think in patterns:
+ -keep it simple -> solve thing in the simplest way
+ -patterns are not magic -> think critically
+ -know when you need patterns:
+  simpler solution if it works; exp and knowledge matter; consider the consequences
+
+-areas that change -> patterns might work
+
+-remove pattern when no need
+
+-if you don't need it now, don't do it now
+ -the reason is hypothetical -> don't
+
+-alway use the simplest solution and apply patterns when the need naturally emerges
+
+-use patterns when necessary or sure about the future changes
+
+-anti-pattern: looks good but turned out bad
+ -to prevent application
+ 
+ -Golden Hammer: obsessed with one technology for development
+  solution: expand knowledge
+
+-More pattern:
+ -Bridge Pattern: to vary the implementation and abstraction
+  -two seaparte hierarchies for impl and abstraction
+  -abs compose impl
+  -decouple impl; each can be extended independently
+ 
+ -Builder Pattern:
+  -encapsulate complex object construction
+  -allow construction multistep and varying process
+  -hide the internal representation
+  -client(composite builder; builder.getObject()) -> 
+   abstract builder(building methods) -> 
+   concrete builder(composite object to be created)
+  
+ -chain of responsibility pattern:
+  -when want multiple objects handle a request
+  -Handler(compose successor; handleRequest())
+  -decouple sender and receiver
+  -simplify the object -> cuz hide chaining
+  -execution is not guaranteed, hard to debug and observe runtime
+
+ -Flyweight Pattern:
+  -when numerous same objects
+  -reduces instance num in runtime, saving memory
+
+ -Interpreter:
+  -when you implement simple language
+
+ -Mediator:
+  -centralize complex communication and control b/w objects
+  -increase reusability of the object by decoupling
+  -Mediator controls the entire control logic
+
+ -Memento:
+  -saving the important state of a system's key object
+  -encapsulate the key object
+  -create a class that encapsulates and offers methods for managing game state object
+   -> client call the methods
+
+ -Prototype:
+  -when instantiation is complex and expensive
+  -hide complex instantiation
+  -some cases, copying is more efficient than creating
+
+ -Visitor:
+  -allow adding new operations to a Composite structure without changing

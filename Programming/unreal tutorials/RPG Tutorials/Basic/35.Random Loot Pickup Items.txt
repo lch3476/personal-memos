@@ -1,0 +1,4 @@
+-lookpickup blueprint에서 beginoverlap의 각 끝에 get gamemode > cast to > 각 loot bag lost int value 
+ set(rand int in range로)
+
+-enemy에 어떤 아이템을 떨어뜨리는지 목록을 작성하고 beginplay할 때 각 값에 rand value를 주는쪽이 더 좋아보임.

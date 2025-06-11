@@ -1,0 +1,5 @@
+1.필요한 HUD 에셋들을 별도의 폴더에 임포트.
+2.widget blueprint에 progressbar 혹은 image 등 원하는 디자인대로 추가.
+3.image component들에 이미지를 설정하고 크기 및 위치 조정
+4.progress bar fill, nofill(background) 이미지는 style에서 설정 가능.
+5.prgress bar color가 가진 opacity가 싫다면 모두 1로해서 없애기.

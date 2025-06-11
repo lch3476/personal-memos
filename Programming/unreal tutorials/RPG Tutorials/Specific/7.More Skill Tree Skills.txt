@@ -1,0 +1,7 @@
+-widget에서 component들을 복수 선택하고 오른쪽 마우스 클릭 및 wrap with하면 container에 포함시킬 수 있다.
+ -위에서 만들어진 container들을 클릭하고 details의 child layout에서 override을 on하고 조정함으로써 컨테이너 사이즈를
+  조정할 수 있다.
+
+-character blueprint에 필요한 damage float 변수를 추가 및 디폴트 값 추가 
+ ex) melee damage, magic damage, range damage
+ 위에서 하였듯이 버튼 클릭에 조건문 > 변수 값 수정 > enable next tree를 해주면 데미지 관련 트리도 available

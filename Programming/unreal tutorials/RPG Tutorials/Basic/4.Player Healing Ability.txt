@@ -1,0 +1,12 @@
+-project settings의 input에서 미리 키보드 인풋 설정해 놓는 것이 더 효율적
+-healing ability 구현
+ 1.캐릭터의 casting 상태가 false일 때만 시전 하도록 action mapping > 캐스팅 상태 bool 변수 > branch > false
+ 2.마나 혹은 스태미너가 충분할 때 시전하도록 마나 값을 적절히 비교 후 branch > true
+ 3.충분하다면 캐스팅 애니메이션이 재생될 때 움직이지 않도록 character movement > disable movement
+ 4.즉시 movement를 멈추도록 character movement > stop movement immediately
+ 5.마나 값 조정
+ 6.스킬에 따라 캐릭터 변수들 값 조정(체력 등)
+ 7.캐스팅 상태 값 true 및 스킬 파티클 재생 spawn emitter at location -  location은 mesh > get socket location 및
+   적절한 skeleton 위치에 소켓 생성
+ 8.캐스팅 상태 값 다시 false
+ 9.character movement - set movement mode를 사용하여 enable movement

@@ -1,0 +1,344 @@
+1-1. New Project
+-프로젝트 생성
+
+1-2. Creating a New Map
+-maps폴더 생성하고 new level 생성
+-BP_sky_sphere, sky light, directional light추가 및 위치 (0, 0, 0 고정)
+    -sky light는 하늘색을 받아서 반사시킴.
+    -BP_sky_sphere는 하늘을 표현하는 texture에 감싸진 느낌.
+-BP_sky_sphere의 directional light actor를 설정. directional light actor의 rotation에 따라 밤/낮 표현
+    -BP_sky_sphere에서 하늘 표현 설정 변경 가능.
+    -refresh material로 바뀐 설정 적용가능.
+-mesh/landscape생성
+*sky light 대신 atmosphere fog, sky light은 선택
+
+1-3. New Game Mode
+-gamemode blueprint 생성
+-project settings의 Maps&modes에서 게임 모드 설정.
+    -editor startup map과 game default map설정 가능
+    -game default map은 배포시 처음화면. 메뉴 내보내면 됨.
+    -game mode is tied to a level
+
+1-4. Player Character
+-character blueprint 생성.
+    -construction script는 initialization 될 때 실행됨
+    -캐릭터가 x 축을 바라보도록
+    -character movement component에서 캐릭터 움직임과 관련된 설정 변경 가능
+-카메라 부착
+-레벨에 배치
+-게임 모드에서 컨트롤러가 캐릭터를 소유하게 설정.
+-배치된 플레이어 캐릭터에서 auto possess player를 player0으로 설정하여 player controller가 자동으로 폰을 소유하게 설정.
+-gamemode와 player 블루프린트들은 각각의 폴더에 분류
+
+1-5. input mappings
+-project settings의 input section에서 action mappings와 axis mappings를 add해줌
+    -action mappings은 on/off(0이나 1) axis mapping은 0부터 1사이의 input값
+-mapping 들을 추가
+    -MoveForward, MoveRight, Lookup, Turn, interact 등등
+    -각 반대 방향은 scale -1로 주면 된다. lookup의 경우엔 -1로 줘야한다.
+-각 mapping 들 blueprint event graph에 추가.
+
+1-6. Player Movement
+-event graph에 추가된 input mapping 노드들에 맞는 함수 연결 add movement input add controller pitch input
+ add controller yaw input
+    -add movement input의 direction은 카메라의 rotation의 forward vector
+    -그냥 냅두면 캐릭터 전체가 lookup 하기 때문에 카메라만 움직이게 하기위해 카메라의 use pawn control rotation을 써서
+     컨트롤러 rotation을 따라 가도록 한다.
+
+2- : Level Design
+2-1
+-필요한 에셋 임포트
+    -메시는 파란줄 material은 초록줄
+-메시 사용해 레벨 디자인
+    -alt 키로 복사 가능. shift누르고 world outliner에서 원하는 액터를 클릭하면 똑같은 액터들을 모두 선택한다.
+
+2-2
+
+2-3. Creating Material
+-color는 3d vector이다(rgb). base color에 넣어서 색을 바꿀 수 있다(3 누르고 클릭).
+-specular를 통해 non-metalic surface의 정반사 정도를 조절할 수 있다.
+-1을 누르고 클릭하면 상수 노드 생성.
+-게임 내 그림자는 텍스쳐 위에 베이킹 된다.
+
+2-4. Grass (Material)
+-vertex color import를 replace로 설정하고 Grass Mesh 임포트
+    -vertex color replace는 메시의 vertex color를 사용해서 임포트.
+-grass material 생성
+-mesh의 뒤쪽이 안보인다면 two sided를 enable하여 backface culling없이 랜더링 될 수 있도록 하면 된다.
+-foliage를 누르고 grass mesh들을 드래그 드랍, 적절히 설정하면 더 쉽게 grass를 그릴 수 있다.
+    -shift누르고 그리면 지워진다.
+-World Position Offset은 mesh의 vertices를 움직이게 만들 수 있다.
+-vertex color 노드와 simplegrasswind 노드를 곱해서 grass mesh를 움직이게 할 수 있다.
+    -각 인풋 값을 넣어 주어야 한다.
+    -노드의 인풋에 s는 scalar고 v3는 3d vector이다.
+-mesh의 vert colors를 통해 벌텍스 칼러를 볼 수 있다.
+
+2.5 Final Decoration
+-필요한 Mesh를 임포트하고 Material을 만들거나 있는 Material을 설정해서 레벨의 디테일을 살린다.
+-Metal처럼 보이게 하고 싶으면 Material 에서 Metallic과 Roughness를 설정해준다.
+
+3. Doors & Keys
+
+3.1 Door Actor
+-Door Mesh import 및 material 설정
+-Blueprint folder 생성
+-Door actor 생성
+    -mesh component를 추가해주고 mesh 설정후 x축을 바라보도록 회전.
+    -collision component 추가
+    -mesh의 주위에서 특정한 위치를 활용하고 싶으면 scene component 추가 및 door mesh에 attach.
+
+3.2 Door Interactions
+-collision component의 on begin overlap을 추가해 other actor를 이용해 overlap한 객체가 player character인지 확인하고,
+ 플레이어 캐릭터라면 enable input
+-똑같이 end overlap에서 플레이어 확인후 맞으면 disable input
+-interaction mappping을 불러 timeline 노드를 사용해 문 이동
+
+3.3 The Key
+-key mesh import 후, material 설정
+-key actor blueprint 생성, mesh, collision 추가
+-문과 같이 on begin , end overlap에서 플레이어 캐릭터 확인 후 enable, disable input실행.
+-interaction을 위한 inputaction노드에 key 메시가 valid이면 destroy하도록(destroycomponent) 노드 추가.
+
+3.4 Key Pickup
+-character blueprint에 키 소지 상태를 표현하는 변수 추가.
+-door blueprint에서 inputaction interaction에서 player character 확인 후 열쇠 소지 상태를 수정하도록 get playercontroller 
+ -> cast to ... 후에 수정. 그 후 timeline 실행
+ ex) 소지 열쇠의 개수를 표현하는 변수가 있다면 > 0 확인 후 --
+
+3-5.Door Antmation
+-문에 열쇠를 부착하는 표현의 경우 timeline에 keyposition을 위한 커브도 있어야함
+-문에 열쇠를 attach 하려면 일단 add static mesh component 로 static mesh를 추가한 후, attach to component로 부착.
+    -차후에 접근을 용이하게 하기 위해 static mesh는 변수로 만드는 것이 좋다.
+    -parent에 미리 생성해 놓은 door의 scene component를 넣어주면 그 위치에 메시가 생성된다.
+-timeline 리턴 값을 사용하여 set relative location을 쓰면 열쇠가 들어가는 애니메이션, 문이 열리는 애니메이션 구현 가능
+
+4. Arrow Trap
+4-1. Actor Setup
+-필요한 메시 임포트 및 필요한 메티리얼 생성, 임포트. 그 후 메티리얼 설정 (이 경우엔 shooter, arrow)
+-shooter blueprint actor 생성(x축을 바라보게 설정 잊지 않기).
+-화살이 발사될 위치를 나타내기 위해 scene compoenent 추가
+-arrow blueprint 생성, mesh, collision 추가.
+-arrow actor는 충돌이 주 역할인 액터이니 collision을 root component로 설정 및 collision scale 조절
+-projectile movement 추가.
+
+4-2. Shooting Arrows
+-shooter blueprint의 beginplay에 정기적으로 화살을 쏘도록 set timer by event 연결 후 shootarrow 커스텀 이벤트 생성.
+-화살을 발사하기 위해 shoot arrow 커스텀 이벤트에 spawnactor노드 연결, 화살 액터 spawn.
+    -transform에 발사 위치를 위해 만들어 놓은 scene component의 get world tranform 연결.
+-level내에 shooter 배치
+-arrow blueprint의 projectile movement에서 어떻게 발사될지 설정.
+    -initial speed, rotation follows velocity, projectile gravity scale
+
+4-3. Dealing Damage
+-arrow collision component의 collision을 적절하게 바꾼다.
+-arrow mesh의 collision을 적절하게 바꾼다.
+-그 외 다른 액터의 collision을 적절하게 바꾼다.
+-arrow의 on begin overlap에서 player character cast 후 launch charater에 z velocity 값는 주는 것을 사용해 
+ 캐릭터의 리액션을 표현하고 destroyactor
+-cast fail일땐 딜레이 후 destroyactor
+-player blueprint에 health를 표현하는 정수 변수 추가
+-arrow blueprint로 돌아가 destroyactor 전에 apply damage추가 및 데미지 조정
+-player chracter blueprint에서 event anydamage 추가 및 health변수의 값에서 event damage의 인풋 damage값을 차감 후 
+ 다시 set health.
+
+4-4 Sensor Trigger 
+ -Tick Event happens all the time. 비용이 높은 코드를 tick에 넣으면 성능저하 위험
+-spheretracebychannel로 player가 shooter에 감지 됐는지 확인. spheretracebychannel은 start부터 end까지 overlap 확인
+-start에는 발사 scene의 worldlocation으로, end에는 scene의 worldrotation의 forwardvector에 적절한 값을 곱한후 원래
+ worldlocation에 플러스하여 리턴한다.
+-actor 따라 trace channel 잘 선택할 것.
+-out hit엔 hit에 관한 데이터들이 있음
+-hit actor가 player character인지 branch 확인후 true이면 arrow 발사 함수 실행
+-do once는 오직 한번만 실행하게 해줌.
+
+5.User Interface
+(특정 프로젝트에 쓰이는 UI디자인이니 방법만 참고하자)
+5-1. Designing the HUD
+-UI폴더 생성후 그 안에 texture 폴더 생성. texture폴더 안에 필요한 texture들을 임포트. text는 red line으로 구분.
+-UI폴더에 Widget blueprint 생성
+    -widget blueprint의 palette에선 우리가 필요한 component들을 추가 가능
+    -graph에선 widget의 functionality 쓰기가능
+    -Canvas Panel은 다른 widget component를 포함하는 컨테이너
+    -anchor는 component가 어느 상대적 위치에 배치되는지 결정
+-vertical box추가
+    -vertical box는 컨텐츠를 받고 vertical로 쌓아올림
+-vertical box의 child로 horizontal box 추가
+    -horizontal box는 컨텐츠를 받고 horizontal로 쌓아올림
+-horizontal box에 원하는 만큼 이미지 추가 및 이미지 설정(어떤 이미지인지, 크기).
+-vertical box에 horizontal box추가후 똑같이 이미지 추가.
+-두번째 horizontal box에 text 두개 추가 및 사이즈와 박스내 배치 수정
+    -text는 dynamic이 될 수 있음.
+-padding은 component 사이의 간격 조절
+-component이름 옆 is Variable을 enable함으로써 dynamic으로 하고싶은 값을 변수화 가능
+-gamemode로 가서 event beginplay에 create widget을 실행한 후 원하는 widget설정. 리턴되는 HUD를 변수로 만들어서 
+ 접근을 용이하게 한다. 그후 add to viewport 실행.
+-맞는 게임모드인지 확인하기.
+
+5-2. HUD Functions
+-graph에서 construct는 beginplay와 같다
+-construct에서 get player character를 cast하고 변수화 함으로써 player character에 쉽게 참조할 수 있다.
+-dynamic 값을 보여주는 text라면 캐릭터에서 값을 가져와 set text에 넣음으로써 해결할 수 있다.
+-각 HUD 업데이트를 커스텀 이벤트로 만들어 놓는게 좋다.
+-component에 get all children을 사용함으로써 children list를 얻을 수 있다. hp칸을 표현하는 경우에 이렇게 이미지 리스트를
+ 얻어서 hp비교조건을 실행해 array element를 image로 cast하고 set brush from texture를 사용해 빈칸을 표현할 수도 있고 
+ 지울 수도 있다.
+-만든 update 함수들을 construct에서 실행한다.
+    -이렇게 만든 함수들은 외부에서도 호출할 수 있다.
+-player character로 돌아가서 damage event에서 get game mode 및 캐스트 후 widget에 대한 참조를 사용하여 update
+ health 같은 update함수를 호출한다.
+-문을 열 수 있는 열쇠를 표시하는 HUD가 있다면 Door blueprint로 가서 문이 열릴때 똑같이 get game mode와 widget
+ 참조를 활용해 업데이트한다(열쇠를 얻을때도 똑같이).
+-launch character같이 캐릭터가 살아있어야 의미가 있는 함수는 캐릭터의 health 검사를 하고 실행한다.
+
+5-3. Losing(Lose Effect)
+-game mode blueprint에서 Lose를 위한 커스텀 이벤트 생성.
+-get player character를 통해 disable input실행.
+-get player camera manager를 통해 카메라가 어떻게 보일지 설정 가능. fade 이펙트를 주고 싶다면 start camera fade 사용
+-player character blueprint의 damage event로 가서 health가 0이하인지 체크하고 true이면 lose함수 실행.
+-HUD가 사라지는 이펙트도 추가하고 싶으면 gamemode의 lose함수-> widget참조에서 remove from parent 실행
+
+5-4. Lose Screen
+-Lose screen을 위한 widget blueprint 생성
+-canvas panel에 lose 메세지를 표시할 text block을 추가. anchor를 중앙으로 두고 position x, y -> 0, 0 및 alignment 0.5, 0.5
+ 로 중앙 정렬 후 메세지 입력, 사이즈, 위치 조절
+-menu를 표시할 vertical box 추가 및 사이즈, anchor, 위치 조절
+-vertical box에 옵션을 실행하게 할 버튼들 추가후, 박스 크기를 조절한 다음, size를 fill로 하여 vertical box을 채우게 한다.
+-필요하다면 버튼들의 padding을 조절하고, text 박스를 버튼에 넣어줌
+-button의 details의 appearance에서 배경 색깔을 비롯한 버튼 style 조절 가능.
+-retry와 quit버튼이라고 가정. retry의 경우 onclicked event로 가서 open level실행 후 원하는 level이름 제공. quit의 경우
+ on clicked로 가서 quit game 실행.
+-lose를 표시해야하니 game mode blueprint로 가서 lose custom event의 실행 끝에 lose screen을 위한 create widget 사용
+ 후 add to viewport.
+-이렇게 만든 인터페이스를 사용할 수 있도록 게임 모드에서 설정해 줘야함.
+-lose screen widget을 add to viewport 한 후에 get player character를 통해 set input mode ui only실행. in widget to focus
+ 엔 lose screen widget 넣으면 됨.
+-retry하고 나면 input mode를 game으로 돌려줘야 하니 retry버튼에서 open level하기 전 set input mode game only 실행.
+-마우스 포인터가 안보이면 set input mode ui only 후 show mouse cursor(true). open level전엔 set mouse cursor(false)
+
+5.5 Winning
+-goal actor와 같은 승리의 조건을 충족시킬 actor를 생성(혹은 다른 조건이라면 표현). 메시와 콜리전 생성 및 메티리얼 설정
+-collision에서 begin overlap 노드 실행 및 플레이어 캐릭터 확인.
+-game mode blueprint에서 winning을 표현할 custom event 생성.
+-custom event에 원하는 승리 이벤트 설계, 실행(disable input 및 fade 를 사용하는 패배 이벤트랑 비슷).
+-goal actor begin overlap에서 get game mode 및 cast한 후 win event  실행.
+
+5.6 Win Screen
+-Win screen을 표현한 Widget blueprint 생성. 새로 만들 수 있지만 Lose screen을 복사해서 쓸 수도 있음
+    -button text가 튀어나오면 auto wrap text를 사용해보자
+-button text를 알맞게 수정(이 경우엔 Next Level, Return to Main Menu).
+-game mode blueprint로 가서  Win custom event에 create widget 및 add to viewport 실행.
+-interface와의 상호작용을 위해 win 커스텀 이벤트에 set input mode ui only와 show mouse cursor을 실행
+
+5-7 Menu Scene
+-메뉴 장면을 위해서는 새로운 level을 만든다. 고로 level 생성.
+-새로 만든 level에 똑같이 light작업 component 추가.
+-메인 메뉴 세트를 위한 geometry(바닥을 깔 cube 등) 및 액터(세트장을 표현한 것들 등)등을 추가하여 세트장 작업.
+-camera component를 추가하고, 우클릭 pilot camera actor로 알맞은 위치에 배치.
+-부족하다면 세트장 작업을 더 한다.
+-메뉴 장면에서 다른 행동을 못하도록 level blueprint에서 작업.
+    -editor의 blueprints에서 open level blueprint 실행.
+    -level blueprint는 맵 전체와 관련있는 blueprint이다. in game event와 trigger와 연관.
+-menu level에서 플레이어가 아무것도 못하게 하기위해 event beginplay에 get player controller 및 set input mode ui only
+ 실행.
+-level에서 배치된 카메라를 possess하기 위해 level blueprint에서 우클릭하고 카메라 참조를 얻고, get player controller를 
+ 통해 set view target with blend을 실행한 뒤, 카메라 참조를 new view target으로 반환.
+
+5-8 Main Menu
+-Widget Blueprint 생성.
+-화면 전체에 약간의 색깔을 주기 위해 border 추가.
+    -anchor를 전체 화면으로 설정 및 모든 offset을 0으로 설정
+    -appearance에서 색깔을 정하고 적절한 alpha 제공.
+-Menu contents를 표시하기 위해 border안에 canvas panel을 추가.
+-게임 이름과 제작자를 표시하기 위해 text block 2개 추가.
+-메뉴들을 표시하기 위해 vertical box를 추가하고 각 버튼(quit continue new game 등)을 추가하고 text 집어넣기. 
+    -alpha를 0으로 하면 배경이 지워진다.
+    -필요하면 alignment도 수정
+-level blueprint로 돌아가서 begin play끝에 create widget 및 add to viewport
+-main menu widget blueprint로 돌아와서 각 버튼 on clicked 이벤트 노드 짜기
+    -quitgame이면 quit game노드 실행
+    -new game이면 open level. 이 경우엔 set input mode game only를 실행해줘야 한다.
+-win screen 같이 return to main menu button이 있으면 widget blueprint로 가서 return main menu버튼의 on clicked event
+ 에서 open level 실행 후 메인 메뉴 레벨의 이름 input.
+
+5-9. Interaction Messages
+-상호작용 메세지를 위해 HUD blueprint로 가서 text block 추가 및 anchor를 써 중앙 정렬. 사이즈, 텍스트 정렬도 조정
+-event graph에서 message를 업데이트 하기 위한 커스텀 이벤트 작성. 메세지를 변수로 만들고 set text 함수만 실행해주면
+ 됨. message의 디폴트 값은 빈 텍스트
+-event construct에서 update message
+-상호작용 메세지를 표시할 actor의 overlap이벤트로 가서 get game mode, cast, 후 HUD 참조를 얻은 다음 set message 실행
+ 그 후 update messgae.
+-메세지가 계속 표시되지 않게 end overlap 에서 똑같은 과정을 통해 message를 빈 문자열로 변환 후 update message.
+-액터가 존재할때만 메세지가 표시되게 enable input후 key의 valid 체크를 해주고 열쇠를 얻은 후엔 endoverlap과 같이 
+ message를 다시 빈 문자열로 set
+-메세지를 표시할 다른 액터가 있다면 똑같이 하면 됨.
+-문 같은 경우 timeline finish에서 isopen 변수를 설정하고 조건문을 써서 메세지 표시
+-열쇠의 소유 여부에 따라 메세지가 다르고 싶으면 캐릭터 blueprint에서 열쇠의 소유 여부 변수를 가져온 후 조건문을 사용
+ 해서 message를 때마다 다르게 설정.
+-문이 열리고 메세지가 사라지게 timeline fisnish에 message 빈문자열로 전환
+
+6. Music & Sound
+
+6-1. Music
+-Sounds를 위한 폴더 생성.
+-필요한 sound 임포트
+-background music을 넣으려면 level blueprint로 가서 begin play에 play sound 2d, 원하는 sound설정.
+-음악이 looping되게 하려면 sound를 찾아서 들어간 후 looping enable
+
+6-2. Sound Effects
+-물건을 집는 소리와 같은 특정한 소리 효과를 주고싶으면 그 액터로 가서 play sound at location 및 원하는 소리 설정,
+ 원하는 location 설정. ex) get player character -> get actor location, get actor location
+
+6-3. Footsteps
+-3d 같은 캐릭터 애니메이션이 있는 경우엔 애니메이션에서 소리 재생 가능.
+-first person에선 movefoward, moveright에 소리를 넣는다. scale 값을 확인하여 0과 같지 않으면 움직이는 것이니 조건문
+ 실행하여 0이 아니면 do once를 거쳐서 play sound at location후 딜레이를 조금 준다. 딜레이가 끝난 지점에서 다시 
+ do once로 코드 흐름을 돌린다.
+
+7. Saving & Loading
+
+7-1. Level 2
+-여러 개의 level을 만든다
+-game instance는 게임이 로드 될 때 가장 먼저 로드되는 것이다. it's persistent for everything
+-game instance blueprint를 검색하여 생성한다.
+-game instance blueprint에 사용가능한 레벨의 리스트를 작성하기 위해 name타입의 리스트 변수를 생성한다.
+-생성된 level names 리스트에 모든 level네임을 기입한다.
+-다음 레벨로 가는 버튼이나 상호작용물의 blueprint로 가서 get game instance, cast 후 레벨이름의 리스트를 얻는다.
+-cast 후 get current level name을 실행하고 얻은 리스트 참조로 부터 find를 실행해 현재 레벨 이름이 리스트 안에 있는지
+ 확인한다.
+-true이면 반환된 인덱스를 ++하고 레벨 이름 리스트에 get을 써서 증가된 인덱스로 새로운 레벨 이름을 얻고 그 이름으로
+ open level.
+-project setting에 가서 만들어 놓은 game instance를 사용하게 설정한다.
+
+7-2. Loading Progress
+-game settings를 위한 폴더에 SaveGame blueprint 생성.
+-이것은 게임파일에 무엇이 저장될지를 결정하는 곳이다. 필요한 모든 변수값 등은 savegame에 저장할 수 있다.
+-예를 들어 currentlevel 이름을 저장할 수 있다.
+-gameinstance blueprint로 가서 event init을 생성한다. 게임이 처음 로드될 때 실행된다. 로드될 때 save game object에
+ 원하는 값이 있으면 로드한다.
+-string형의 슬롯 이름 값을 가질 save slot name 변수를 생성하고, init에 does save game exist를 실행하여 변수 이름의 save
+ game이 있는지 조건문 실행
+-true라면 load game from slot을 실행한 후 리턴 값을 맞는 save game object로 캐스트한 후 변수화.
+-false라면 create save game object를 실행후 리턴 값을 변수화.
+-저장을 할 곳에서 get game instance, 맞는 game instance로 cast, instance에 있는 Save Game Data 변수를 불러와서 
+ 필요한 변수들을 set.
+-그 후 save game to slot을 호출.
+
+8.Finale
+
+8-1. Bug Fixes
+-캐릭터가 액터에 밀려나는 등 원치않은 collision이 벌어질 때는 collision이 필요없는 액터의 collision을 제거하면 된다. 그 
+ 액터의 메시로 가서 collision파트 아래의 remove collision을 해주면 된다.
+-다음 레벨로 가는 버튼이나 작용에서 이미 마지막 레벨에 도달하였을 때는 get game instance, cast, get current level name
+ 및 find를 사용하여 리턴 값이 level name list의 마지막 인덱스와 같은지 확인하고, true이면 button의 참조를 얻은 후 
+ set visibility를 사용해 hidden으로 설정한다.
+-foliage를 사용할 때 shadow에 문제가 있다면 lighting으로 가서 shadow cast에 문제가 없는지 살펴보자.
+-main menu화면에서 game mode가 player character의 default를 가지고 있고 spawn해서 문제를 일으킨다면 level blueprint
+ 로 가서 get player pawn, set actor hidden in game을 호출하자
+
+8-2.Packaging
+-package전에 project setting의 Maps & Modes에서 default gamemode가 알맞게 설정돼 있는지, editor startup map과
+ game default map이 main menu로 설정돼있는지 확인한다.
+-mainmenu의 gamemode는 none으로 다른 map들은 알맞는 gamemode로 설정.
+-save all을 하고 file > package project > 맞는 플랫폼 선택.
+-원하는 위치에 package.
+-package한 폴더에 안에서 application 을 찾을 수 있음.

@@ -1,0 +1,40 @@
+-Interactables 폴더 생성
+
+-actor(BP_BaseInteractable) 생성후 mesh, collision 추가.
+
+-blueprint interface를 생성하고 위의 생성한 actor를 매개변수로 가지는 RegisterInteractable과 UnregisterInteractable, 및
+ 생성한 플레이어 캐릭터 타입의 instigator를 매개변수로 가지는 interaction 함수 생성.
+
+-BP_BaseInteractable의 class settings에서 생성한 interface를 add.
+
+-interact actor의 collision > onbeginoverlap, onendoverlap > cast to character > 
+ 각각 RegisterInteractable, UnregisterInteractable(매개변수에는 self, target엔 character ref)
+
+-character blueprint로 가서 class settings에서 위의 interface add 및 event RegisterInteractable, UnregisterInteractable를
+ 호출해서 override > character blueprint에 override를 위한 handleRegisterInteractable, handleUnregisterInteractable 함수
+ 를 생성하고, 각 event에서 호출. 두 함수는 interface와 같은 원형을 가진다.
+
+-bp base interactable의 list 변수를 character blueprint에 추가.
+
+-handleRegisterInteractable, handleUnregisterInteractable함수에서 인자 값으로 들어온 bp base interactable 매개변수를
+ interactable의 list 변수에 addunique, remove
+
+-character blueprint에 updatebestinteractable, getbestinteractable, setbestinteractable(bp base interactable
+ 매개변수를 가진다) 함수 추가.
+
+-updatebestinteractable에서 bp base interactable의 list - get length - condition (> 0) - branch - true일 때
+ getbestinteractable호출, false일 때 setbestinteractable호출
+
+-base interactable 타입의 데이터와 dot product 값을 가질 float데이터를 가진 structure 생성
+
+-get best interactable 함수에 방금 생성한 structure 타입의 로컬 interactableVariables 변수 추가.
+ interactableVariable의 dot product값을 -1로 set해주고 interactable list > foreach > interactable mesh 
+ - (get center of mass - camera의 world location)을 normalized한 값과 카메라의 forward vector dot product > 
+ dot product값이 -1과 1(혹은 좀더 낮은 값) 사이(and operator) 가 true이면(branch) 그 값과 interactable actor로 
+ interactable variable set.
+ completed되면 interactable variable > split으로 interactable is valid > valid 면 해당 변수로 set best interactable실행
+-character blueprint에서 highlightedInteractable bp base interactable 타입 변수 생성. - set best interactable 매개변수가 
+ valid이고 생성한 highlightedInteractable 변수와 같지 않다면(branch) - validated get highlightedInteractable  > 
+ invalid 일 때 매개변수로 set highlightedInteractable
+-baseinteractable blueprint에 bool 값 매개변수를 가지는 set hightlight 함수 생성 > mesh - set render custom depth 호출
+-set best interactable로 돌아와서 is valid의 경우  set highlight false로 호출, 
